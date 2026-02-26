@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9KY5C7XC36"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9KY5C7XC36', { 'transport_type': 'beacon' });
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RSW DX PORTAL</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Roboto:wght@400;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0a0a0a;
+            --accent-gold: #c5a059;
+            --text-white: #ffffff;
+            --card-bg: #1a1a1a;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-white);
+            font-family: 'Noto Sans JP', sans-serif;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            -webkit-text-size-adjust: 100%;
+        }
+
+        header { padding: 50px 20px 30px; text-align: center; }
+
+        .brand-container {
+            display: inline-block;
+            border-top: 2px solid var(--accent-gold);
+            border-bottom: 2px solid var(--accent-gold);
+            padding: 15px 40px;
+        }
+
+        .brand-main { font-family: 'Roboto', sans-serif; font-size: 3rem; font-weight: 900; letter-spacing: 0.3em; line-height: 1; margin-right: -0.3em; }
+
+        main { flex: 1; padding: 0 20px 40px; max-width: 500px; margin: 0 auto; width: 100%; }
+
+        /* --- トップページのUPDATE INFOパネル --- */
+        .info-panel {
+            background: rgba(197, 160, 89, 0.05);
+            border: 1px solid #333;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .info-title {
+            color: var(--accent-gold);
+            font-size: 0.85rem;
+            font-weight: 900;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .update-list { list-style: none; }
+        .update-item { font-size: 0.8rem; margin-bottom: 8px; display: flex; gap: 10px; line-height: 1.4; }
+        .update-date { color: var(--accent-gold); font-family: 'Roboto', sans-serif; font-weight: bold; min-width: 80px; }
+        .update-text { color: #ccc; }
+
+        .roadmap-status {
+            margin-top: 15px;
+            padding-top: 12px;
+            border-top: 1px dotted #444;
+            font-size: 0.75rem;
+            color: #888;
+        }
+
+        .section-title {
+            font-size: 0.8rem;
+            color: var(--accent-gold);
+            margin-bottom: 15px;
+            letter-spacing: 0.3em;
+            font-weight: 700;
+            text-transform: uppercase;
+            border-bottom: 1px solid #333;
+            padding-bottom: 5px;
+        }
+
+        .menu-list { display: grid; gap: 15px; margin-bottom: 40px; }
+
+        .menu-item {
+            display: flex;
+            align-items: center;
+            background-color: var(--card-bg);
+            border: 2px solid var(--accent-gold);
+            border-radius: 12px;
+            min-height: 110px;
+            padding: 15px 20px;
+            position: relative;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .menu-item:active { transform: scale(0.98); background-color: #222; }
+
+        .version-badge {
+            position: absolute; top: 10px; right: 10px;
+            background: #333; color: var(--accent-gold);
+            font-size: 0.6rem; padding: 2px 6px; border-radius: 4px;
+            border: 1px solid var(--accent-gold);
+        }
+
+        .icon { font-size: 2.2rem; margin-right: 18px; flex-shrink: 0; }
+        .label-group { display: flex; flex-direction: column; }
+        .label-en { font-family: 'Roboto', sans-serif; font-size: 1.05rem; font-weight: 900; color: var(--accent-gold); }
+        .label-jp { font-size: 0.9rem; font-weight: 700; margin: 1px 0; }
+        .label-desc { font-size: 0.7rem; color: #aaa; line-height: 1.3; }
+
+        /* モーダル内アップデートセクション */
+        .modal-roadmap {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(197, 160, 89, 0.08);
+            border-radius: 8px;
+            border-left: 3px solid var(--accent-gold);
+        }
+        .roadmap-title {
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: var(--accent-gold);
+            margin-bottom: 8px;
+            display: block;
+        }
+        .roadmap-item {
+            font-size: 0.8rem;
+            color: #bbb;
+            margin-bottom: 5px;
+            display: block;
+        }
+
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.95); overflow-y: auto; }
+        .modal-content { background-color: #1a1a1a; margin: 5% auto; padding: 25px; border: 1px solid var(--accent-gold); width: 92%; max-width: 500px; border-radius: 12px; }
+        .modal-body h3 { color: var(--accent-gold); margin: 10px 0 12px; font-size: 1.2rem; border-left: 4px solid var(--accent-gold); padding-left: 10px; }
+        .modal-body h4 { color: #fff; margin: 15px 0 5px; font-size: 0.95rem; font-weight: bold; }
+        .modal-body p { font-size: 0.85rem; color: #ccc; line-height: 1.6; margin-bottom: 10px; }
+        .highlight { color: #c5a059; font-weight: bold; }
+        .alert-box { background: rgba(255, 68, 68, 0.15); border: 1px solid #ff4444; padding: 15px; border-radius: 8px; margin: 15px 0; }
+        .blue-box { background: rgba(0, 150, 255, 0.1); border: 1px solid #0096ff; padding: 15px; border-radius: 8px; margin: 15px 0; font-size: 0.85rem; }
+        .start-btn { display: block; width: 100%; padding: 18px; background: var(--accent-gold); color: #000; border: none; border-radius: 8px; font-weight: 900; font-size: 1.1rem; text-decoration: none; text-align: center; margin-top: 25px; }
+        .cancel-btn { display: block; width: 100%; padding: 10px; background: transparent; color: #888; border: none; font-size: 0.8rem; text-align: center; margin-top: 10px; }
+
+        footer { padding: 40px; text-align: center; font-size: 0.65rem; color: #555; }
+    </style>
+</head>
+<body>
+
+    <header>
+        <div class="brand-container">
+            <div class="brand-main">RSW</div>
+        </div>
+    </header>
+
+    <main>
+        <section class="info-panel">
+            <div class="info-title">🚀 UPDATE INFO</div>
+            <ul class="update-list">
+                <li class="update-item">
+                    <span class="update-date">2026.02.22</span>
+                    <span class="update-text">「工事請負契約書アプリ」を追加。操作フローを改善。</span>
+                </li>
+                <li class="update-item">
+                    <span class="update-date">2026.02.21</span>
+                    <span class="update-text">ポータル正式公開。リンク安定性と計測設定を最適化。</span>
+                </li>
+            </ul>
+        </section>
+
+        <h2 class="section-title">Menu List</h2>
+        <nav class="menu-list">
+            <div class="menu-item" onclick="openModal('calcModal')">
+                <span class="version-badge">Ver 1.0.0</span>
+                <div class="icon">🧮</div>
+                <div class="label-group">
+                    <span class="label-en">ESTIMATE CALC</span>
+                    <span class="label-jp">簡易計算ツール</span>
+                    <span class="label-desc">現場での概算費用算出をデジタル化。</span>
+                </div>
+            </div>
+
+            <div class="menu-item" onclick="openModal('keiyakuModal')">
+                <span class="version-badge">Ver 1.0.0</span>
+                <div class="icon">📝</div>
+                <div class="label-group">
+                    <span class="label-en">CONTRACT CHECK</span>
+                    <span class="label-jp">工事請負契約書アプリ</span>
+                    <span class="label-desc">PDF発行の前に必ず手順を確認してください。</span>
+                </div>
+            </div>
+
+            <div class="menu-item" onclick="openModal('caseModal')">
+                <span class="version-badge">Ver 1.0.1</span>
+                <div class="icon">📷</div>
+                <div class="label-group">
+                    <span class="label-en">PERSPECTIVE CASES</span>
+                    <span class="label-jp">パース制作事例</span>
+                    <span class="label-desc">提案に役立つ事例集（Notion）。</span>
+                </div>
+            </div>
+        </nav>
+    </main>
+
+    <div id="calcModal" class="modal">
+        <div class="modal-content"><div class="modal-body">
+            <h3>🧮 簡易計算ツール：操作説明</h3>
+            <p>施工タイプ選択と面積入力で概算を算出。LINE共有機能付き。</p>
+            
+            <div class="modal-roadmap">
+                <span class="roadmap-title">📅 今後のアップデート予定</span>
+                <span class="roadmap-item">・Googleマップ連携による車両交通費の自動加算</span>
+                <span class="roadmap-item">・一式工事範囲の自動判定精度の向上</span>
+            </div>
+
+            <a href="keisanV1.html?v=20260222" class="start-btn">計算ツールを起動する</a>
+            <button class="cancel-btn" onclick="closeModal('calcModal')">戻る</button>
+        </div></div>
+    </div>
+
+    <div id="keiyakuModal" class="modal">
+        <div class="modal-content"><div class="modal-body">
+            <h3>📝 契約書アプリ：操作説明</h3>
+            <div class="alert-box">
+                <p style="color:#ff4444; font-weight:900;">⚠️ PDF保存の注意点</p>
+                <p style="color:#fff; font-size:0.85rem;">LINE内ブラウザでは保存不可。必ずSafariかChromeをご使用ください。</p>
+            </div>
+            <p>郵便番号での住所入力に対応。施工店情報は一度入力すれば自動保存されます。</p>
+
+            <div class="modal-roadmap">
+                <span class="roadmap-title">📅 今後のアップデート予定</span>
+                <span class="roadmap-item">・公式見積書PDF発行機能の統合</span>
+                <span class="roadmap-item">・電子署名（印影画像）の登録機能</span>
+            </div>
+
+            <a href="keiyaku.V1.html?v=20260222" class="start-btn">契約書アプリを起動する</a>
+            <button class="cancel-btn" onclick="closeModal('keiyakuModal')">戻る</button>
+        </div></div>
+    </div>
+
+    <div id="caseModal" class="modal">
+        <div class="modal-content"><div class="modal-body">
+            <h3>📷 パース制作事例：操作説明</h3>
+            <div class="blue-box">
+                ⚠️ <b>LINEをご利用の方へ</b><br>
+                正常に表示されない場合は右下の「┇」からブラウザで開いてください。
+            </div>
+
+            <div class="modal-roadmap">
+                <span class="roadmap-title">📅 今後のアップデート予定</span>
+                <span class="roadmap-item">・最新パース事例の自動読み込み高速化</span>
+                <span class="roadmap-item">・カテゴリー別（色別・石種別）検索の強化</span>
+            </div>
+
+            <a href="cases.html?v=20260222" class="start-btn">事例集を開く</a>
+            <button class="cancel-btn" onclick="closeModal('caseModal')">戻る</button>
+        </div></div>
+    </div>
+
+    <footer>&copy; ROLLER STONE CO., LTD. ALL RIGHTS RESERVED.</footer>
+
+    <script>
+        function openModal(id) { document.getElementById(id).style.display = "block"; document.body.style.overflow = "hidden"; }
+        function closeModal(id) { document.getElementById(id).style.display = "none"; document.body.style.overflow = "auto"; }
+        window.onclick = function(event) { if (event.target.className === 'modal') { event.target.style.display = "none"; document.body.style.overflow = "auto"; } }
+    </script>
+</body>
+</html>
