@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RSW DX PORTAL — 施工報告LPジェネレーター</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
+<style>
+/* =============================================
+   入力フォーム UI
+============================================= */
+:root {
+  --gold: #b8955a;
+  --gold-light: #d4b07a;
+  --gold-pale: #e8d5b0;
+  --bg: #080808;
+  --surface: #111111;
+  --surface2: #181818;
+  --border: #2a2a2a;
+  --border2: #333;
+  --text: #e8e8e8;
+  --text-muted: #666;
+  --red: #c0392b;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Helvetica Neue', Arial, sans-serif; min-height: 100vh; }
+
+/* ヘッダー */
+.portal-header {
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 24px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.portal-logo-mark {
+  width: 36px; height: 36px;
+  border: 2px solid var(--gold);
+  border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 0.65rem; font-weight: 900; color: var(--gold); letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+.portal-logo-text { line-height: 1.2; }
+.portal-logo-text .t1 { font-size: 0.6rem; color: var(--gold); letter-spacing: 0.2em; font-weight: 700; }
+.portal-logo-text .t2 { font-size: 0.82rem; color: var(--text); font-weight: 600; letter-spacing: 0.05em; }
+
+/* フォームラッパー */
+.form-wrap { max-width: 640px; margin: 0 auto; padding: 28px 20px 60px; }
+
+/* セクション */
+.sec { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; margin-bottom: 16px; }
+.sec-title {
+  font-size: 0.65rem; font-weight: 800; letter-spacing: 0.18em; color: var(--gold);
+  text-transform: uppercase; display: flex; align-items: center; gap: 8px; margin-bottom: 16px;
+}
+.sec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+/* フォームパーツ */
+label { display: block; font-size: 0.72rem; color: var(--text-muted); margin-bottom: 5px; margin-top: 12px; letter-spacing: 0.05em; }
+label:first-of-type { margin-top: 0; }
+input[type="text"], input[type="date"], input[type="tel"], input[type="url"], textarea, select {
+  width: 100%; padding: 11px 14px; background: var(--bg); border: 1px solid var(--border2);
+  color: var(--text); border-radius: 8px; font-size: 15px; transition: border-color 0.2s;
+  -webkit-appearance: none; appearance: none;
+}
+input:focus, textarea:focus, select:focus { outline: none; border-color: var(--gold); }
+textarea { height: 80px; resize: vertical; }
+select { background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23666' stroke-width='1.5' fill='none'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; padding-right: 36px; cursor: pointer; }
+
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.three-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+/* テーマカード */
+.theme-card {
+  border: 1px solid var(--border2); border-radius: 10px; padding: 10px 8px;
+  text-align: center; cursor: pointer; transition: all 0.2s; position: relative;
+}
+.theme-card.selected { border-color: var(--gold); box-shadow: 0 0 0 1px var(--gold); }
+.theme-card .check {
+  position: absolute; top: 6px; right: 6px; width: 16px; height: 16px;
+  background: var(--gold); border-radius: 50%; display: none;
+  align-items: center; justify-content: center; font-size: 9px; color: #000;
+}
+.theme-card.selected .check { display: flex; }
+.theme-swatch { height: 44px; border-radius: 6px; margin-bottom: 8px; }
+.theme-label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; }
+.theme-sub { font-size: 0.62rem; color: var(--text-muted); margin-top: 3px; }
+
+/* 画像アップロード */
+.upload-box {
+  border: 1px dashed var(--border2); border-radius: 10px; padding: 20px;
+  text-align: center; cursor: pointer; position: relative; overflow: hidden;
+  background: var(--bg); transition: border-color 0.2s; min-height: 80px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;
+}
+.upload-box:hover { border-color: var(--gold); }
+.upload-box input[type="file"] { opacity: 0; position: absolute; inset: 0; cursor: pointer; }
+.upload-icon { font-size: 1.4rem; }
+.upload-text { font-size: 0.72rem; color: var(--text-muted); }
+.upload-preview { width: 100%; max-height: 180px; object-fit: contain; border-radius: 6px; display: none; }
+
+/* BAペア */
+.ba-pair {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; margin-top: 12px; position: relative;
+}
+.ba-header { font-size: 0.65rem; color: var(--gold); font-weight: 700; letter-spacing: 0.1em; margin-bottom: 10px; }
+.ba-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.ba-label { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; margin-bottom: 5px; color: var(--text-muted); }
+.ba-remove {
+  position: absolute; top: 10px; right: 10px;
+  background: none; border: 1px solid #3a2020; color: var(--red);
+  border-radius: 6px; padding: 3px 8px; font-size: 0.65rem; cursor: pointer;
+}
+.add-ba-btn {
+  width: 100%; margin-top: 12px; padding: 11px; background: transparent;
+  border: 1px dashed var(--border2); color: var(--text-muted);
+  border-radius: 8px; cursor: pointer; font-size: 0.8rem; letter-spacing: 0.05em;
+  transition: all 0.2s;
+}
+.add-ba-btn:hover { border-color: var(--gold); color: var(--gold); }
+
+/* 文章整形 */
+.ai-row { display: flex; gap: 10px; align-items: flex-start; }
+.ai-row textarea { flex: 1; }
+.btn-refine {
+  flex-shrink: 0; background: var(--surface2); border: 1px solid var(--border2);
+  color: var(--gold-light); border-radius: 8px; padding: 10px 12px;
+  font-size: 0.72rem; font-weight: 700; cursor: pointer; line-height: 1.4;
+  white-space: nowrap; transition: all 0.2s; text-align: center;
+}
+.btn-refine:hover { background: var(--gold); color: #000; border-color: var(--gold); }
+.hint { font-size: 0.7rem; color: var(--text-muted); margin-top: 6px; line-height: 1.6; }
+
+/* お問い合わせ */
+.contact-row { display: flex; align-items: center; gap: 10px; margin-top: 10px; }
+.contact-row:first-of-type { margin-top: 0; }
+.contact-icon { font-size: 1.1rem; flex-shrink: 0; width: 28px; text-align: center; }
+.contact-row input { margin: 0; flex: 1; }
+
+/* アクションボタン */
+.btn-line {
+  width: 100%; padding: 14px; background: #06c755; color: #fff; border: none;
+  border-radius: 10px; font-weight: 700; font-size: 0.95rem; cursor: pointer;
+  margin-top: 20px; display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: opacity 0.2s;
+}
+.btn-line:hover { opacity: 0.9; }
+.btn-zip {
+  width: 100%; padding: 16px; margin-top: 12px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-light) 100%);
+  color: #000; border: none; border-radius: 50px; font-weight: 800;
+  font-size: 1rem; cursor: pointer; letter-spacing: 0.05em;
+  box-shadow: 0 4px 20px rgba(184,149,90,0.35); transition: transform 0.15s, box-shadow 0.15s;
+}
+.btn-zip:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(184,149,90,0.45); }
+.btn-zip:active { transform: scale(0.98); }
+.btn-zip:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+
+.btn-preview {
+  width: 100%; padding: 14px; margin-top: 12px;
+  background: transparent; border: 1px solid var(--gold);
+  color: var(--gold); border-radius: 50px; font-weight: 700;
+  font-size: 0.95rem; cursor: pointer; letter-spacing: 0.05em;
+  transition: all 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;
+}
+.btn-preview:hover { background: var(--gold); color: #000; }
+.zip-note { text-align: center; font-size: 0.7rem; color: var(--text-muted); margin-top: 8px; line-height: 1.6; }
+
+/* ZIP構造プレビュー */
+.zip-tree {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: 12px 14px; font-family: monospace; font-size: 0.72rem; line-height: 2;
+  color: var(--text-muted); margin-top: 14px;
+}
+.zip-tree .folder { color: #6cf; }
+.zip-tree .file-h { color: #aef; }
+.zip-tree .file-i { color: #9f9; }
+</style>
+</head>
+<body>
+
+<header class="portal-header">
+  <div class="portal-logo-mark">RSW</div>
+  <div class="portal-logo-text">
+    <div class="t1">ROLLER STONE / ROLLER WALL</div>
+    <div class="t2">施工報告 LP ジェネレーター</div>
+  </div>
+</header>
+
+<div class="form-wrap">
+
+  <!-- 基本情報 -->
+  <div class="sec">
+    <div class="sec-title">基本情報</div>
+    <label>施工完了日</label>
+    <input type="date" id="date">
+    <div class="two-col" style="margin-top:12px;">
+      <div>
+        <label>都道府県</label>
+        <select id="prefecture">
+          <option value="">選択</option>
+          <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option>
+          <option>秋田県</option><option>山形県</option><option>福島県</option><option>茨城県</option>
+          <option>栃木県</option><option>群馬県</option><option>埼玉県</option><option>千葉県</option>
+          <option>東京都</option><option>神奈川県</option><option>新潟県</option><option>富山県</option>
+          <option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+          <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option>
+          <option>滋賀県</option><option>京都府</option><option>大阪府</option><option>兵庫県</option>
+          <option>奈良県</option><option>和歌山県</option><option>鳥取県</option><option>島根県</option>
+          <option>岡山県</option><option>広島県</option><option>山口県</option><option>徳島県</option>
+          <option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+          <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option>
+          <option>宮崎県</option><option>鹿児島県</option><option>沖縄県</option>
+        </select>
+      </div>
+      <div>
+        <label>認定施工店名</label>
+        <input type="text" id="shopName" placeholder="例：山田外構工事店">
+      </div>
+    </div>
+  </div>
+
+  <!-- LPテーマ -->
+  <div class="sec">
+    <div class="sec-title">LP デザインテーマ</div>
+    <div class="three-col">
+      <div class="theme-card selected" onclick="selectTheme('luxury',this)">
+        <div class="check">✓</div>
+        <div class="theme-swatch" style="background:linear-gradient(160deg,#0a0a0a,#1c1400);border:1px solid #b8955a;"></div>
+        <div class="theme-label" style="color:#b8955a;">LUXURY</div>
+        <div class="theme-sub">黒 × ゴールド</div>
+      </div>
+      <div class="theme-card" onclick="selectTheme('natural',this)">
+        <div class="check">✓</div>
+        <div class="theme-swatch" style="background:linear-gradient(160deg,#f0ebe0,#ddd0bb);"></div>
+        <div class="theme-label" style="color:#7a6040;">NATURAL</div>
+        <div class="theme-sub">ベージュ × 茶</div>
+      </div>
+      <div class="theme-card" onclick="selectTheme('cool',this)">
+        <div class="check">✓</div>
+        <div class="theme-swatch" style="background:linear-gradient(160deg,#0a1520,#112035);border:1px solid #3a80c0;"></div>
+        <div class="theme-label" style="color:#5aaae0;">COOL</div>
+        <div class="theme-sub">ネイビー × 青</div>
+      </div>
+    </div>
+    <input type="hidden" id="selectedTheme" value="luxury">
+  </div>
+
+  <!-- メイン画像 -->
+  <div class="sec">
+    <div class="sec-title">メイン完了写真</div>
+    <div class="upload-box" id="box-imgMain">
+      <span class="upload-icon">📷</span>
+      <span class="upload-text">タップして完了写真を選択</span>
+      <input type="file" id="imgMain" accept="image/*" onchange="previewFile('imgMain')">
+      <img class="upload-preview" id="preview-imgMain">
+    </div>
+  </div>
+
+  <!-- Before / After -->
+  <div class="sec">
+    <div class="sec-title">Before / After</div>
+    <div id="baPairsContainer"></div>
+    <button class="add-ba-btn" onclick="addBaPair()">＋ Before / After を追加</button>
+  </div>
+
+  <!-- 施工風景 -->
+  <div class="sec">
+    <div class="sec-title">施工風景 / 集合写真 <span style="font-weight:400;color:var(--text-muted);">（任意）</span></div>
+    <div class="upload-box" id="box-imgSub">
+      <span class="upload-icon">📷</span>
+      <span class="upload-text">タップして写真を選択</span>
+      <input type="file" id="imgSub" accept="image/*" onchange="previewFile('imgSub')">
+      <img class="upload-preview" id="preview-imgSub">
+    </div>
+  </div>
+
+  <!-- こだわりポイント -->
+  <div class="sec">
+    <div class="sec-title">施工のこだわりポイント</div>
+    <div class="hint">💡 施工のポイントを単語や短文でOK（例：目地の精度、素材の質感、段差処理、養生の丁寧さ）<br>→ 右の「整える」で施工者目線の文章に自動変換します</div>
+    <div class="ai-row" style="margin-top:10px;">
+      <textarea id="kodawari" placeholder="例：目地が綺麗、養生丁寧、段差なし、色が映える"></textarea>
+      <button class="btn-refine" onclick="optimizeText('kodawari')">✦ 文章を<br>整える</button>
+    </div>
+  </div>
+
+  <!-- 施工詳細 -->
+  <div class="sec">
+    <div class="sec-title">施工データ</div>
+    <div class="two-col">
+      <div><label>施工面積（㎡）</label><input type="text" id="area" placeholder="例：28"></div>
+      <div><label>施工日数（日）</label><input type="text" id="days" placeholder="例：3"></div>
+    </div>
+    <div class="two-col" style="margin-top:12px;">
+      <div><label>メインカラー</label><input type="text" id="colorMain" placeholder="例：ミルクティー"></div>
+      <div><label>目地カラー</label><input type="text" id="colorJoint" placeholder="例：ブラック"></div>
+    </div>
+  </div>
+
+  <!-- お客様の声 -->
+  <div class="sec">
+    <div class="sec-title">お客様の声</div>
+    <div class="hint">💡 お客様からいただいた言葉を短くでOK（例：明るくなった、かっこいい、驚いた）<br>→ 右の「整える」で自然な声に変換します</div>
+    <div class="ai-row" style="margin-top:10px;">
+      <textarea id="voice" placeholder="例：見た目が変わって驚いた、明るくなった、また頼みたい"></textarea>
+      <button class="btn-refine" onclick="optimizeText('voice')">✦ 文章を<br>整える</button>
+    </div>
+  </div>
+
+  <!-- お問い合わせ -->
+  <div class="sec">
+    <div class="sec-title">お問い合わせ先</div>
+    <div class="hint" style="margin-bottom:10px;">入力したものだけLPに表示されます</div>
+    <div class="contact-row"><span class="contact-icon">💬</span><input type="url" id="lineUrl" placeholder="LINE公式アカウント URL"></div>
+    <div class="contact-row"><span class="contact-icon">📸</span><input type="url" id="instaUrl" placeholder="Instagram URL"></div>
+    <div class="contact-row"><span class="contact-icon">📞</span><input type="text" id="phoneNum" placeholder="例：090-1234-5678" inputmode="tel"></div>
+  </div>
+
+  <!-- ZIP構造 -->
+  <div class="zip-tree">
+    <span class="folder">📁 report_日付_店名.zip</span><br>
+    &nbsp;&nbsp;<span class="file-h">📄 index.html</span> — 施工事例 LP<br>
+    &nbsp;&nbsp;<span class="file-i">🖼 main.jpg</span> — メイン写真（SNS素材）<br>
+    &nbsp;&nbsp;<span class="file-i">🖼 before_1.jpg / after_1.jpg …</span> — BA写真<br>
+    &nbsp;&nbsp;<span class="file-i">🖼 sub.jpg</span> — 施工風景（任意）
+  </div>
+
+  <button class="btn-line" onclick="copyLineText()">💬 LINE報告テキストをコピー</button>
+  <button class="btn-preview" onclick="openPreview()">👁 LP プレビューを確認する</button>
+  <button class="btn-zip" id="generateZipBtn" onclick="generateZip()">📦 施工事例 LP を生成（ZIP）</button>
+  <p class="zip-note">本部へLINEで送信するZIPファイルが生成されます<br>同梱のindex.htmlは施工店のSNS・広告にもそのまま活用できます</p>
+
+</div><!-- /form-wrap -->
+
+<!-- ===== プレビューモーダル ===== -->
+<div id="previewModal" style="display:none;position:fixed;inset:0;z-index:9999;background:rgba(0,0,0,0.92);flex-direction:column;">
+  <div style="background:#111;border-bottom:1px solid #2a2a2a;padding:12px 16px;display:flex;align-items:center;gap:12px;flex-shrink:0;">
+    <div style="flex:1;">
+      <div style="font-size:0.6rem;color:#b8955a;letter-spacing:0.15em;font-weight:700;">LP PREVIEW</div>
+      <div style="font-size:0.8rem;color:#ccc;margin-top:1px;">送信前の仕上がりイメージを確認</div>
+    </div>
+    <div style="display:flex;gap:6px;">
+      <button onclick="setPreviewDevice('sp')" id="btn-sp" style="background:#b8955a;color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;">📱 SP</button>
+      <button onclick="setPreviewDevice('pc')" id="btn-pc" style="background:#222;color:#888;border:1px solid #333;border-radius:6px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;">🖥 PC</button>
+    </div>
+    <button onclick="closePreview()" style="background:#2a0000;color:#e74c3c;border:1px solid #e74c3c;border-radius:8px;padding:7px 14px;font-size:0.8rem;font-weight:700;cursor:pointer;">✕ 閉じる</button>
+  </div>
+  <div id="previewShell" style="flex:1;overflow:auto;display:flex;align-items:flex-start;justify-content:center;padding:24px 16px;background:#0a0a0a;">
+    <div id="previewFrame" style="width:390px;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 8px 40px rgba(0,0,0,0.7);transition:width 0.3s;">
+      <iframe id="previewIframe" style="width:100%;height:80vh;border:none;display:block;"></iframe>
+    </div>
+  </div>
+  <div style="background:#111;border-top:1px solid #2a2a2a;padding:14px 16px;display:flex;gap:10px;flex-shrink:0;">
+    <button onclick="closePreview();setTimeout(generateZip,200);" style="flex:1;padding:14px;background:linear-gradient(135deg,#b8955a,#d4b07a);color:#000;border:none;border-radius:50px;font-weight:800;font-size:0.95rem;cursor:pointer;">📦 このデザインでZIPを生成する</button>
+    <button onclick="closePreview()" style="padding:14px 18px;background:#1a1a1a;border:1px solid #333;color:#888;border-radius:50px;font-size:0.85rem;cursor:pointer;">修正する</button>
+  </div>
+</div>
+
+<script>
+// =======================================
+//  初期化
+// =======================================
+window.onload = function() {
+  var p = new URLSearchParams(window.location.search);
+  if (p.has('shop')) document.getElementById('shopName').value = p.get('shop');
+  if (p.has('line')) document.getElementById('lineUrl').value  = p.get('line');
+  document.getElementById('date').valueAsDate = new Date();
+  addBaPair();
+};
+
+// =======================================
+//  テーマ選択
+// =======================================
+function selectTheme(name, el) {
+  document.querySelectorAll('.theme-card').forEach(function(c){ c.classList.remove('selected'); });
+  el.classList.add('selected');
+  document.getElementById('selectedTheme').value = name;
+}
+
+// =======================================
+//  ビフォーアフター管理
+// =======================================
+var baPairCount = 0;
+var baPairImages = {};
+
+function addBaPair() {
+  baPairCount++;
+  var id = baPairCount;
+  var div = document.createElement('div');
+  div.className = 'ba-pair';
+  div.id = 'baPair_' + id;
+  div.innerHTML =
+    '<div class="ba-header">PAIR ' + String(id).padStart(2,'0') + '</div>' +
+    (id > 1 ? '<button class="ba-remove" onclick="removeBaPair(' + id + ')">✕ 削除</button>' : '') +
+    '<div class="ba-grid">' +
+      '<div>' +
+        '<div class="ba-label">BEFORE</div>' +
+        '<div class="upload-box">' +
+          '<span class="upload-icon" style="font-size:1rem;">📷</span>' +
+          '<span class="upload-text">選択</span>' +
+          '<input type="file" accept="image/*" onchange="previewBaFile(\'before\',' + id + ',this)">' +
+          '<img class="upload-preview" id="preview-before_' + id + '">' +
+        '</div>' +
+      '</div>' +
+      '<div>' +
+        '<div class="ba-label">AFTER</div>' +
+        '<div class="upload-box">' +
+          '<span class="upload-icon" style="font-size:1rem;">📷</span>' +
+          '<span class="upload-text">選択</span>' +
+          '<input type="file" accept="image/*" onchange="previewBaFile(\'after\',' + id + ',this)">' +
+          '<img class="upload-preview" id="preview-after_' + id + '">' +
+        '</div>' +
+      '</div>' +
+    '</div>';
+  document.getElementById('baPairsContainer').appendChild(div);
+}
+
+function removeBaPair(id) {
+  var el = document.getElementById('baPair_' + id);
+  if (el) el.remove();
+  delete baPairImages['before_' + id];
+  delete baPairImages['after_' + id];
+}
+
+function previewBaFile(type, id, input) {
+  var file = input.files[0];
+  if (!file) return;
+  var key = type + '_' + id;
+  compressAndStore(file, key, function(dataUrl) {
+    var prev = document.getElementById('preview-' + key);
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    var box = prev.closest('.upload-box');
+    box.querySelector('.upload-icon').style.display = 'none';
+    box.querySelector('.upload-text').style.display = 'none';
+  }, baPairImages);
+}
+
+// =======================================
+//  単体画像
+// =======================================
+var singleImages = {};
+function previewFile(id) {
+  var file = document.getElementById(id).files[0];
+  if (!file) return;
+  compressAndStore(file, id, function(dataUrl) {
+    var prev = document.getElementById('preview-' + id);
+    prev.src = dataUrl;
+    prev.style.display = 'block';
+    var box = document.getElementById('box-' + id) || prev.closest('.upload-box');
+    if (box) {
+      box.querySelector('.upload-icon').style.display = 'none';
+      box.querySelector('.upload-text').style.display = 'none';
+    }
+  }, singleImages);
+}
+
+function compressAndStore(file, key, cb, store) {
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    var img = new Image();
+    img.onload = function() {
+      var MAX = 1400; var w = img.width, h = img.height;
+      if (w > MAX) { h = Math.round(h * MAX / w); w = MAX; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.88);
+      store[key] = dataUrl;
+      cb(dataUrl);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+// =======================================
+//  文章整形辞書
+// =======================================
+var kodawariDict = {
+  '目地が綺麗': '目地ラインを一本一本丁寧に整え、職人の技術が光る仕上がりを実現しました。',
+  '目地が綺麗': '目地ラインを一本一本丁寧に整え、職人の技術が光る仕上がりを実現しました。',
+  '目地の精度': '目地ラインの精度にとことんこだわり、均一で美しいストーン調の表情を出しました。',
+  '目地': '目地のラインを均一に仕上げることで、本物の石張りに迫る質感を実現しました。',
+  '養生が丁寧': '既存部分を徹底的に養生し、周辺を傷つけることなく美しく仕上げました。',
+  '養生丁寧': '既存部分を徹底的に養生し、周辺を傷つけることなく美しく仕上げました。',
+  '養生': '施工前の徹底した養生により、既存箇所へのダメージを一切与えることなく完工しました。',
+  '段差なし': '段差ゼロの施工にこだわり、バリアフリーで安全な仕上がりを実現しました。',
+  '段差処理': '既存面との段差を丁寧に調整し、フラットで違和感のない仕上がりにしました。',
+  '色が映える': '素材本来の色味を最大限に引き出し、光の当たり方によって表情が変わる美しい仕上がりです。',
+  '色が鮮やか': '鮮やかな発色が空間にメリハリをもたらし、一目で目を引くデザインに仕上げました。',
+  '素材の質感': '素材の持つ自然な凹凸と質感をリアルに再現し、まるで本物のストーンのような存在感を出しました。',
+  '質感がいい': '特殊工法によるリアルな石目の質感で、高級感あふれる空間に仕上がりました。',
+  '仕上がりが綺麗': '細部まで妥協なく仕上げ、施工後の美しさが長期間持続する品質を実現しました。',
+  '丁寧': '下地処理から仕上げまで、一工程一工程を丁寧に施工することで高い完成度を追求しました。',
+  '早い': '効率的な施工計画と熟練の技術で、品質を保ちながらスピーディに施工を完了しました。',
+  '強い': '耐久性に優れた専用材料と施工技術で、長期にわたって美しさが持続する仕上がりです。',
+  'おしゃれ': 'デザイン性と機能性を両立し、周囲の景観と調和した洗練された空間を実現しました。',
+  '綺麗': '細部まで丁寧に施工し、本物のタイル・石張りに迫る美しい仕上がりを実現しました。',
+  'きれい': '細部まで丁寧に施工し、本物のタイル・石張りに迫る美しい仕上がりを実現しました。'
+};
+
+var voiceDict = {
+  '明るくなった': '「施工後、玄関まわりがガラッと明るくなって、毎日帰ってくるのが楽しみになりました。」',
+  '明るくなり': '「施工後、玄関まわりがガラッと明るくなって、毎日帰ってくるのが楽しみになりました。」',
+  '明るい': '「こんなに雰囲気が変わるとは思わなかった。家全体が明るく見えます。」',
+  'かっこよくなった': '「想像以上にかっこよくなって、近所の方にも褒めてもらいました！」',
+  'かっこよかった': '「完成を見て、思わず声が出るほどかっこよかったです。大満足です。」',
+  'かっこいい': '「仕上がりを見た瞬間、これはすごいと思いました。本当にかっこいいです。」',
+  'かっこよ': '「完成を見て、思わず声が出るほどかっこよかったです。大満足です。」',
+  '驚いた': '「施工前と施工後の変化に正直驚きました。こんなに変わるものなんですね。」',
+  'びっくり': '「施工前と施工後の変化に正直驚きました。こんなに変わるものなんですね。」',
+  '喜んでいた': '「家族全員が大喜びしていました。やってよかったと心から思っています。」',
+  '喜んでた': '「家族全員が大喜びしていました。やってよかったと心から思っています。」',
+  '喜んで': '「家族全員が大喜びしていました。やってよかったと心から思っています。」',
+  'また頼みたい': '「次にリフォームするときも、絶対にお願いしたいと思っています。」',
+  'また頼む': '「次にリフォームするときも、絶対にお願いしたいと思っています。」',
+  '満足': '「期待以上の出来栄えで、大変満足しています。お願いして本当によかったです。」',
+  '感動': '「完成写真を見たとき、感動で言葉が出ませんでした。プロの技術はすごいですね。」',
+  '丁寧': '「施工中もとても丁寧に対応していただき、安心してお任せすることができました。」',
+  '早かった': '「工事が予想より早く終わって助かりました。生活への影響も最小限でした。」',
+  '早い': '「工事が予想より早く終わって助かりました。生活への影響も最小限でした。」',
+  'きれいになった': '「見違えるほどきれいになりました。新築みたいで、友人にも自慢できます。」',
+  'きれいに': '「見違えるほどきれいになりました。新築みたいで、友人にも自慢できます。」',
+  '綺麗になった': '「見違えるほどきれいになりました。新築みたいで、友人にも自慢できます。」',
+  '綺麗に': '「見違えるほどきれいになりました。新築みたいで、友人にも自慙できます。」',
+  'よかった': '「仕上がりが想像以上で、本当によかったです。お願いして正解でした。」',
+  'すごい': '「こんなに変わるとは思わなかった。本当にすごい技術ですね。」',
+  'おしゃれ': '「施工後に近所の方から"おしゃれになったね"と声をかけてもらいました。」',
+  'かわいい': '「イメージ通りの仕上がりで、毎日見るたびに嬉しくなります。」',
+  'きれい': '「細部まで丁寧に仕上げていただいて、本当にきれいです。」',
+  '綺麗': '「細部まで丁寧に仕上げていただいて、本当にきれいです。」'
+};
+
+function optimizeText(targetId) {
+  var text = document.getElementById(targetId).value.trim();
+  if (!text) { alert('ポイントや言葉を先に入力してください。'); return; }
+  var dict = targetId === 'voice' ? voiceDict : kodawariDict;
+  // 長いキーから先にマッチさせる
+  var keys = Object.keys(dict).sort(function(a,b){ return b.length - a.length; });
+  keys.forEach(function(key) {
+    text = text.replace(new RegExp(key, 'g'), dict[key]);
+  });
+  document.getElementById(targetId).value = text;
+  alert('✦ 文章を整えました！');
+}
+
+// =======================================
+//  ユーティリティ
+// =======================================
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function isUrl(u) {
+  try { var x = new URL(u); return x.protocol==='https:'||x.protocol==='http:'; } catch(e){ return false; }
+}
+function toBlob(dataUrl) {
+  var parts = dataUrl.split(','), mime = parts[0].match(/:(.*?);/)[1];
+  var bin = atob(parts[1]), arr = new Uint8Array(bin.length);
+  for (var i=0;i<bin.length;i++) arr[i]=bin.charCodeAt(i);
+  return new Blob([arr],{type:mime});
+}
+function fd() {
+  return {
+    date: document.getElementById('date').value,
+    pref: document.getElementById('prefecture').value,
+    shop: document.getElementById('shopName').value || '認定施工店',
+    k:    document.getElementById('kodawari').value,
+    area: document.getElementById('area').value,
+    days: document.getElementById('days').value,
+    cm:   document.getElementById('colorMain').value,
+    cj:   document.getElementById('colorJoint').value,
+    v:    document.getElementById('voice').value,
+    line: document.getElementById('lineUrl').value,
+    insta:document.getElementById('instaUrl').value,
+    phone:document.getElementById('phoneNum').value,
+    theme:document.getElementById('selectedTheme').value
+  };
+}
+
+// =======================================
+//  LINE テキストコピー
+// =======================================
+function copyLineText() {
+  var d = fd();
+  var label = d.pref ? d.pref + ' ' + d.shop : d.shop;
+  var txt = '【施工完了報告】\n'
+    + '■ 施工店：' + label + '\n'
+    + '■ 完了日：' + d.date + '\n\n'
+    + '【施工データ】\n'
+    + '・面積：' + (d.area||'—') + '㎡\n'
+    + '・工期：' + (d.days||'—') + '日\n'
+    + '・メインカラー：' + (d.cm||'—') + '\n'
+    + '・目地カラー：' + (d.cj||'—') + '\n\n'
+    + '【こだわりポイント】\n' + (d.k||'—') + '\n\n'
+    + '※ 施工事例LP・画像素材は添付ZIPをご確認ください。';
+  navigator.clipboard.writeText(txt)
+    .then(function(){ alert('コピーしました！'); })
+    .catch(function(){ alert('コピーに失敗しました。'); });
+}
+
+// =======================================
+//  テーマ定義
+// =======================================
+var THEMES = {
+  luxury: {
+    bg:'#080808', fg:'#e8e8e8', accent:'#b8955a', accentRgb:'184,149,90',
+    surface:'#111111', surface2:'#181818', border:'#252525', border2:'#2e2e2e',
+    muted:'#555555', headerBg:'linear-gradient(180deg,#100c00 0%,#080808 100%)',
+    badgeColor:'#b8955a', h1color:'#f0e0c0', dateColor:'#666',
+    specBorder:'#1e1a10', specLabel:'#b8955a',
+    baLabel:'#b8955a', sectionLine:'#b8955a',
+    voiceBorder:'#2a2010', voiceColor:'#c8a870',
+    ctaBg:'#b8955a', ctaColor:'#000',
+    footerBg:'#060606', footerBorder:'#1a1a1a', footerText:'#444'
+  },
+  natural: {
+    bg:'#f0ebe0', fg:'#3a2e1e', accent:'#8b6f47', accentRgb:'139,111,71',
+    surface:'#faf6ee', surface2:'#f0e8d8', border:'#e0d0b8', border2:'#d0c0a0',
+    muted:'#9a8a70', headerBg:'linear-gradient(180deg,#e8dfc8 0%,#f0ebe0 100%)',
+    badgeColor:'#8b6f47', h1color:'#3a2e1e', dateColor:'#9a8a70',
+    specBorder:'#e0d0b8', specLabel:'#8b6f47',
+    baLabel:'#8b6f47', sectionLine:'#c4a882',
+    voiceBorder:'#e0d0b8', voiceColor:'#6a5030',
+    ctaBg:'#8b6f47', ctaColor:'#fff',
+    footerBg:'#e8dfc8', footerBorder:'#d8c8b0', footerText:'#b0a080'
+  },
+  cool: {
+    bg:'#060e1a', fg:'#dde8f4', accent:'#4a9eda', accentRgb:'74,158,218',
+    surface:'#0d1825', surface2:'#121f30', border:'#1a2e44', border2:'#1e3550',
+    muted:'#3a5878', headerBg:'linear-gradient(180deg,#080f1a 0%,#060e1a 100%)',
+    badgeColor:'#4a9eda', h1color:'#dde8f4', dateColor:'#3a5878',
+    specBorder:'#1a2e44', specLabel:'#4a9eda',
+    baLabel:'#4a9eda', sectionLine:'#4a9eda',
+    voiceBorder:'#1a2e44', voiceColor:'#7ab8e0',
+    ctaBg:'#4a9eda', ctaColor:'#000',
+    footerBg:'#050c18', footerBorder:'#111e30', footerText:'#2a4060'
+  }
+};
+
+// =======================================
+//  LP HTML生成
+// =======================================
+function buildLP(d, t, baHtml, contactHtml, hasMain, hasSub) {
+
+  var shopLabel = d.pref ? d.pref + '&nbsp;' + esc(d.shop) : esc(d.shop);
+
+  var specsHtml = '';
+  if (d.area) specsHtml += '<div class="spec-item"><span class="spec-label">AREA</span><span class="spec-val">' + esc(d.area) + ' <small>㎡</small></span></div>';
+  if (d.days) specsHtml += '<div class="spec-item"><span class="spec-label">DAYS</span><span class="spec-val">' + esc(d.days) + ' <small>日</small></span></div>';
+  if (d.cm)   specsHtml += '<div class="spec-item"><span class="spec-label">MAIN</span><span class="spec-val">' + esc(d.cm) + '</span></div>';
+  if (d.cj)   specsHtml += '<div class="spec-item"><span class="spec-label">JOINT</span><span class="spec-val">' + esc(d.cj) + '</span></div>';
+
+  return '<!DOCTYPE html>\n<html lang="ja">\n<head>\n'
+  + '<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">\n'
+  + '<meta name="description" content="ROLLER STONE 認定施工店 ' + esc(d.shop) + ' の施工事例">\n'
+  + '<title>施工事例 | ' + esc(d.shop) + ' × ROLLER STONE</title>\n'
+  + '<style>\n'
+  + '@import url(\'https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700&display=swap\');\n'
+  + '*{box-sizing:border-box;margin:0;padding:0;}\n'
+  + 'html{scroll-behavior:smooth;}\n'
+  + 'body{background:' + t.bg + ';color:' + t.fg + ';font-family:"Noto Sans JP","Helvetica Neue",Arial,sans-serif;line-height:1.7;-webkit-font-smoothing:antialiased;}\n'
+  + 'img{max-width:100%;display:block;}\n'
+  + 'a{color:inherit;text-decoration:none;}\n'
+
+  /* ヘッダー */
+  + '.lp-header{background:' + t.headerBg + ';padding:40px 24px 32px;text-align:center;border-bottom:1px solid ' + t.border + ';}\n'
+  + '.lp-badge{display:inline-flex;align-items:center;gap:8px;border:1px solid ' + t.accent + ';border-radius:4px;padding:5px 14px;margin-bottom:20px;}\n'
+  + '.lp-badge-dot{width:6px;height:6px;background:' + t.accent + ';border-radius:50%;}\n'
+  + '.lp-badge span{font-size:0.6rem;font-weight:700;letter-spacing:0.2em;color:' + t.badgeColor + ';}\n'
+  + '.lp-shop{font-size:1.55rem;font-weight:700;color:' + t.h1color + ';letter-spacing:0.04em;line-height:1.3;margin-bottom:10px;}\n'
+  + '.lp-date{font-size:0.72rem;letter-spacing:0.15em;color:' + t.dateColor + ';}\n'
+  + '.lp-date span{color:' + t.accent + ';margin-right:4px;}\n'
+
+  /* メイン画像 */
+  + '.lp-hero{position:relative;overflow:hidden;max-height:520px;}\n'
+  + '.lp-hero img{width:100%;object-fit:cover;display:block;}\n'
+  + '.lp-hero-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,0.55) 0%,rgba(0,0,0,0) 55%);pointer-events:none;}\n'
+  + '.lp-hero-tag{position:absolute;bottom:20px;left:20px;right:20px;}\n'
+  + '.lp-hero-tag .brand{font-size:0.6rem;letter-spacing:0.2em;color:rgba(255,255,255,0.6);font-weight:700;margin-bottom:4px;}\n'
+  + '.lp-hero-tag .copy{font-size:1.15rem;font-weight:700;color:#fff;letter-spacing:0.06em;line-height:1.4;text-shadow:0 2px 12px rgba(0,0,0,0.6);}\n'
+
+  /* コンテナ */
+  + '.lp-body{max-width:640px;margin:0 auto;padding:0 0 80px;}\n'
+
+  /* スペックカード */
+  + '.spec-strip{background:' + t.surface + ';border-bottom:1px solid ' + t.border + ';padding:0 20px;}\n'
+  + '.spec-inner{display:flex;overflow-x:auto;gap:0;-ms-overflow-style:none;scrollbar-width:none;}\n'
+  + '.spec-inner::-webkit-scrollbar{display:none;}\n'
+  + '.spec-item{flex:1;min-width:70px;padding:16px 10px;text-align:center;border-right:1px solid ' + t.specBorder + ';}\n'
+  + '.spec-item:last-child{border-right:none;}\n'
+  + '.spec-label{display:block;font-size:0.55rem;font-weight:700;letter-spacing:0.15em;color:' + t.specLabel + ';margin-bottom:4px;}\n'
+  + '.spec-val{font-size:0.78rem;font-weight:700;letter-spacing:0.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}\n'
+  + '.spec-val small{font-size:0.65rem;font-weight:400;}\n'
+
+  /* セクション共通 */
+  + '.lp-sec{padding:36px 20px;border-bottom:1px solid ' + t.border + ';}\n'
+  + '.lp-sec:last-of-type{border-bottom:none;}\n'
+  + '.sec-head{display:flex;align-items:center;gap:12px;margin-bottom:20px;}\n'
+  + '.sec-head .line{flex:1;height:1px;background:' + t.border + ';}\n'
+  + '.sec-head .en{font-size:0.6rem;font-weight:800;letter-spacing:0.2em;color:' + t.sectionLine + ';}\n'
+  + '.sec-head .ja{font-size:0.8rem;color:' + t.muted + ';}\n'
+
+  /* こだわりポイント */
+  + '.kodawari-text{font-size:0.95rem;line-height:1.9;white-space:pre-wrap;}\n'
+
+  /* BA */
+  + '.ba-wrap{display:grid;grid-template-columns:1fr 1fr;gap:2px;border-radius:10px;overflow:hidden;margin-bottom:20px;}\n'
+  + '.ba-side{position:relative;}\n'
+  + '.ba-side img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;}\n'
+  + '.ba-tag{position:absolute;top:10px;left:10px;background:rgba(0,0,0,0.65);color:#fff;font-size:0.58rem;font-weight:700;letter-spacing:0.15em;padding:3px 8px;border-radius:3px;}\n'
+  + '.ba-tag.after{background:' + t.accent + ';color:#000;}\n'
+  + '.ba-num{font-size:0.62rem;font-weight:700;letter-spacing:0.12em;color:' + t.baLabel + ';margin-bottom:10px;margin-top:4px;}\n'
+
+  /* お客様の声 */
+  + '.voice-card{border:1px solid ' + t.voiceBorder + ';border-radius:10px;padding:20px 20px 20px 24px;position:relative;}\n'
+  + '.voice-card::before{content:\'"\';position:absolute;top:-8px;left:16px;font-size:2.5rem;color:' + t.accent + ';line-height:1;font-family:Georgia,serif;}\n'
+  + '.voice-text{font-size:0.9rem;line-height:1.85;color:' + t.voiceColor + ';font-style:italic;white-space:pre-wrap;}\n'
+
+  /* 施工風景 */
+  + '.sub-img{width:100%;border-radius:10px;overflow:hidden;}\n'
+  + '.sub-img img{width:100%;display:block;}\n'
+
+  /* お問い合わせ */
+  + '.cta-wrap{padding:36px 20px;background:' + t.surface + ';}\n'
+  + '.cta-title{text-align:center;font-size:0.65rem;font-weight:700;letter-spacing:0.2em;color:' + t.accent + ';margin-bottom:20px;}\n'
+  + '.cta-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;border-radius:50px;font-weight:700;font-size:0.95rem;margin-bottom:12px;box-sizing:border-box;transition:opacity 0.2s;}\n'
+  + '.cta-btn:hover{opacity:0.85;}\n'
+  + '.btn-green{background:#06c755;color:#fff;}\n'
+  + '.btn-insta{background:linear-gradient(135deg,#f09433,#e6683c,#dc2743,#cc2366,#bc1888);color:#fff;}\n'
+  + '.btn-accent{background:' + t.ctaBg + ';color:' + t.ctaColor + ';}\n'
+
+  /* フッター */
+  + '.lp-footer{background:' + t.footerBg + ';border-top:1px solid ' + t.footerBorder + ';padding:28px 20px;text-align:center;}\n'
+  + '.lp-footer .rs-mark{font-size:0.58rem;font-weight:700;letter-spacing:0.2em;color:' + t.footerText + ';}\n'
+  + '.lp-footer .rs-copy{font-size:0.62rem;color:' + t.footerText + ';margin-top:6px;}\n'
+  + '.lp-footer .rs-date{font-size:0.6rem;color:' + t.footerText + ';margin-top:4px;letter-spacing:0.1em;}\n'
+  + '</style>\n</head>\n<body>\n'
+
+  /* ヘッダー */
+  + '<header class="lp-header">\n'
+  + '  <div class="lp-badge"><div class="lp-badge-dot"></div><span>ROLLER STONE 認定施工店</span></div>\n'
+  + '  <h1 class="lp-shop">' + shopLabel + '</h1>\n'
+  + ''
+  + '</header>\n'
+
+  /* メイン画像 */
+  + (hasMain ? '<div class="lp-hero"><img src="main.jpg" alt="施工完了写真"><div class="lp-hero-overlay"></div><div class="lp-hero-tag"><div class="brand">ROLLER STONE × ' + esc(d.shop) + '</div><div class="copy">壊さず、Re:デザイン。</div></div></div>\n' : '')
+
+  /* スペック */
+  + (specsHtml ? '<div class="spec-strip"><div class="spec-inner">' + specsHtml + '</div></div>\n' : '')
+
+  + '<div class="lp-body">\n'
+
+  /* こだわりポイント */
+  + (d.k ? '<div class="lp-sec">'
+    + '<div class="sec-head"><div class="en">CRAFTMANSHIP</div><div class="line"></div><div class="ja">施工のこだわり</div></div>'
+    + '<p class="kodawari-text">' + esc(d.k) + '</p>'
+    + '</div>\n' : '')
+
+  /* BA */
+  + (baHtml ? '<div class="lp-sec">'
+    + '<div class="sec-head"><div class="en">BEFORE / AFTER</div><div class="line"></div></div>'
+    + baHtml
+    + '</div>\n' : '')
+
+  /* お客様の声 */
+  + (d.v ? '<div class="lp-sec">'
+    + '<div class="sec-head"><div class="en">CUSTOMER VOICE</div><div class="line"></div><div class="ja">お客様の声</div></div>'
+    + '<div class="voice-card"><p class="voice-text">' + esc(d.v) + '</p></div>'
+    + '</div>\n' : '')
+
+  /* 施工風景 */
+  + (hasSub ? '<div class="lp-sec">'
+    + '<div class="sec-head"><div class="en">CONSTRUCTION</div><div class="line"></div><div class="ja">施工風景</div></div>'
+    + '<div class="sub-img"><img src="sub.jpg" alt="施工風景"></div>'
+    + '</div>\n' : '')
+
+  /* お問い合わせ */
+  + (contactHtml ? '<div class="cta-wrap"><p class="cta-title">— CONTACT —</p>' + contactHtml + '</div>\n' : '')
+
+  + '</div>\n'
+
+  /* フッター */
+  + '<footer class="lp-footer">'
+  + '<p class="rs-mark">RSW DX PORTAL — ROLLER STONE / ROLLER WALL</p>'
+  + '<p class="rs-copy">© ROLLER STONE 認定施工店 ' + esc(d.shop) + '</p>'
+  + '<p class="rs-date">施工完了：' + esc(d.date) + '</p>'
+  + '</footer>\n'
+  + '</body>\n</html>';
+}
+
+
+// =======================================
+//  LP プレビュー
+// =======================================
+function openPreview() {
+  var d = fd();
+  var t = THEMES[d.theme] || THEMES.luxury;
+
+  // BAペア収集
+  var pairEls = document.querySelectorAll('.ba-pair');
+  var pids = Array.from(pairEls).map(function(el){ return el.id.replace('baPair_',''); });
+
+  var baHtml = '';
+  pids.forEach(function(pid, idx) {
+    var hB = !!baPairImages['before_' + pid];
+    var hA = !!baPairImages['after_' + pid];
+    if (!hB && !hA) return;
+    baHtml += (pids.length > 1 ? '<p class="ba-num">PAIR ' + String(idx+1).padStart(2,'0') + '</p>' : '')
+      + '<div class="ba-wrap">'
+      + '<div class="ba-side">' + (hB ? '<img src="' + baPairImages['before_' + pid] + '" alt="Before"><div class="ba-tag">BEFORE</div>' : '') + '</div>'
+      + '<div class="ba-side">' + (hA ? '<img src="' + baPairImages['after_' + pid] + '" alt="After"><div class="ba-tag after">AFTER</div>' : '') + '</div>'
+      + '</div>';
+  });
+
+  var contactHtml = '';
+  if (d.line && isUrl(d.line))   contactHtml += '<a href="' + esc(d.line) + '" class="cta-btn btn-green">💬 公式LINEでお問い合わせ</a>';
+  if (d.insta && isUrl(d.insta)) contactHtml += '<a href="' + esc(d.insta) + '" class="cta-btn btn-insta">📸 Instagramで事例をもっと見る</a>';
+  if (d.phone)                    contactHtml += '<a href="tel:' + esc(d.phone) + '" class="cta-btn btn-accent">📞 ' + esc(d.phone) + '</a>';
+
+  var hasMain = !!singleImages['imgMain'];
+  var hasSub  = !!singleImages['imgSub'];
+
+  // プレビュー用LP — 画像をBase64で直接埋め込む
+  var html = buildLP(d, t, baHtml, contactHtml, hasMain, hasSub);
+
+  // 画像パスをBase64に差し替え
+  if (hasMain) html = html.replace('src="main.jpg"', 'src="' + singleImages['imgMain'] + '"');
+  if (hasSub)  html = html.replace('src="sub.jpg"',  'src="' + singleImages['imgSub'] + '"');
+  pids.forEach(function(pid) {
+    if (baPairImages['before_' + pid]) html = html.replace('src="before_' + pid + '.jpg"', 'src="' + baPairImages['before_' + pid] + '"');
+    if (baPairImages['after_' + pid])  html = html.replace('src="after_' + pid + '.jpg"',  'src="' + baPairImages['after_' + pid] + '"');
+  });
+
+  // iframeに書き込む
+  var modal = document.getElementById('previewModal');
+  var iframe = document.getElementById('previewIframe');
+  modal.style.display = 'flex';
+  document.body.style.overflow = 'hidden';
+
+  // blob URLで読み込む（srcドキュメント書き込みより安定）
+  var blob = new Blob([html], {type: 'text/html'});
+  var url = URL.createObjectURL(blob);
+  iframe.onload = function() { URL.revokeObjectURL(url); };
+  iframe.src = url;
+
+  // SP表示にリセット
+  setPreviewDevice('sp');
+}
+
+function closePreview() {
+  var modal = document.getElementById('previewModal');
+  modal.style.display = 'none';
+  document.body.style.overflow = '';
+  var iframe = document.getElementById('previewIframe');
+  iframe.src = 'about:blank';
+}
+
+function setPreviewDevice(mode) {
+  var frame = document.getElementById('previewFrame');
+  var btnSp = document.getElementById('btn-sp');
+  var btnPc = document.getElementById('btn-pc');
+  var goldStyle  = 'background:#b8955a;color:#000;border:none;border-radius:6px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;';
+  var plainStyle = 'background:#222;color:#888;border:1px solid #333;border-radius:6px;padding:6px 12px;font-size:0.72rem;font-weight:700;cursor:pointer;';
+  if (mode === 'sp') {
+    frame.style.width = '390px';
+    btnSp.style.cssText = goldStyle;
+    btnPc.style.cssText = plainStyle;
+  } else {
+    frame.style.width = '100%';
+    frame.style.maxWidth = '900px';
+    btnPc.style.cssText = goldStyle;
+    btnSp.style.cssText = plainStyle;
+  }
+}
+
+// ESCキーで閉じる
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closePreview();
+});
+
+// =======================================
+//  ZIP生成
+// =======================================
+async function generateZip() {
+  var btn = document.getElementById('generateZipBtn');
+  var d = fd();
+  if (!d.shop || d.shop === '認定施工店') {
+    alert('認定施工店名を入力してください。');
+    document.getElementById('shopName').focus(); return;
+  }
+  btn.disabled = true; btn.textContent = '生成中...';
+
+  try {
+    var t = THEMES[d.theme] || THEMES.luxury;
+
+    // BAペア収集
+    var pairEls = document.querySelectorAll('.ba-pair');
+    var pids = Array.from(pairEls).map(function(el){ return el.id.replace('baPair_',''); });
+
+    // BA HTML
+    var baHtml = '';
+    pids.forEach(function(pid, idx) {
+      var hB = !!baPairImages['before_' + pid];
+      var hA = !!baPairImages['after_' + pid];
+      if (!hB && !hA) return;
+      baHtml += (pids.length > 1 ? '<p class="ba-num">PAIR ' + String(idx+1).padStart(2,'0') + '</p>' : '')
+        + '<div class="ba-wrap">'
+        + '<div class="ba-side">' + (hB ? '<img src="before_' + pid + '.jpg" alt="Before"><div class="ba-tag">BEFORE</div>' : '') + '</div>'
+        + '<div class="ba-side">' + (hA ? '<img src="after_' + pid + '.jpg" alt="After"><div class="ba-tag after">AFTER</div>' : '') + '</div>'
+        + '</div>';
+    });
+
+    // お問い合わせ
+    var contactHtml = '';
+    if (d.line && isUrl(d.line))   contactHtml += '<a href="' + esc(d.line) + '" class="cta-btn btn-green">💬 公式LINEでお問い合わせ</a>';
+    if (d.insta && isUrl(d.insta)) contactHtml += '<a href="' + esc(d.insta) + '" class="cta-btn btn-insta">📸 Instagramで事例をもっと見る</a>';
+    if (d.phone)                    contactHtml += '<a href="tel:' + esc(d.phone) + '" class="cta-btn btn-accent">📞 ' + esc(d.phone) + '</a>';
+
+    var hasMain = !!singleImages['imgMain'];
+    var hasSub  = !!singleImages['imgSub'];
+
+    var html = buildLP(d, t, baHtml, contactHtml, hasMain, hasSub);
+
+    // ZIP
+    var zip = new JSZip();
+    zip.file('index.html', html);
+    if (hasMain) zip.file('main.jpg', toBlob(singleImages['imgMain']));
+    if (hasSub)  zip.file('sub.jpg',  toBlob(singleImages['imgSub']));
+    pids.forEach(function(pid) {
+      if (baPairImages['before_' + pid]) zip.file('before_' + pid + '.jpg', toBlob(baPairImages['before_' + pid]));
+      if (baPairImages['after_' + pid])  zip.file('after_' + pid + '.jpg',  toBlob(baPairImages['after_' + pid]));
+    });
+
+    var blob = await zip.generateAsync({ type:'blob', compression:'DEFLATE', compressionOptions:{level:6} });
+    saveAs(blob, 'RS_' + d.date + '_' + d.shop + '.zip');
+
+    btn.textContent = '✓ 生成完了！もう一度生成する';
+    btn.disabled = false;
+    alert('📦 ZIPを生成しました！\n\n① LINE報告テキストをコピー\n② ZIPをLINEに添付して本部へ送信\n\n※ index.html は施工店のSNS・広告にもそのまま活用できます');
+
+  } catch(err) {
+    console.error(err);
+    alert('エラーが発生しました：' + err.message);
+    btn.textContent = '📦 施工事例 LP を生成（ZIP）';
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>
