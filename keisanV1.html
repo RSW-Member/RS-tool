@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9KY5C7XC36"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9KY5C7XC36');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>RS計算ツール</title>
+    <style>
+        :root {
+            --rs-gold: #d4af37;
+            --rs-dark-gold: #b8860b;
+            --bg: #f4f7f6;
+            --card: #ffffff;
+            --panel: #2c3e50;
+            --text: #333333;
+        }
+
+        body {
+            font-family: "Helvetica Neue", Arial, "Hiragino Kaku Gothic ProN", "Hiragino Sans", sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 15px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container { width: 100%; max-width: 450px; }
+
+        .header {
+            text-align: center;
+            padding: 15px 0;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: var(--panel);
+            font-size: 1.3rem;
+            margin: 0;
+            letter-spacing: 3px;
+            font-weight: 900;
+            border-bottom: 3px solid var(--rs-gold);
+            display: inline-block;
+            padding-bottom: 5px;
+        }
+
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .label {
+            display: block;
+            color: var(--panel);
+            font-size: 0.85rem;
+            font-weight: bold;
+            margin-bottom: 8px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        input[type="radio"] { display: none; }
+
+        .btn {
+            background: #eef2f3;
+            border: 2px solid #ddd;
+            color: #666;
+            padding: 12px 5px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        input[type="radio"]:checked + .btn {
+            border-color: var(--rs-gold);
+            color: var(--panel);
+            background: #fff9e6;
+        }
+
+        .input-box {
+            position: relative;
+            margin-bottom: 18px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            background: #ffffff;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 15px;
+            color: var(--panel);
+            font-size: 1.4rem;
+            box-sizing: border-box;
+            outline: none;
+            font-weight: bold;
+        }
+
+        input[type="number"]:focus { border-color: var(--rs-gold); }
+
+        .unit {
+            position: absolute;
+            right: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+            font-weight: bold;
+        }
+
+        .result-panel {
+            background: var(--panel);
+            color: #fff;
+            border-radius: 16px;
+            padding: 25px 20px;
+            text-align: center;
+        }
+
+        .res-info {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 10px;
+        }
+
+        .total-price {
+            font-size: 2.6rem;
+            font-weight: 900;
+            color: var(--rs-gold);
+            margin: 10px 0;
+        }
+
+        .disclaimer {
+            font-size: 0.72rem;
+            line-height: 1.6;
+            color: #7f8c8d;
+            background: #fff;
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 15px;
+            border-left: 4px solid var(--rs-gold);
+        }
+
+        .share-btn {
+            width: 100%;
+            background: var(--rs-gold);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            padding: 18px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            margin-top: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+        }
+
+        .share-btn:active { transform: scale(0.98); }
+
+        footer { text-align: center; font-size: 0.65rem; color: #999; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>RS計算ツール</h1>
+    </div>
+
+    <div class="card">
+        <span class="label">施工タイプ</span>
+        <div class="grid">
+            <input type="radio" id="t1" name="type" value="random" checked onchange="calc()">
+            <label for="t1" class="btn">ランダム</label>
+            <input type="radio" id="t2" name="type" value="tile" onchange="calc()">
+            <label for="t2" class="btn">タイル・SP</label>
+        </div>
+
+        <span class="label">単価設定（※送信時は隠されます）</span>
+        <div class="grid">
+            <input type="radio" id="m1" name="mode" value="0" checked onchange="calc()">
+            <label for="m1" class="btn">業販(原価)</label>
+            <input type="radio" id="m2" name="mode" value="1" onchange="calc()">
+            <label for="m2" class="btn">定価(提示)</label>
+        </div>
+
+        <span class="label">施工面積</span>
+        <div class="input-box">
+            <input type="number" id="area" placeholder="0.0" step="0.1" inputmode="decimal" oninput="calc()">
+            <span class="unit">㎡</span>
+        </div>
+
+        <span class="label">現場経費率</span>
+        <div class="input-box">
+            <input type="number" id="oh" value="0" inputmode="numeric" oninput="calc()">
+            <span class="unit">%</span>
+        </div>
+    </div>
+
+    <div class="result-panel">
+        <div class="res-info"><span>適用区分:</span><span id="out-u">---</span></div>
+        <div class="res-info"><span>税抜金額:</span><span id="out-b">0 円</span></div>
+        <div style="font-size: 0.8rem; opacity: 0.8;">概算合計金額 (税込)</div>
+        <div class="total-price" id="out-t">¥0</div>
+        <div style="font-size: 0.7rem; color: #bdc3c7; margin-top: 10px;">
+            ※現場経費（諸経費・運搬等）を含む
+        </div>
+    </div>
+
+    <div class="disclaimer">
+        <b>【必ずご確認ください】</b><br>
+        ・本計算は入力数値を基にした<b>概算（シミュレーション）</b>です。<br>
+        ・正確な見積もりには、必ず現地調査が必要となります。<br>
+        ・下地補修、立ち上がり施工、既存物撤去等の状況により、別途オプション費用が発生する場合があります。
+    </div>
+
+    <button class="share-btn" onclick="sh()">この概算結果を送信する</button>
+
+    <footer>ROLLER STONE BUSINESS TOOL Ver 3.3</footer>
+</div>
+
+<script>
+const D = {
+    random: { 1:[95000,115900], 2:[11500,14000], 3:[10760,13100], 4:[10390,12700], 5:[10020,12200], 6:[9650,11800], 7:[9280,11300], 8:[9220,11200], 9:[9160,11200], 10:[9100,11100], 11:[9040,11000], 12:[8980,11000], 13:[8920,10900], 14:[8860,10800], 15:[8800,10700], 16:[8740,10700], 17:[8680,10600], 18:[8620,10500], 19:[8560,10400], 20:[8500,10400], 21:[8440,10300], 22:[8380,10200], 23:[8320,10200], 24:[8300,10100], 25:[8280,10100], 26:[8260,10100], 27:[8240,10100], 28:[8220,10000], 29:[8200,10000], 30:[8180,10000], 31:[8160,10000], 32:[8140,9900], 33:[8120,9900], 34:[8100,9900], 35:[8080,9900], 36:[8060,9800], 37:[8040,9800], 38:[8020,9800], 39:[8000,9800], 40:[7980,9700], 41:[7960,9700], 42:[7940,9700], 43:[7920,9700], 44:[7900,9600], 45:[7880,9600], 46:[7860,9600], 47:[7840,9600], 48:[7820,9500], 49:[7800,9500], 50:[7780,9500], 51:[7760,9500], 52:[7740,9400], 53:[7720,9400], 54:[7700,9400], 55:[7680,9400], 56:[7500,9200] },
+    tile: { 1:[133000,162260], 2:[16100,19600], 3:[15060,18400], 4:[14550,17800], 5:[14030,17100], 6:[13510,16500], 7:[12990,15800], 8:[12900,15700], 9:[12820,15600], 10:[12740,15500], 11:[12650,15400], 12:[12580,15300], 13:[12490,15200], 14:[12400,15100], 15:[12320,15000], 16:[12230,14900], 17:[12150,14800], 18:[12070,14700], 19:[11980,14600], 20:[11900,14500], 21:[11810,14400], 22:[11730,14300], 23:[11650,14200], 24:[11620,14200], 25:[11590,14100], 26:[11560,14100], 27:[11530,14100], 28:[11500,14000], 29:[11480,14000], 30:[11450,14000], 31:[11420,13900], 32:[11390,13900], 33:[11370,13900], 34:[11340,13800], 35:[11250,13700], 36:[11280,13800], 37:[11250,13700], 38:[11220,13700], 39:[11200,13700], 40:[11170,13600], 41:[11140,13600], 42:[11110,13600], 43:[11080,13500], 44:[11060,13500], 45:[11030,13500], 46:[11000,13400], 47:[10970,13400], 48:[10940,13300], 49:[10920,13300], 50:[10890,13300], 51:[10860,13200], 52:[10830,13200], 53:[10810,13200], 54:[10780,13200], 55:[10750,13100], 56:[10500,12800] }
+};
+
+function calc() {
+    const type = document.querySelector('input[name="type"]:checked').value;
+    const mode = document.querySelector('input[name="mode"]:checked').value;
+    const a = parseFloat(document.getElementById('area').value) || 0;
+    const oh = parseFloat(document.getElementById('oh').value) || 0;
+    
+    if (a <= 0) {
+        document.getElementById('out-t').innerText = "¥0";
+        return;
+    }
+
+    let base = 0;
+    let unitLabel = "";
+
+    if (a <= 8.0) {
+        base = D[type][1][mode];
+        unitLabel = "1式工事料金 (8㎡以下)";
+    } else {
+        const key = Math.min(Math.ceil(a), 56);
+        const u = D[type][key][mode];
+        base = u * a;
+        unitLabel = u.toLocaleString() + " 円/㎡";
+    }
+
+    const total = Math.floor((base + (base * oh / 100)) * 1.1);
+
+    document.getElementById('out-u').innerText = unitLabel;
+    document.getElementById('out-b').innerText = Math.round(base).toLocaleString() + " 円";
+    document.getElementById('out-t').innerText = "¥" + total.toLocaleString();
+
+    localStorage.setItem('rs_calc_pref_final_v33', JSON.stringify({area: a, oh: oh, type: type, mode: mode}));
+}
+
+function sh() {
+    const area = document.getElementById('area').value;
+    const total = document.getElementById('out-t').innerText;
+    const typeLabel = document.querySelector('input[name="type"]:checked').value == "random" ? "ランダム" : "タイル・SP";
+    const modeLabel = document.querySelector('input[name="mode"]:checked').value == "0" ? "業販" : "定価";
+    
+    // GA4 計測
+    if (typeof gtag === 'function') {
+        gtag('event', 'estimate_generated', {
+            'event_category': 'App_Usage',
+            'event_label': typeLabel,
+            'value': parseFloat(area) || 0,
+            'mode_info': modeLabel
+        });
+    }
+
+    const msg = `【ローラーストーン 概算見積】\n` +
+                `--------------------------\n` +
+                `■施工タイプ：${typeLabel}\n` +
+                `■施工面積　：${area}㎡\n` +
+                `■概算合計　：${total} (税込)\n` +
+                `--------------------------\n` +
+                `※上記金額には諸経費が含まれています。\n` +
+                `※本計算は概算です。正確な見積には現地調査が必要となります。\n` +
+                `※下地補修、立ち上がり施工等により、別途費用が発生する場合があります。\n\n` +
+                `▼施工事例・カタログはこちら\n` +
+                `https://rollerstone.com/catalog/\n\n` +
+                `まずはお気軽にご相談ください。`;
+    
+    if (navigator.share) {
+        navigator.share({ text: msg });
+    } else {
+        navigator.clipboard.writeText(msg);
+        alert("概算見積メッセージ（カタログURL付）をコピーしました。");
+    }
+}
+
+window.onload = () => {
+    const saved = localStorage.getItem('rs_calc_pref_final_v33');
+    if (saved) {
+        const d = JSON.parse(saved);
+        document.getElementById('area').value = d.area || '';
+        document.getElementById('oh').value = d.oh || '0';
+        document.getElementById(d.type == 'random' ? 't1' : 't2').checked = true;
+        document.getElementById(d.mode == 0 ? 'm1' : 'm2').checked = true;
+        calc();
+    }
+};
+</script>
+</body>
+</html>
