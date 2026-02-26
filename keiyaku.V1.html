@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <!-- GA4タグ -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-9KY5C7XC36"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+      gtag('config', 'G-9KY5C7XC36');
+    </script>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>工事請負契約書 作成システム</title>
+    <script src="https://yubinbango.github.io/yubinbango/yubinbango.js" charset="UTF-8"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        /* --- 基本設定 --- */
+        :root { --bg-dark: #0a0a0a; --rs-gold: #c5a059; --text-white: #ffffff; --text-gray: #aaaaaa; --border-gray: #333333; }
+        body { font-family: sans-serif; background: var(--bg-dark); color: var(--text-white); margin: 0; line-height: 1.6; }
+        
+        /* 警告モーダル */
+        #browser-warning {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+            display: flex; justify-content: center; align-items: center;
+            padding: 20px; box-sizing: border-box;
+        }
+        .warning-box {
+            background: #222; border: 2px solid var(--rs-gold); border-radius: 10px;
+            padding: 25px; max-width: 500px; text-align: center;
+        }
+        .close-warning-btn {
+            background: var(--rs-gold); color: #000; border: none; padding: 12px 30px;
+            font-weight: bold; border-radius: 5px; cursor: pointer; font-size: 1rem; margin-top: 15px;
+        }
+
+        .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+        header { text-align: center; padding: 30px 0; border-bottom: 2px solid var(--rs-gold); margin-bottom: 20px; }
+        h1 { font-size: 1.4rem; color: var(--rs-gold); margin: 0; }
+        section { margin-bottom: 30px; }
+        h2 { font-size: 1rem; border-left: 4px solid var(--rs-gold); padding-left: 15px; color: var(--rs-gold); margin-bottom: 15px; }
+        .form-group { margin-bottom: 15px; }
+        label { display: block; font-size: 0.8rem; margin-bottom: 5px; color: #aaa; }
+        input, textarea { width: 100%; padding: 10px; background: #222; border: 1px solid #333; border-radius: 4px; color: #fff; font-size: 16px; box-sizing: border-box;}
+        .btn-row { display: flex; gap: 10px; margin-top: 8px; }
+        button.sub-btn { background: #333; color: #fff; border: none; padding: 8px 12px; border-radius: 4px; color: #fff; cursor: pointer;}
+        .main-btn { display: block; width: 100%; padding: 18px; background: linear-gradient(135deg, #d4af37, #c5a059); color: #000; border: none; border-radius: 8px; font-size: 1.1rem; font-weight: bold; margin-top: 30px; cursor: pointer; }
+
+        /* --- プレビュー画面 --- */
+        #preview-screen { display: none; background-color: #555; padding: 20px 0; min-height: 100vh; }
+        .preview-controls { position: sticky; top: 0; background: rgba(0,0,0,0.9); padding: 12px; display: flex; justify-content: center; gap: 15px; z-index: 1000; }
+
+        /* --- PDF出力用コンテナ --- */
+        #content-to-export {
+            width: 794px;
+            margin: 0 auto;
+            background: #fff; 
+        }
+
+        /* --- A4ページ定義 --- */
+        .a4-page {
+            width: 794px;
+            height: 1120px; /* A4(1123px)より少し小さく */
+            max-height: 1120px; /* 【重要】これ以上伸びないようにする */
+            margin: 0 auto;
+            background: #fff;
+            color: #000;
+            padding: 45px 60px;
+            box-sizing: border-box;
+            font-family: "MS Mincho", "Hiragino Mincho ProN", serif;
+            font-size: 12pt;
+            line-height: 1.4;
+            position: relative;
+            overflow: hidden; /* はみ出し厳禁 */
+            
+            /* 改ページ設定 */
+            page-break-after: always;
+            page-break-inside: avoid;
+        }
+
+        /* 【重要】最後のページだけは改ページさせない */
+        .a4-page:last-child {
+            page-break-after: auto;
+            margin-bottom: 0;
+        }
+
+        /* ▼▼▼ スマホ強制補正CSS ▼▼▼ */
+        body.generating-pdf {
+            width: 794px !important;
+            min-width: 794px !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+        }
+        
+        body.generating-pdf #preview-screen {
+            position: absolute; top: 0; left: 0;
+            width: 794px !important;
+            margin: 0 !important; padding: 0 !important;
+            background: #fff !important;
+        }
+
+        body.generating-pdf #content-to-export {
+            margin: 0 !important; 
+            width: 794px !important;
+        }
+        
+        body.generating-pdf .preview-controls { display: none !important; }
+        /* ▲▲▲ ここまで ▲▲▲ */
+
+        .stamp-box { position: absolute; top: 45px; right: 60px; border: 1px solid #000; width: 80px; height: 100px; font-size: 10px; display: flex; align-items: center; justify-content: center; text-align: center; }
+        .paper-title { text-align: center; font-size: 24px; font-weight: bold; margin: 30px 0; text-decoration: underline; }
+        .clause-title { font-weight: bold; margin-top: 15px; margin-bottom: 5px; border-bottom: 1px solid #000; font-size: 14px; }
+        .indent-1 { padding-left: 1.5em; text-indent: -1.5em; margin-bottom: 2px; }
+        .indent-2 { padding-left: 2.5em; text-indent: -1.5em; margin-bottom: 0; }
+        
+        .sign-area { margin-top: 40px; }
+        .sign-row { display: flex; border-bottom: 1px solid #000; margin-bottom: 15px; padding-bottom: 2px; }
+        .sign-label { width: 100px; }
+        .sign-data { flex-grow: 1; min-height: 1.2em; font-weight:bold; }
+        .seal-mark { width: 40px; text-align: right; font-size: 12px; }
+        .page-num { position: absolute; bottom: 30px; width: 100%; text-align: center; left: 0; font-size: 12px; }
+
+        @media print {
+            body { background: none; }
+            #preview-screen { padding: 0; }
+            .preview-controls, #input-screen, #browser-warning { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ブラウザ起動警告 -->
+<div id="browser-warning">
+    <div class="warning-box">
+        <div style="color:var(--rs-gold); font-size:1.2rem; font-weight:bold; margin-bottom:10px;">⚠️ 必ずブラウザで開いてください</div>
+        <div style="font-size:0.95rem; text-align:left; line-height:1.6;">
+            LINEやFacebook等のアプリ内ブラウザでは、<br>
+            PDFが正常に保存できない場合があります。<br><br>
+            必ず右下のメニュー等から<br>
+            <strong>「ブラウザで開く（Safari / Chrome）」</strong><br>
+            を選択して操作してください。
+        </div>
+        <button class="close-warning-btn" onclick="document.getElementById('browser-warning').style.display='none'">確認しました</button>
+    </div>
+</div>
+
+<div id="input-screen" class="container">
+    <header><h1>工事請負契約書 作成システム</h1></header>
+    <form id="contract-form">
+        <!-- 第1条 -->
+        <section>
+            <h2>第1条：当事者情報</h2>
+            <div class="h-adr">
+                <span class="p-country-name" style="display:none;">Japan</span>
+                <div class="form-group"><label>【甲】発注者 氏名/会社名</label><input type="text" id="ko_name" placeholder="例：佐藤 一郎 様" required></div>
+                <div class="form-group"><label>【甲】郵便番号</label><input type="text" class="p-postal-code" size="8" maxlength="8" placeholder="1234567"></div>
+                <div class="form-group"><label>【甲】住所</label><input type="text" id="ko_addr" class="p-region p-locality p-street-address p-extended-address" placeholder="自動入力されます"></div>
+            </div>
+            <hr style="border-color:#333; margin:20px 0;">
+            <div class="h-adr">
+                <span class="p-country-name" style="display:none;">Japan</span>
+                <div class="form-group"><label>【乙】施工者 氏名/会社名</label><input type="text" id="otsu_name" placeholder="例：株式会社ローラースタイル"></div>
+                <div class="form-group"><label>【乙】郵便番号</label><input type="text" class="p-postal-code" size="8" maxlength="8" placeholder="1234567"></div>
+                <div class="form-group"><label>【乙】住所</label><input type="text" id="otsu_addr" class="p-region p-locality p-street-address p-extended-address" placeholder="自動入力されます"></div>
+                <button type="button" class="sub-btn" onclick="alert('【プレビュー版】\n保存機能は次回アップデートで実装予定です。')">乙の情報を保存</button>
+            </div>
+        </section>
+        <!-- 第2条 -->
+        <section>
+            <h2>第2条：工事内容</h2>
+            <div class="form-group"><label>工事名</label><input type="text" id="work_name" placeholder="例：佐藤様邸 外構リフォーム工事"></div>
+            <div class="h-adr">
+                <span class="p-country-name" style="display:none;">Japan</span>
+                <div class="form-group"><label>工事場所 住所 (郵便番号入力可)</label>
+                    <div class="btn-row"><input type="text" class="p-postal-code" size="8" placeholder="〒"><input type="text" id="work_place" class="p-region p-locality p-street-address p-extended-address" style="flex:1;" placeholder="現場の住所"></div>
+                    <button type="button" class="sub-btn" style="margin-top:5px;" onclick="document.getElementById('work_place').value = document.getElementById('ko_addr').value">甲住所をコピー</button>
+                </div>
+            </div>
+            <div class="form-group"><label>工事内容</label><textarea id="work_desc" rows="2" placeholder="例：駐車場ローラーストーン施工、門柱改修一式"></textarea></div>
+        </section>
+        <!-- 第3条 -->
+        <section>
+            <h2>第3条：工期</h2>
+            <div class="btn-row">
+                <div style="flex:1"><label>着工日</label><input type="date" id="date_start"></div>
+                <div style="flex:1"><label>完成日</label><input type="date" id="date_end"></div>
+                <div style="flex:1"><label>引渡日</label><input type="date" id="date_delivery"></div>
+            </div>
+        </section>
+        <!-- 第4条 -->
+        <section>
+            <h2>第4条：金額・支払</h2>
+            <div class="form-group"><label>請負代金 (税込)</label><input type="number" id="total_price" placeholder="1100000"></div>
+            <div class="form-group"><label>契約時 金額</label><input type="number" id="pay_sign" placeholder="300000"></div>
+            <div class="form-group"><label>中間金 条件</label><input type="text" id="mid_term_cond" placeholder="例：下地工事完了時、打設終了時など"></div>
+            <div class="form-group"><label>中間金 金額</label><input type="number" id="pay_mid" placeholder="400000"></div>
+            <div class="form-group"><label>引渡時 金額</label><input type="number" id="pay_end" placeholder="400000"></div>
+        </section>
+        <button type="button" class="main-btn" onclick="showPreview()">プレビューへ</button>
+    </form>
+</div>
+
+<div id="preview-screen">
+    <div class="preview-controls">
+        <button class="sub-btn" onclick="backToEdit()">修正する</button>
+        <button class="sub-btn" onclick="generatePDF()" style="background:var(--rs-gold); color:#000; font-weight:bold;">PDF保存</button>
+    </div>
+
+    <div id="content-to-export">
+        <!-- ■ 1ページ目 ■ -->
+        <div class="a4-page">
+            <div class="stamp-box">印紙</div>
+            <div class="paper-title">工事請負契約書</div>
+            
+            <div class="clause-title">第1条（当事者）</div>
+            <div>本契約の当事者は、以下の発注者及び施工者とする。</div>
+            <div>発注者（以下「甲」という。）</div>
+            <div class="indent-1">住　　所：<span id="p_ko_addr"></span></div>
+            <div class="indent-1">会社名／氏名：<span id="p_ko_name"></span></div>
+            <div style="margin-top:2px;">施工者（以下「乙」という。）</div>
+            <div class="indent-1">住　　所：<span id="p_otsu_addr"></span></div>
+            <div class="indent-1">会社名／氏名：<span id="p_otsu_name"></span></div>
+
+            <div class="clause-title">第2条（契約の目的および工事内容）</div>
+            <div class="indent-1">1 甲は乙に対し、下記工事（以下「本工事」という。）の施工を請け負わせ、乙はこれを完成させて甲へ引き渡す。</div>
+            <div class="indent-2">(1) 工事名：<span id="p_work_name"></span></div>
+            <div class="indent-2">(2) 工事場所：<span id="p_work_place"></span></div>
+            <div class="indent-2">(3) 工事内容（概要）：<span id="p_work_desc"></span></div>
+            <div class="indent-1">2 本工事の具体的内容・仕様・施工範囲は、本契約書に添付する見積書、図面、仕様書、工程表、現場指示書その他これに準ずる資料（以下「設計図書等」という。）に従うものとする。</div>
+            <div class="indent-1">3 設計図書等に不明確な点がある場合、甲乙協議の上決定し、必要に応じて文書にて確認する。</div>
+
+            <div class="clause-title">第3条（工期）</div>
+            <div class="indent-1">1 本工事の工期は以下のとおりとする。</div>
+            <div class="indent-1">　着工日：<span id="p_date_start"></span> / 完成日：<span id="p_date_end"></span> / 引渡日：<span id="p_date_delivery"></span></div>
+            <div class="indent-1">2 天災地変、法令変更、近隣トラブルその他乙の責めに帰さない事由により工期遅延が見込まれる場合、乙は遅滞なく甲へ通知し、甲乙協議のうえ工期を変更する。</div>
+            <div class="indent-1">3 乙の責めに帰すべき事由により工期が遅延した場合、その遅延により甲が被った損害を乙は賠償する。</div>
+
+            <div class="clause-title">第4条（請負代金および支払方法）</div>
+            <div class="indent-1">1 甲は乙に対し、請負代金として合計金 <span id="p_total_price"></span> 円（税込）を支払う。</div>
+            <div class="indent-1">2 支払時期および割合は以下とする。</div>
+            <div class="indent-2">(1) 契約締結時：<span id="p_pay_sign"></span> 円</div>
+            <div class="indent-2">(2) 中間金（<span id="p_mid_term_cond"></span>）：<span id="p_pay_mid"></span> 円</div>
+            <div class="indent-2">(3) 引渡時：<span id="p_pay_end"></span> 円</div>
+            <div class="indent-1">3 甲が支払期日までに代金を支払わなかった場合、甲は支払期日の翌日から完済に至るまで年14.6%の割合による遅延損害金を乙に支払う。</div>
+            
+            <div class="page-num">1 / 3</div>
+        </div>
+
+        <!-- ■ 2ページ目 ■ -->
+        <div class="a4-page">
+            <div class="clause-title">第5条（材料の調達および危険負担）</div>
+            <div class="indent-1">1 乙は、本工事に必要な材料を自己の責任と費用負担にて調達する。</div>
+            <div class="indent-1">2 乙が持ち込んだ材料が完成前に滅失または損傷した場合、その原因が甲の責めに帰すときを除き、その危険は乙が負担する。</div>
+
+            <div class="clause-title">第6条（現場管理および安全対策）</div>
+            <div class="indent-1">1 乙は、本工事の施工に際し、安全管理・品質管理・労務管理を適切に行い、法令・条例及び行政指導に従うものとする。</div>
+            <div class="indent-1">2 乙は、騒音・振動・粉塵等により近隣に迷惑が生じないよう必要な措置を講じるものとする。</div>
+
+            <div class="clause-title">第7条（検査および引渡し）</div>
+            <div class="indent-1">1 乙は本工事完成後、速やかに甲へ通知するものとする。</div>
+            <div class="indent-1">2 甲は前項の通知を受けた後、1週間以内に完成検査を行う。</div>
+            <div class="indent-1">3 検査の結果、是正を合理的に要する事項がある場合、乙は無償で補修し、再検査を受ける。</div>
+            <div class="indent-1">4 検査合格後、乙は本工事を甲へ引き渡すものとする。</div>
+
+            <div class="clause-title">第8条（契約不適合責任）</div>
+            <div class="indent-1">1 乙が、種類又は品質に関して契約の内容に適合しない仕事の目的物を甲に引き渡したときは、甲が乙に対し引き渡しから1年以内にその旨を通知した場合に限り、乙は、民法の定めるところに従って、履行の追完(補修)又は報酬の減額等の契約不適合責任を負うものとする。</div>
+            <div class="indent-1">2 乙は、経年劣化、天災、第三者の行為、又は不適切な使用により仕事の目的物に生じた損傷について、契約不適合責任を負わない。</div>
+
+            <div class="clause-title">第9条（追加・変更工事）</div>
+            <div class="indent-1">1 甲の指示又は現場状況により追加・変更工事が必要となった場合、乙は速やかに見積書を作成し、追加・変更工事代金額及び支払時期につき甲の承認を得るものとする。</div>
+            <div class="indent-1">2 前項の甲の承認がない限り、乙は追加・変更工事を実施できない。ただし、緊急性を要し、承認取得が困難な場合で、工事の安全確保に必要な最低限の作業はこの限りでない。</div>
+            <div class="indent-1">3 甲は乙に対し、第1項で承認した代金額及び支払時期において追加・変更工事代金を支払う。</div>
+
+            <div class="clause-title">第10条（損害賠償）</div>
+            <div class="indent-1">1 甲又は乙が本契約に違反し相手方に損害を与えた場合、民法の定めるところに従い、相手方に発生した損害を賠償するものとする。</div>
+            <div class="indent-1">2 前項の損害賠償金には、支払期日の翌日から完済に至るまで年14.6%の割合による遅延損害金を付加するものとする。</div>
+
+            <div class="clause-title">第11条（解除）</div>
+            <div class="indent-1">1 甲又は乙は、相手方が正当な事由なく本契約の義務の全部または一部を履行しないときには、相当の期間を定めて履行の催告を行った上で、本契約を解除することができる。</div>
+            <div class="indent-1">2 甲又は乙は、相手方が次の各号のいずれかに該当する場合、何らの通知催告を行わずに、本契約を解除できるものとする。</div>
+            
+            <div class="page-num">2 / 3</div>
+        </div>
+
+        <!-- ■ 3ページ目 ■ -->
+        <div class="a4-page">
+            <div class="indent-2">(1) 支払停止又は支払不能に陥ったとき</div>
+            <div class="indent-2">(2) 手形又は小切手が不渡りとなったとき</div>
+            <div class="indent-2">(3) 差押え、仮差押え、仮処分又は競売の申立てがあったとき</div>
+            <div class="indent-2">(4) 租税滞納処分、銀行取引停止処分、強制執行を受けたとき</div>
+            <div class="indent-2">(5) 破産、民事再生、会社更生又は特別清算の開始の申立てがあったとき</div>
+
+            <div class="clause-title">第12条（不可抗力）</div>
+            <div class="indent-1">地震、風水害、火災、戦争、感染症、行政指導その他乙の責めに帰さない事由により工事が遅延または不能となった場合、乙はその責を負わない。</div>
+
+            <div class="clause-title">第13条（秘密保持）</div>
+            <div class="indent-1">甲及び乙は、本契約に関連して知り得た情報を正当な理由なく第三者に漏洩してはならない。</div>
+
+            <div class="clause-title">第14条（権利義務の譲渡禁止）</div>
+            <div class="indent-1">甲及び乙は、相手方の書面による承諾なく、本契約上の権利又は義務を第三者に譲渡してはならない。</div>
+
+            <div class="clause-title">第15条（協議）</div>
+            <div class="indent-1">本契約に定めなき事項又は疑義が生じた事項については、甲乙誠意をもって協議のうえ円満に解決する。</div>
+
+            <div class="clause-title">第16条（合意管轄）</div>
+            <div class="indent-1">本契約に関する紛争については、被告となる当事者の所在地を管轄する地方裁判所又は簡易裁判所を第一審の専属的合意管轄裁判所とする。</div>
+
+            <div style="margin-top: 15mm;">以上の合意を証するため、本契約書の正本2通を作成し、甲乙各1通ずつ保有する。</div>
+
+            <div class="sign-area">
+                <div style="margin-bottom:5px;">令和　　年　　月　　日</div>
+                <div>甲（発注者）</div>
+                <div class="sign-row"><div class="sign-label">住　　所：</div><div class="sign-data"><span id="s_ko_addr"></span></div></div>
+                <div class="sign-row"><div class="sign-label">氏　　名：</div><div class="sign-data"><span id="s_ko_name"></span></div><div class="seal-mark">印</div></div>
+
+                <div style="margin-top: 15mm;">乙（施工者）</div>
+                <div class="sign-row"><div class="sign-label">住　　所：</div><div class="sign-data"><span id="s_otsu_addr"></span></div></div>
+                <div class="sign-row"><div class="sign-label">氏　　名：</div><div class="sign-data"><span id="s_otsu_name"></span></div><div class="seal-mark">印</div></div>
+            </div>
+            <div class="page-num">3 / 3</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function copyKoAddr() { document.getElementById('work_place').value = document.getElementById('ko_addr').value; }
+    
+    function formatDateJP(dateStr) {
+        if (!dateStr) return "令和　年　月　日";
+        const d = new Date(dateStr);
+        return `令和 ${d.getFullYear() - 2018} 年 ${d.getMonth() + 1} 月 ${d.getDate()} 日`;
+    }
+
+    function formatPrice(num) {
+        return num ? Number(num).toLocaleString() : "0";
+    }
+
+    function showPreview() {
+        const fields = ['ko_name', 'ko_addr', 'otsu_name', 'otsu_addr', 'work_name', 'work_place', 'work_desc', 'mid_term_cond'];
+        fields.forEach(f => {
+            const val = document.getElementById(f).value;
+            const el = document.getElementById('p_'+f); if(el) el.innerText = val;
+            const el2 = document.getElementById('s_'+f); if(el2) el2.innerText = val;
+        });
+        document.getElementById('p_date_start').innerText = formatDateJP(document.getElementById('date_start').value);
+        document.getElementById('p_date_end').innerText = formatDateJP(document.getElementById('date_end').value);
+        document.getElementById('p_date_delivery').innerText = formatDateJP(document.getElementById('date_delivery').value);
+        
+        ['total_price', 'pay_sign', 'pay_mid', 'pay_end'].forEach(f => {
+            const val = document.getElementById(f).value;
+            const el = document.getElementById('p_'+f); if(el) el.innerText = val ? Number(val).toLocaleString() : "0";
+        });
+
+        document.getElementById('input-screen').style.display = 'none';
+        document.getElementById('preview-screen').style.display = 'block';
+        window.scrollTo(0,0);
+    }
+
+    function backToEdit() {
+        document.getElementById('input-screen').style.display = 'block';
+        document.getElementById('preview-screen').style.display = 'none';
+    }
+
+    async function generatePDF() {
+        // ▼▼▼ 白紙対策・完結編 ▼▼▼
+        document.body.classList.add('generating-pdf');
+        
+        const element = document.getElementById('content-to-export');
+        const opt = {
+            margin: 0,
+            filename: '工事請負契約書_' + document.getElementById('ko_name').value + '.pdf',
+            image: { type: 'jpeg', quality: 1.0 },
+            html2canvas: { 
+                scale: 3, 
+                useCORS: true, 
+                scrollY: 0,
+                windowWidth: 794, 
+                width: 794
+            }, 
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+        
+        try {
+            await html2pdf().set(opt).from(element).save();
+        } catch (e) {
+            alert('PDF生成中にエラーが発生しました。');
+        } finally {
+            document.body.classList.remove('generating-pdf');
+        }
+    }
+</script>
+</body>
+</html>
