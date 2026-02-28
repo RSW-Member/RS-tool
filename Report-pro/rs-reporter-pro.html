@@ -294,23 +294,14 @@ input[type="file"]{display:none;}
   <div class="ig-section" id="ig-section">
     <div class="ig-header">
       <span class="ig-icon">📸</span>
-      <div><div class="ig-title">Instagram 投稿セット</div><div class="ig-sub">Phase 3 連携用データ（今は保存のみ）</div></div>
-      <span class="ig-badge">準備中</span>
+      <div><div class="ig-title">Before / After</div><div class="ig-sub">画角を揃えて自動表示</div></div>
     </div>
 
-    <!-- メインビジュアル -->
-    <div style="font-size:12px;font-weight:700;color:var(--pickup);margin-bottom:8px;">① メインビジュアル（1枚）</div>
-    <div class="main-visual-slot" id="mv-slot" onclick="openModal('modal-mv')">
-      <div class="mv-empty"><div class="mvi">🌟</div><div class="mvt">メインビジュアルを選ぶ</div><div class="mvs">全写真から1枚選択</div></div>
-    </div>
-
-    <!-- Before/After ペア -->
-    <div style="font-size:12px;font-weight:700;color:var(--pickup);margin:14px 0 8px;">② Before / After ペア</div>
+    <!-- Before/After 自動ペア -->
     <div id="pair-list"></div>
-    <button class="btn btn-add" onclick="addPair()">＋ ペアを追加</button>
 
     <!-- こだわりショット -->
-    <div style="font-size:12px;font-weight:700;color:var(--pickup);margin:14px 0 6px;">③ こだわりショット</div>
+    <div style="font-size:12px;font-weight:700;color:var(--pickup);margin:14px 0 6px;">⭐ こだわりショット</div>
     <div class="pickup-count" id="pickup-count">0 / 20枚</div>
     <div class="pickup-grid" id="pickup-grid"></div>
     <button class="btn btn-add" style="margin-top:8px;" onclick="openModal('modal-pickup')">＋ こだわり写真を追加</button>
@@ -517,8 +508,7 @@ function injectDemoIfFirstTime() {
   };
   persist();
   localStorage.setItem('rs-demo-v3','1');
-  siteId = id; renderHome(); renderPhotoSections(); showScreen('s-step2');
-  setTimeout(()=>showToast('デモデータで操作確認できます'),600);
+  renderHome();
 }
 
 // ========== NAV ==========
@@ -815,52 +805,58 @@ function delPhoto(id){
 // ========== IG SECTION ==========
 function renderIgSection(){
   if(!siteId) return;
-  const ig=sites[siteId].ig||{mainVisual:null,pairs:[],pickup:[]};
-  // メインビジュアル
-  const mvSlot=document.getElementById('mv-slot');
-  if(ig.mainVisual){
-    const p=sites[siteId].photos.find(p=>p.id===ig.mainVisual);
-    mvSlot.innerHTML=p
-      ?`<img src="${p.dataUrl}"><div class="mv-label">🌟 メインビジュアル</div><button class="mv-del" onclick="clearMV(event)">✕</button>`
-      :`<div class="mv-empty"><div class="mvi">🌟</div><div class="mvt">メインビジュアルを選ぶ</div><div class="mvs">全写真から1枚選択</div></div>`;
-    mvSlot.classList.toggle('filled',!!p);
-  } else {
-    mvSlot.innerHTML=`<div class="mv-empty"><div class="mvi">🌟</div><div class="mvt">メインビジュアルを選ぶ</div><div class="mvs">全写真から1枚選択</div></div>`;
-    mvSlot.classList.remove('filled');
+  const photos=sites[siteId].photos||[];
+  const ig=sites[siteId].ig||{pickup:[]};
+
+  // Before/After を画角別に自動ペアリング
+  const bPort=photos.filter(p=>p.tag==='before'&&p.orientation==='portrait');
+  const bLand=photos.filter(p=>p.tag==='before'&&p.orientation==='landscape');
+  const aPort=photos.filter(p=>p.tag==='after'&&p.orientation==='portrait');
+  const aLand=photos.filter(p=>p.tag==='after'&&p.orientation==='landscape');
+
+  const maxP=Math.max(bPort.length,aPort.length);
+  const maxL=Math.max(bLand.length,aLand.length);
+
+  let pairHtml='';
+
+  if(maxP===0&&maxL===0){
+    pairHtml=`<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">
+      <div style="font-size:28px;margin-bottom:8px;">📷</div>
+      Before・Afterの写真を追加するとここに表示されます
+    </div>`;
   }
 
-  // ペアリスト
-  const pairList=document.getElementById('pair-list');
-  pairList.innerHTML=(ig.pairs||[]).map((pair,i)=>{
-    const bp=pair.before?sites[siteId].photos.find(p=>p.id===pair.before):null;
-    const ap=pair.after?sites[siteId].photos.find(p=>p.id===pair.after):null;
-    const ori=bp?.orientation||ap?.orientation||'';
-    const oriLabel=ori==='portrait'?'📱 縦':ori==='landscape'?'🖼 横':'';
-    return `<div class="pair-card">
-      <div class="pair-card-header">
-        <span class="pair-card-num">ペア ${i+1} <span style="font-size:11px;color:var(--text2);font-weight:400;">${oriLabel}</span></span>
-        <button class="pair-card-del" onclick="removePair(${i})">×</button>
-      </div>
-      <div class="pair-slots">
-        <div class="pair-slot${bp?' filled before':''}" onclick="openPairModal(${i},'before')">
-          ${bp
-            ?`<img src="${bp.dataUrl}"><div class="ps-label ps-before">Before</div><button class="ps-del" onclick="clearPairSlot(${i},'before',event)">✕</button>`
-            :`<div class="ps-empty"><div style="font-size:20px;">📷</div><div>Beforeを変更</div></div>`}
-        </div>
-        <div class="pair-slot${ap?' filled after':''}" onclick="openPairModal(${i},'after')">
-          ${ap
-            ?`<img src="${ap.dataUrl}"><div class="ps-label ps-after">After</div><button class="ps-del" onclick="clearPairSlot(${i},'after',event)">✕</button>`
-            :`<div class="ps-empty"><div style="font-size:20px;">✨</div><div>Afterを変更</div></div>`}
-        </div>
-      </div>
-    </div>`;
-  }).join('');
+  if(maxP>0){
+    pairHtml+=`<div style="font-size:11px;color:var(--text2);margin-bottom:8px;border-left:3px solid var(--before);padding-left:6px;">縦 Before / After</div>`;
+    for(let i=0;i<maxP;i++){
+      const b=bPort[i], a=aPort[i];
+      pairHtml+=`<div style="display:flex;gap:6px;margin-bottom:10px;">`;
+      if(b) pairHtml+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;">Before</div></div>`;
+      else pairHtml+=`<div style="flex:1;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;aspect-ratio:.6;color:var(--text2);font-size:11px;">なし</div>`;
+      if(a) pairHtml+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;color:#000;">After</div></div>`;
+      else pairHtml+=`<div style="flex:1;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;aspect-ratio:.6;color:var(--text2);font-size:11px;">なし</div>`;
+      pairHtml+=`</div>`;
+    }
+  }
+
+  if(maxL>0){
+    pairHtml+=`<div style="font-size:11px;color:var(--text2);margin:12px 0 8px;border-left:3px solid var(--after);padding-left:6px;">横 Before / After</div>`;
+    for(let i=0;i<maxL;i++){
+      const b=bLand[i], a=aLand[i];
+      pairHtml+=`<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">`;
+      if(b) pairHtml+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;">Before</div></div>`;
+      if(a) pairHtml+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;color:#000;">After</div></div>`;
+      pairHtml+=`</div>`;
+    }
+  }
+
+  document.getElementById('pair-list').innerHTML=pairHtml;
 
   // こだわりグリッド
   const pList=ig.pickup||[];
   document.getElementById('pickup-count').innerHTML=`<span style="color:var(--pickup);font-weight:900;">${pList.length}</span> / ${PICKUP_MAX}枚`;
   document.getElementById('pickup-grid').innerHTML=pList.map(pid=>{
-    const p=sites[siteId].photos.find(p=>p.id===pid);
+    const p=photos.find(p=>p.id===pid);
     return p?`<div class="pickup-item"><img src="${p.dataUrl}"><button class="pk-del" onclick="removePickup('${pid}')">✕</button></div>`:'';
   }).join('');
 }
@@ -1088,35 +1084,57 @@ function renderPreview(){
     ['目地カラー',info.grout],['こだわり',info.kodawari],['お客様の声',info.voice],['お悩み',info.pain],['その他',info.memo],
   ].filter(r=>r[1]);
 
-  const bph=photos.filter(p=>p.tag==='before');
-  const dph=photos.filter(p=>p.tag==='during');
-  const aph=photos.filter(p=>p.tag==='after');
-  const pph=photos.filter(p=>p.tag==='pickup');
-  const maxLen=Math.max(bph.length,dph.length,aph.length);
-  let pairs='';
-  for(let i=0;i<maxLen;i++){
-    const b=bph[i],d=dph[i],a=aph[i];
-    if(!b&&!d&&!a) continue;
-    pairs+=`<div style="display:flex;gap:4px;margin-bottom:5px;">`;
-    if(b) pairs+=`<div style="flex:1;position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:10px;font-weight:700;text-align:center;padding:3px;">Before</div></div>`;
-    if(d) pairs+=`<div style="flex:1;position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;"><img src="${d.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(168,85,247,.85);font-size:10px;font-weight:700;text-align:center;padding:3px;">造形後</div></div>`;
-    if(a) pairs+=`<div style="flex:1;position:relative;border-radius:8px;overflow:hidden;aspect-ratio:1;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:10px;font-weight:700;text-align:center;padding:3px;color:#000;">After</div></div>`;
-    pairs+=`</div>`;
+  const allPhotos=sites[siteId].photos||[];
+  const bPort=allPhotos.filter(p=>p.tag==='before'&&p.orientation==='portrait'&&p.selected);
+  const bLand=allPhotos.filter(p=>p.tag==='before'&&p.orientation==='landscape'&&p.selected);
+  const aPort=allPhotos.filter(p=>p.tag==='after'&&p.orientation==='portrait'&&p.selected);
+  const aLand=allPhotos.filter(p=>p.tag==='after'&&p.orientation==='landscape'&&p.selected);
+  const dph=allPhotos.filter(p=>p.tag==='during'&&p.selected);
+  const pph=allPhotos.filter(p=>p.tag==='pickup'&&p.selected);
+
+  const maxP=Math.max(bPort.length,aPort.length);
+  const maxL=Math.max(bLand.length,aLand.length);
+
+  let pairSection='';
+  if(maxP>0||maxL>0||dph.length){
+    pairSection+=`<div class="sec-title" style="margin-bottom:10px;">📷 写真（${photos.length}枚）</div>`;
   }
+
+  // 縦ペア
+  for(let i=0;i<maxP;i++){
+    const b=bPort[i], a=aPort[i];
+    pairSection+=`<div style="display:flex;gap:5px;margin-bottom:8px;">`;
+    if(b) pairSection+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;">Before</div></div>`;
+    if(a) pairSection+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;color:#000;">After</div></div>`;
+    pairSection+=`</div>`;
+  }
+  // 横ペア
+  for(let i=0;i<maxL;i++){
+    const b=bLand[i], a=aLand[i];
+    if(b) pairSection+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;margin-bottom:5px;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;">Before</div></div>`;
+    if(a) pairSection+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;margin-bottom:10px;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;color:#000;">After</div></div>`;
+  }
+  // 造形後
+  if(dph.length){
+    pairSection+=`<div style="font-size:11px;color:var(--text2);margin:8px 0 6px;border-left:3px solid var(--during);padding-left:6px;">造形後（${dph.length}枚）</div>`;
+    pairSection+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;">${dph.map(p=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}</div>`;
+  }
+  // こだわり
   let pickupGrid='';
   if(pph.length){
-    pickupGrid=`<div class="sec-title" style="margin:16px 0 8px;">⭐ こだわりショット（${pph.length}枚）</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${pph.map(p=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}</div>`;
+    pickupGrid=`<div style="font-size:11px;color:var(--text2);margin:8px 0 6px;border-left:3px solid var(--pickup);padding-left:6px;">⭐ こだわりショット（${pph.length}枚）</div>`;
+    pickupGrid+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${pph.map(p=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}</div>`;
   }
+
   document.getElementById('preview-content').innerHTML=`
     <div class="preview-card">
       <div class="preview-card-hd">施工情報</div>
       ${rows.map(r=>`<div class="preview-row"><div class="pk">${r[0]}</div><div class="pv">${r[1]}</div></div>`).join('')}
     </div>
+    ${pairSection}${pickupGrid}
+    <div class="divider"></div>
     <div class="sec-title" style="margin-bottom:8px;">送付テキスト</div>
-    <div class="report-box">${buildText()}</div>
-    <div class="sec-title" style="margin-bottom:8px;">選択中の写真（${photos.length}枚）</div>
-    ${pairs}${pickupGrid}<div class="divider"></div>`;
+    <div class="report-box">${buildText()}</div>`;
 }
 
 function copyText(){
