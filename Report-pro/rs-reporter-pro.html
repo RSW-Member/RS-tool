@@ -256,8 +256,12 @@ input[type="file"]{display:none;}
 <!-- STEP2: 写真 -->
 <div id="s-step2" class="screen">
   <button class="back-btn" onclick="showScreen('s-step1')">← 現場情報に戻る</button>
-  <div class="sec-title" style="margin-bottom:6px;">STEP 2 ／ 写真を追加</div>
-  <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">タグを選んでから写真をアップロード。何度でも追加できます。</p>
+  <div class="sec-title" style="margin-bottom:10px;">STEP 2 ／ 写真を追加</div>
+
+  <div style="background:rgba(232,160,32,.08);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
+    <p style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">① タグを選ぶ　② 写真をアップ　を繰り返す</p>
+    <p style="font-size:13px;color:var(--text2);line-height:1.7;">タグを選んでから写真を追加。何度でも追加できます。</p>
+  </div>
 
   <div class="tag-bar">
     <button class="tag-btn t-before active" id="tagbtn-before" onclick="selectTag('before',this)"><span class="ti">📷</span>Before</button>
@@ -266,13 +270,13 @@ input[type="file"]{display:none;}
     <button class="tag-btn t-pickup" id="tagbtn-pickup" onclick="selectTag('pickup',this)"><span class="ti">⭐</span>こだわり</button>
   </div>
 
-  <label class="upload-zone" for="file-input" style="display:block;cursor:pointer;">
+  <label class="upload-zone" style="display:block;cursor:pointer;">
     <div class="ui">📁</div>
     <div class="ut">写真を追加</div>
     <div class="us">タップして選択（複数可）</div>
     <div class="tag-hint" id="upload-tag-hint">選択中：Before</div>
+    <input type="file" accept="image/*" multiple onchange="handleFiles(this.files)" style="display:none;">
   </label>
-  <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
 
   <!-- フィルター -->
   <div id="sort-area" style="display:none;">
@@ -633,7 +637,6 @@ function handleFiles(files){
   }));
   Promise.all(readers).then(()=>{
     persist(); renderPhotoSections();
-    document.getElementById('file-input').value='';
   });
 }
 
