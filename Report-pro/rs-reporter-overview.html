@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS-Reporter Pro — アプリ概要</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;700;900&family=Bebas+Neue&family=Zen+Kaku+Gothic+New:wght@700;900&display=swap');
+
+:root {
+  --bg: #0a0a0a;
+  --surface: #111;
+  --border: #1e1e1e;
+  --accent: #e8a020;
+  --accent2: #ff6b35;
+  --text: #f0ede8;
+  --text2: #666;
+  --text3: #333;
+  --before: #4a9eff;
+  --after: #22c55e;
+  --ig: #e1306c;
+  --ai: #a855f7;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Noto Sans JP', sans-serif;
+  overflow-x: hidden;
+  line-height: 1.7;
+}
+
+/* ── HERO ── */
+.hero {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 60px 40px;
+  position: relative;
+  overflow: hidden;
+}
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 50%, rgba(232,160,32,.07) 0%, transparent 70%),
+    radial-gradient(ellipse 40% 40% at 20% 80%, rgba(255,107,53,.05) 0%, transparent 60%);
+}
+.hero-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,.015) 1px, transparent 1px);
+  background-size: 60px 60px;
+}
+.hero-inner { position: relative; max-width: 900px; }
+
+.hero-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 4px;
+  color: var(--accent);
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.hero-label::before {
+  content: '';
+  width: 40px;
+  height: 1px;
+  background: var(--accent);
+}
+
+.hero-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(56px, 10vw, 120px);
+  letter-spacing: 4px;
+  line-height: .9;
+  margin-bottom: 16px;
+  color: var(--text);
+}
+.hero-title span { color: var(--accent); }
+
+.hero-concept {
+  font-size: clamp(16px, 2.5vw, 22px);
+  font-weight: 700;
+  color: var(--text2);
+  margin-bottom: 40px;
+  letter-spacing: 1px;
+}
+.hero-concept em {
+  color: var(--accent);
+  font-style: normal;
+  border-bottom: 1px solid rgba(232,160,32,.4);
+}
+
+.hero-desc {
+  font-size: 15px;
+  color: var(--text2);
+  max-width: 560px;
+  line-height: 1.9;
+  border-left: 2px solid var(--border);
+  padding-left: 20px;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 40px;
+  padding: 10px 20px;
+  background: rgba(232,160,32,.08);
+  border: 1px solid rgba(232,160,32,.2);
+  border-radius: 100px;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+}
+
+/* ── SECTION ── */
+.section {
+  padding: 100px 40px;
+  max-width: 960px;
+  margin: 0 auto;
+}
+.section-label {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 11px;
+  letter-spacing: 5px;
+  color: var(--accent);
+  margin-bottom: 16px;
+}
+.section-title {
+  font-size: clamp(28px, 4vw, 44px);
+  font-weight: 900;
+  line-height: 1.3;
+  margin-bottom: 20px;
+}
+.section-title span { color: var(--accent); }
+.section-body {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 2;
+  max-width: 640px;
+}
+
+/* ── PROBLEM ── */
+.problem-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 48px;
+}
+.problem-item {
+  background: var(--surface);
+  padding: 32px 28px;
+  position: relative;
+}
+.problem-item::before {
+  content: attr(data-num);
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 64px;
+  color: var(--border);
+  position: absolute;
+  top: 16px;
+  right: 20px;
+  line-height: 1;
+}
+.problem-icon { font-size: 28px; margin-bottom: 12px; }
+.problem-title { font-size: 16px; font-weight: 900; margin-bottom: 8px; }
+.problem-body { font-size: 13px; color: var(--text2); line-height: 1.8; }
+
+/* ── FLOW ── */
+.flow {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+.flow-step {
+  display: flex;
+  gap: 24px;
+  align-items: flex-start;
+  position: relative;
+  padding-bottom: 40px;
+}
+.flow-step::before {
+  content: '';
+  position: absolute;
+  left: 27px;
+  top: 56px;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(var(--border), transparent);
+}
+.flow-step:last-child { padding-bottom: 0; }
+.flow-step:last-child::before { display: none; }
+
+.flow-num {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #000;
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.flow-content { flex: 1; padding-top: 10px; }
+.flow-tag {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: var(--accent);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+.flow-title { font-size: 20px; font-weight: 900; margin-bottom: 8px; }
+.flow-body { font-size: 14px; color: var(--text2); line-height: 1.8; }
+.flow-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+.flow-chip {
+  font-size: 12px;
+  padding: 4px 12px;
+  border-radius: 100px;
+  font-weight: 700;
+}
+.chip-report { background: rgba(74,158,255,.15); color: var(--before); }
+.chip-ig     { background: rgba(225,48,108,.15); color: var(--ig); }
+.chip-ai     { background: rgba(168,85,247,.15); color: var(--ai); }
+.chip-pdf    { background: rgba(34,197,94,.15); color: var(--after); }
+
+/* ── ROADMAP ── */
+.roadmap {
+  margin-top: 56px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.phase {
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  transition: border-color .2s;
+}
+.phase:hover { border-color: rgba(232,160,32,.3); }
+.phase-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: var(--surface);
+}
+.phase-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 13px;
+  letter-spacing: 2px;
+  color: var(--text3);
+}
+.phase-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 4px 12px;
+  border-radius: 100px;
+}
+.p-done   { background: rgba(34,197,94,.15); color: var(--after); }
+.p-next   { background: rgba(232,160,32,.15); color: var(--accent); }
+.p-future { background: rgba(255,255,255,.05); color: var(--text2); }
+.p-vision { background: rgba(168,85,247,.15); color: var(--ai); }
+
+.phase-title { font-size: 17px; font-weight: 900; flex: 1; }
+.phase-body {
+  padding: 0 24px 20px;
+  font-size: 13px;
+  color: var(--text2);
+  line-height: 1.9;
+}
+.phase-body ul { padding-left: 18px; }
+.phase-body li { margin-bottom: 4px; }
+.phase-body li strong { color: var(--text); font-weight: 700; }
+
+/* ── VALUE ── */
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 16px;
+  margin-top: 48px;
+}
+.value-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 28px 24px;
+  position: relative;
+  overflow: hidden;
+}
+.value-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+}
+.vc-1::after { background: var(--before); }
+.vc-2::after { background: var(--accent); }
+.vc-3::after { background: var(--ig); }
+.vc-4::after { background: var(--ai); }
+
+.value-icon { font-size: 32px; margin-bottom: 16px; }
+.value-title { font-size: 18px; font-weight: 900; margin-bottom: 8px; }
+.value-body { font-size: 13px; color: var(--text2); line-height: 1.8; }
+
+/* ── DIVIDER ── */
+.divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--border), transparent);
+  margin: 0 40px;
+}
+
+/* ── CLOSING ── */
+.closing {
+  padding: 100px 40px;
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+.closing::before {
+  content: 'RS';
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 300px;
+  color: rgba(232,160,32,.03);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+  pointer-events: none;
+  white-space: nowrap;
+}
+.closing-title {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(32px, 6vw, 64px);
+  letter-spacing: 3px;
+  margin-bottom: 16px;
+}
+.closing-title span { color: var(--accent); }
+.closing-body {
+  font-size: 15px;
+  color: var(--text2);
+  line-height: 2;
+  max-width: 500px;
+  margin: 0 auto 40px;
+}
+.closing-meta {
+  font-size: 12px;
+  color: var(--text3);
+  letter-spacing: 2px;
+}
+
+/* ── FOOTER ── */
+footer {
+  border-top: 1px solid var(--border);
+  padding: 24px 40px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: var(--text3);
+}
+.footer-logo {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 18px;
+  letter-spacing: 2px;
+  color: var(--accent);
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 600px) {
+  .hero, .section, .closing { padding-left: 24px; padding-right: 24px; }
+  footer { flex-direction: column; gap: 8px; text-align: center; }
+  .flow-step::before { left: 23px; }
+  .flow-num { width: 48px; height: 48px; font-size: 18px; }
+}
+</style>
+</head>
+<body>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <div class="hero-label">RollerStone Internal Document</div>
+    <h1 class="hero-title">RS-REPORTER<br><span>PRO</span></h1>
+    <p class="hero-concept">職人の<em>3秒</em>を、会社の<em>資産</em>に変える</p>
+    <p class="hero-desc">
+      現場写真を1枚撮る。ただそれだけで、<br>
+      社内報告・営業提案・Instagram集客まで<br>
+      すべてが自動で動き出す。<br><br>
+      RollerStone が作る、職人のための<br>
+      次世代施工報告・集客ツールアプリ。
+    </p>
+    <div class="hero-badge">
+      🔒 社内共有資料 ／ 2025 — RollerStone
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- PROBLEM -->
+<section class="section">
+  <div class="section-label">Problem</div>
+  <h2 class="section-title">職人が<span>毎日感じている</span><br>3つの無駄</h2>
+  <p class="section-body">
+    技術は一流なのに、報告・集客・提案に時間を取られる。<br>
+    このアプリはその3つをまとめて解決する。
+  </p>
+
+  <div class="problem-grid">
+    <div class="problem-item" data-num="01">
+      <div class="problem-icon">😩</div>
+      <div class="problem-title">報告が面倒くさい</div>
+      <div class="problem-body">写真を撮っても整理・送付が手間。現場を終えてから報告作業が別途必要で、残業や漏れの原因になっている。</div>
+    </div>
+    <div class="problem-item" data-num="02">
+      <div class="problem-icon">📉</div>
+      <div class="problem-title">せっかくの施工が埋もれる</div>
+      <div class="problem-body">過去の実績写真がバラバラに保存されており、「あの色のやつ見せたい」と思っても探せない。提案の機会を逃している。</div>
+    </div>
+    <div class="problem-item" data-num="03">
+      <div class="problem-icon">📱</div>
+      <div class="problem-title">SNS集客が続かない</div>
+      <div class="problem-body">投稿したいけどキャプション考えてハッシュタグ調べて…と手間がかかりすぎて続かない。職人がやるには限界がある。</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- HOW IT WORKS -->
+<section class="section">
+  <div class="section-label">How it works</div>
+  <h2 class="section-title">1つのアクションから<br><span>3つの価値</span>が生まれる</h2>
+  <p class="section-body">
+    現場で写真を撮るだけ。あとはアプリが勝手に動く。<br>
+    職人は職人の仕事に集中できる。
+  </p>
+
+  <div class="flow">
+    <div class="flow-step">
+      <div class="flow-num">1</div>
+      <div class="flow-content">
+        <div class="flow-tag">入力</div>
+        <div class="flow-title">現場で写真を撮る・タグ付けする</div>
+        <div class="flow-body">
+          Before / 造形後 / After / こだわりショットの4種類にタグ付けしながらアップ。
+          それだけでデータが自動的に3方向へ流れ始める。
+        </div>
+        <div class="flow-chips">
+          <span class="flow-chip chip-report">📷 Before</span>
+          <span class="flow-chip chip-report">🔨 造形後</span>
+          <span class="flow-chip chip-report">✨ After</span>
+          <span class="flow-chip chip-report">⭐ こだわり</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">2</div>
+      <div class="flow-content">
+        <div class="flow-tag">出力 ① — 今すぐ使える</div>
+        <div class="flow-title">社内報告 ZIP ＋ テキスト</div>
+        <div class="flow-body">
+          写真を整理したZIPと報告テキストが自動生成。
+          LINEに貼るだけで社内報告完了。
+          フォームで現場情報を入力すれば施工報告書の完成。
+        </div>
+        <div class="flow-chips">
+          <span class="flow-chip chip-report">📦 ZIP自動生成</span>
+          <span class="flow-chip chip-report">📋 テキスト自動生成</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">3</div>
+      <div class="flow-content">
+        <div class="flow-tag">出力 ② — 近日実装</div>
+        <div class="flow-title">営業提案 PDF ギャラリー</div>
+        <div class="flow-body">
+          報告でアップした写真が自動でギャラリーDBに蓄積。
+          パターン・色・縦横でフィルターをかけ、
+          「乱形石調 × グレー」だけを抽出してPDFで書き出せる。
+          次の現場提案に即使える。
+        </div>
+        <div class="flow-chips">
+          <span class="flow-chip chip-pdf">📄 PDF書き出し</span>
+          <span class="flow-chip chip-pdf">🔍 パターン・色フィルター</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="flow-step">
+      <div class="flow-num">4</div>
+      <div class="flow-content">
+        <div class="flow-tag">出力 ③ — 将来実装</div>
+        <div class="flow-title">Instagram 自動投稿 ＋ AI キャプション</div>
+        <div class="flow-body">
+          Before/After ペア＋こだわりショットを最大20枚カルーセルで自動投稿。
+          AIがお客様の悩み・こだわりポイントから
+          キャプション・ハッシュタグまで自動作成。
+          職人は承認ボタンを押すだけ。
+        </div>
+        <div class="flow-chips">
+          <span class="flow-chip chip-ig">📸 Instagram連携</span>
+          <span class="flow-chip chip-ai">🤖 AI自動生成</span>
+          <span class="flow-chip chip-ai">🏷 ハッシュタグ自動</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ROADMAP -->
+<section class="section">
+  <div class="section-label">Roadmap</div>
+  <h2 class="section-title">開発<span>ロードマップ</span></h2>
+  <p class="section-body">
+    段階的にリリースし、加盟店での実績を積みながら展開する。
+  </p>
+
+  <div class="roadmap">
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 1</span>
+        <span class="phase-badge p-done">✅ 開発中</span>
+        <span class="phase-title">報告特化 — 職人の手間ゼロ化</span>
+      </div>
+      <div class="phase-body">
+        <ul>
+          <li><strong>写真タグ付け：</strong>Before / 造形後 / After / こだわりの4タグ</li>
+          <li><strong>ZIP自動生成：</strong>タグ別フォルダに自動整理して書き出し</li>
+          <li><strong>報告テキスト自動生成：</strong>LINEにそのまま貼り付け</li>
+          <li><strong>フィルター表示：</strong>縦・横・Before/Afterペア表示</li>
+          <li><strong>現場ごとデータ管理：</strong>スマホのブラウザで動作</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 2</span>
+        <span class="phase-badge p-next">🔜 次フェーズ</span>
+        <span class="phase-title">営業支援 — 過去実績を提案に変える</span>
+      </div>
+      <div class="phase-body">
+        <ul>
+          <li><strong>全現場ギャラリーDB：</strong>報告写真が自動蓄積、現場をまたいで一覧できる</li>
+          <li><strong>フィルター検索：</strong>パターン・カラー・縦横・タグで絞り込み</li>
+          <li><strong>簡易提案書PDF：</strong>フィルター結果を即PDF書き出し・送付</li>
+          <li><strong>月額課金スタート：</strong>加盟店テスト運用 → 本格展開</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 3</span>
+        <span class="phase-badge p-future">📅 予定</span>
+        <span class="phase-title">Instagram連携 — 報告から集客へ</span>
+      </div>
+      <div class="phase-body">
+        <ul>
+          <li><strong>Instagram API連携：</strong>Before/Afterペア＋こだわりショット 最大20枚カルーセル自動投稿</li>
+          <li><strong>スケジュール投稿：</strong>現場完了後、指定時間に自動投稿</li>
+          <li><strong>エンゲージメント確認：</strong>いいね・保存数をアプリ内で確認</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="phase">
+      <div class="phase-header">
+        <span class="phase-num">PHASE 4</span>
+        <span class="phase-badge p-vision">🤖 ビジョン</span>
+        <span class="phase-title">AI連携 — 職人手間いらずの集客エンジン</span>
+      </div>
+      <div class="phase-body">
+        <ul>
+          <li><strong>AIキャプション自動生成：</strong>お客様の悩み・こだわりポイントからタイトル・本文を自動作成</li>
+          <li><strong>ハッシュタグ自動最適化：</strong>施工内容・地域・トレンドから最適タグを自動提案</li>
+          <li><strong>Reels動画自動編集：</strong>写真から自動でBefore→After動画を生成</li>
+          <li><strong>投稿分析→改善提案：</strong>反応が良い投稿パターンをAIが学習・提案</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- VALUE -->
+<section class="section">
+  <div class="section-label">Value</div>
+  <h2 class="section-title">これが変わる、<span>4つのこと</span></h2>
+
+  <div class="value-grid">
+    <div class="value-card vc-1">
+      <div class="value-icon">⚡</div>
+      <div class="value-title">報告が3秒で終わる</div>
+      <div class="value-body">現場で写真を撮ってタグを選ぶだけ。報告書作成・送付まで自動化。現場後の残業がなくなる。</div>
+    </div>
+    <div class="value-card vc-2">
+      <div class="value-icon">📊</div>
+      <div class="value-title">施工実績が資産になる</div>
+      <div class="value-body">報告のたびにギャラリーが育つ。パターン・色で絞り込めば、次の提案資料が10秒で作れる。</div>
+    </div>
+    <div class="value-card vc-3">
+      <div class="value-icon">📸</div>
+      <div class="value-title">職人がSNSで集客できる</div>
+      <div class="value-body">Instagram投稿の手間をゼロに。承認ボタン1つで毎回プロ品質の投稿が自動で上がる。</div>
+    </div>
+    <div class="value-card vc-4">
+      <div class="value-icon">🤖</div>
+      <div class="value-title">AIが言葉を作ってくれる</div>
+      <div class="value-body">文章が苦手な職人でも大丈夫。現場の情報からキャプション・ハッシュタグまでAIが代わりに書く。</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- BUSINESS MODEL -->
+<section class="section">
+  <div class="section-label">Business Model</div>
+  <h2 class="section-title">シンプルな<span>サブスク設計</span></h2>
+  <p class="section-body">
+    加盟店でテスト運用し、実績を作ってから課金展開。<br>
+    職人が使い続けられる価格帯を意識した設計。
+  </p>
+
+  <div class="problem-grid" style="margin-top:40px;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
+    <div class="problem-item" data-num="">
+      <div class="problem-icon">🆓</div>
+      <div class="problem-title">30日間 無料トライアル</div>
+      <div class="problem-body">まず使ってもらう。データはそのまま保持。期限後は完全ロックで継続を促す。</div>
+    </div>
+    <div class="problem-item" data-num="">
+      <div class="problem-icon">📋</div>
+      <div class="problem-title">ライトプラン<br>¥980〜1,500/月</div>
+      <div class="problem-body">Phase 1 の報告機能フルセット。ZIP生成・テキスト生成・現場管理。</div>
+    </div>
+    <div class="problem-item" data-num="">
+      <div class="problem-icon">🚀</div>
+      <div class="problem-title">スタンダードプラン<br>（価格調整中）</div>
+      <div class="problem-body">ライト＋Instagram自動投稿＋営業提案PDF。Phase 2〜3 機能を追加。</div>
+    </div>
+  </div>
+</section>
+
+<div class="divider"></div>
+
+<!-- CLOSING -->
+<section class="closing">
+  <h2 class="closing-title">報告が、<span>集客になる日</span>。</h2>
+  <p class="closing-body">
+    職人が職人らしく働けるように。<br>
+    技術の価値が、ちゃんと次の仕事につながるように。<br>
+    RS-Reporter Pro は、その仕組みを作るためのツールです。
+  </p>
+  <div class="closing-meta">ROLLERSTONE — INTERNAL USE ONLY — 2025</div>
+</section>
+
+<footer>
+  <div class="footer-logo">RS-Reporter Pro</div>
+  <div>社内共有資料 ／ 無断転載禁止</div>
+</footer>
+
+</body>
+</html>
