@@ -543,18 +543,19 @@ function renderHome(){
     const dc=photos.filter(p=>p.tag==='during').length;
     const ac=photos.filter(p=>p.tag==='after').length;
     const pc=photos.filter(p=>p.tag==='pickup').length;
-    return `<div class="site-card" onclick="openSite('${id}')">
-      <div style="flex:1;min-width:0;">
+    return `<div class="site-card">
+      <div style="flex:1;min-width:0;cursor:pointer;" onclick="openSite('${id}')">
         <div class="site-name">${info.name||'（名前なし）'}</div>
         <div class="site-meta">${[info.worker,info.date].filter(Boolean).join(' · ')}</div>
+        <div class="badges" style="justify-content:flex-start;margin-top:6px;">
+          ${bc?`<span class="badge b-before">前${bc}</span>`:''}
+          ${dc?`<span class="badge b-during">中${dc}</span>`:''}
+          ${ac?`<span class="badge b-after">後${ac}</span>`:''}
+          ${pc?`<span class="badge b-pickup">⭐${pc}</span>`:''}
+          <span class="badge b-gray">${photos.length}枚</span>
+        </div>
       </div>
-      <div class="badges">
-        ${bc?`<span class="badge b-before">前${bc}</span>`:''}
-        ${dc?`<span class="badge b-during">中${dc}</span>`:''}
-        ${ac?`<span class="badge b-after">後${ac}</span>`:''}
-        ${pc?`<span class="badge b-pickup">⭐${pc}</span>`:''}
-        <span class="badge b-gray">${photos.length}枚</span>
-      </div>
+      <button onclick="deleteSiteFromHome('${id}',event)" style="background:none;border:none;color:var(--danger);font-size:22px;cursor:pointer;padding:8px;flex-shrink:0;line-height:1;">🗑</button>
     </div>`;
   }).join('');
 }
@@ -1148,6 +1149,14 @@ async function downloadZip(){
   showToast('ZIPをダウンロードしました！');
 }
 
+function deleteSiteFromHome(id, e){
+  e.stopPropagation();
+  const name = sites[id]?.info?.name || '（名前なし）';
+  if(!confirm(`「${name}」を削除しますか？\n写真も全て削除されます。`)) return;
+  delete sites[id];
+  persist(); renderHome();
+  showToast('削除しました');
+}
 function deleteSite(){
   if(!confirm('この現場を削除しますか？')) return;
   delete sites[siteId]; persist(); siteId=null; renderHome(); showScreen('s-home'); showToast('削除しました');
