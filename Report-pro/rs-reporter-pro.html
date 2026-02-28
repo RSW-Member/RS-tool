@@ -266,13 +266,13 @@ input[type="file"]{display:none;}
     <button class="tag-btn t-pickup" id="tagbtn-pickup" onclick="selectTag('pickup',this)"><span class="ti">⭐</span>こだわり</button>
   </div>
 
-  <div class="upload-zone" onclick="document.getElementById('file-input').click()">
+  <label class="upload-zone" for="file-input" style="display:block;cursor:pointer;">
     <div class="ui">📁</div>
     <div class="ut">写真を追加</div>
     <div class="us">タップして選択（複数可）</div>
     <div class="tag-hint" id="upload-tag-hint">選択中：Before</div>
-  </div>
-  <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)">
+  </label>
+  <input type="file" id="file-input" accept="image/*" multiple onchange="handleFiles(this.files)" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none;">
 
   <!-- フィルター -->
   <div id="sort-area" style="display:none;">
