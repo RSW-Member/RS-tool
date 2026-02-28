@@ -1,1 +1,469 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>福井県RS施工 専用シミュレーター | 株式会社TSK</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&display=swap" rel="stylesheet">
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        passion: {
+                            50: '#fff1f2',
+                            100: '#ffe4e6',
+                            200: '#fecdd3',
+                            300: '#fda4af',
+                            400: '#fb7185',
+                            500: '#f43f5e', // Passion Rose-Red
+                            600: '#e11d48', // Strong Red
+                            700: '#be123c',
+                            800: '#9f1239',
+                            900: '#881337',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Noto+Sans+JP', sans-serif;
+            scroll-behavior: smooth;
+            background-color: #ffffff;
+        }
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        .passion-gradient {
+            background: linear-gradient(135deg, #f43f5e 0%, #881337 100%);
+        }
+        .passion-text-gradient {
+            background: linear-gradient(135deg, #fb7185 0%, #e11d48 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .glossy-card {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(244, 63, 94, 0.1);
+            box-shadow: 0 20px 40px -15px rgba(136, 19, 55, 0.1);
+        }
+        .animate-fade-in {
+            animation: fadeIn 0.5s ease-out forwards;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .btn-hover-glow:hover {
+            box-shadow: 0 0 20px rgba(225, 29, 72, 0.4);
+        }
+    </style>
+</head>
+<body class="text-slate-800 min-h-screen">
 
+    <!-- Header -->
+    <header class="bg-white/90 backdrop-blur-md border-b border-passion-100 sticky top-0 z-40">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center gap-2">
+                <div class="passion-gradient text-white p-2 rounded-xl shadow-lg shadow-passion-500/30">
+                    <i data-lucide="calculator" class="w-5 h-5"></i>
+                </div>
+                <h1 class="text-xl font-black tracking-tighter text-passion-900 uppercase">Roller Stone</h1>
+            </div>
+            <div class="hidden sm:block text-[10px] font-black text-passion-600 tracking-widest uppercase">
+                TSK Authorized Contractor
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-5xl mx-auto w-full px-4 py-8 md:py-16 space-y-12">
+        <!-- Hero Section -->
+        <div class="text-center space-y-5 max-w-3xl mx-auto animate-fade-in">
+            <div class="inline-block px-4 py-1.5 bg-passion-50 text-passion-600 text-[10px] font-black rounded-full tracking-widest uppercase border border-passion-200 shadow-sm">
+                Official Professional Tool
+            </div>
+            <h2 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tight leading-[1.1]">
+                【福井県RS施工 専用】<br/>
+                <span class="passion-text-gradient">至高の足元へ。</span>
+            </h2>
+            <p class="text-slate-500 text-sm md:text-base leading-relaxed max-w-xl mx-auto font-medium">
+                株式会社TSKが贈る、常識を塗り替える施工体験。<br class="hidden sm:block"/>
+                あなたの現場に、圧倒的な高級感と情熱を。
+            </p>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
+            <!-- Left Column: Simulator -->
+            <div class="lg:col-span-7 space-y-8">
+                <div class="glossy-card rounded-[3rem] p-8 md:p-12 relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-2 h-full passion-gradient"></div>
+                    
+                    <div class="space-y-12">
+                        <!-- Step 1: Area Input -->
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full passion-gradient text-white flex items-center justify-center text-sm font-black shadow-xl shadow-passion-600/20">1</div>
+                                <label class="text-xs font-black text-passion-700 uppercase tracking-[0.2em]">施工面積の入力</label>
+                            </div>
+                            <div class="relative group">
+                                <input type="number" id="areaInput" value="20" class="w-full px-10 py-10 text-7xl font-black bg-slate-50 border-2 border-slate-100 rounded-[3rem] focus:border-passion-500 focus:bg-white focus:ring-0 outline-none pr-32 transition-all text-slate-900" />
+                                <div class="absolute inset-y-0 right-10 flex items-center pointer-events-none text-4xl font-black text-slate-300">㎡</div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2: Result Display -->
+                        <div class="pt-8 border-t border-passion-50">
+                            <div class="passion-gradient rounded-[3rem] p-12 text-white relative shadow-2xl shadow-passion-900/20 overflow-hidden group">
+                                <div class="text-[10px] font-black uppercase tracking-widest text-passion-200 mb-2">Estimated Investment</div>
+                                <div class="flex items-baseline gap-2">
+                                    <span id="totalDisplay" class="text-6xl md:text-8xl font-black tracking-tighter">¥0</span>
+                                    <span class="text-xl font-bold opacity-40">（税込）</span>
+                                </div>
+                                <div class="text-[10px] font-bold text-passion-200/60 mt-4 italic">※福井エリアの基準価格に基づく最高品質の施工目安です。</div>
+                                
+                                <div class="mt-12 grid grid-cols-2 gap-8 border-t border-white/20 pt-10 relative z-10">
+                                    <div>
+                                        <div class="text-[10px] font-bold text-passion-200 uppercase mb-2">平米単価</div>
+                                        <div id="unitPriceDisplay" class="text-3xl font-black text-white">¥0</div>
+                                    </div>
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-bold text-passion-200 uppercase mb-2">施工責任店舗</div>
+                                        <div class="text-2xl font-black text-white drop-shadow-md">株式会社TSK</div>
+                                    </div>
+                                </div>
+                                <div class="absolute -bottom-24 -right-24 opacity-[0.08] text-white rotate-12">
+                                    <i data-lucide="gem" class="w-[350px] h-[350px]"></i>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- CTA Button -->
+                        <div class="space-y-6">
+                            <button onclick="handleInquiry()" class="btn-hover-glow w-full passion-gradient text-white font-black py-7 rounded-[2rem] flex items-center justify-center gap-4 transition-all active:scale-[0.97] shadow-2xl shadow-passion-600/30 group">
+                                <span class="text-xl">この内容で福井県認定施工店に問い合わせる</span>
+                                <i data-lucide="zap" class="w-6 h-6 fill-current group-hover:scale-125 transition-transform"></i>
+                            </button>
+                            <div class="bg-passion-50/80 backdrop-blur-sm border border-passion-100 rounded-[2rem] p-6 flex items-start gap-4">
+                                <div class="bg-passion-500 text-white p-2 rounded-xl shadow-lg">
+                                    <i data-lucide="sparkles" class="w-5 h-5"></i>
+                                </div>
+                                <p class="text-xs text-passion-900 font-bold leading-relaxed">
+                                    <span class="text-passion-600 underline text-sm block mb-1">画像送信で完成イメージを無料作成！</span>
+                                    施工予定箇所の画像をお送りいただければ、株式会社TSKの専任デザイナーが情熱を持って<span class="text-passion-600">施工完成パース図（フォトパース）</span>を作成・提案させていただきます。
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notes -->
+                <div class="bg-slate-50 border border-slate-100 rounded-[2.5rem] p-10 space-y-6">
+                    <div class="flex items-center gap-3">
+                        <i data-lucide="info" class="text-passion-500 w-5 h-5"></i>
+                        <h3 class="text-xs font-black uppercase tracking-widest text-slate-500">お見積りに関する特記事項</h3>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="space-y-2">
+                            <div class="text-[11px] font-black text-slate-800 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-passion-500 rounded-full"></div>
+                                下地調整の重要性
+                            </div>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">
+                                現場の状態（クラックや剥離等）に応じ、美しく仕上げるための下地処理が別途必要になる場合がございます。
+                            </p>
+                        </div>
+                        <div class="space-y-2">
+                            <div class="text-[11px] font-black text-slate-800 flex items-center gap-2">
+                                <div class="w-1.5 h-1.5 bg-passion-500 rounded-full"></div>
+                                現場諸経費について
+                            </div>
+                            <p class="text-[10px] text-slate-500 leading-relaxed">
+                                福井県内各所への搬入費、現場環境に応じた諸経費等は現地調査後に精査させていただきます。
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Visuals & Branding -->
+            <div class="lg:col-span-5 space-y-8">
+                <!-- PHOTO PERSPECTIVE CARD -->
+                <div class="bg-white border-2 border-passion-500/20 rounded-[3rem] p-10 space-y-6 relative overflow-hidden group shadow-xl hover:shadow-passion-500/10 transition-shadow">
+                    <div class="absolute -top-12 -right-12 opacity-[0.03] group-hover:scale-110 transition-transform duration-1000">
+                        <i data-lucide="camera" class="w-48 h-48 text-passion-600"></i>
+                    </div>
+                    <div class="space-y-5 relative z-10">
+                        <div class="inline-flex items-center gap-2 px-4 py-1.5 bg-passion-600 text-white text-[10px] font-black rounded-full uppercase tracking-[0.2em] shadow-lg shadow-passion-600/20">
+                            Professional Proposal
+                        </div>
+                        <h3 class="text-3xl font-black text-slate-900 leading-tight">
+                            視覚で捉える、<br/><span class="passion-text-gradient">理想の完成形。</span>
+                        </h3>
+                        <p class="text-slate-500 text-sm leading-relaxed font-medium">
+                            「完成が想像できない」とは言わせません。株式会社TSKは、あなたの写真をベースに、本物と見紛うばかりのフォトパースを無料で提供します。
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-5 pt-4 relative z-10">
+                        <div class="bg-passion-50 p-4 rounded-2xl border border-passion-100 shadow-inner text-passion-600">
+                            <i data-lucide="image" class="w-7 h-7"></i>
+                        </div>
+                        <i data-lucide="chevron-right" class="text-slate-300 w-6 h-6"></i>
+                        <div class="bg-passion-600 p-4 rounded-2xl shadow-xl shadow-passion-600/30 text-white">
+                            <i data-lucide="sparkles" class="w-7 h-7"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Digital Catalog -->
+                <div class="bg-slate-900 rounded-[3rem] p-10 space-y-6 relative overflow-hidden group">
+                    <div class="space-y-4">
+                        <div class="text-[10px] font-black text-passion-400 uppercase tracking-widest">Design Inspiration</div>
+                        <h3 class="text-2xl font-black text-white leading-tight">デザインカタログ</h3>
+                        <p class="text-slate-400 text-sm leading-relaxed">
+                            世界観を変えるデザインの数々。施工事例の詳細は公式カタログをご覧ください。
+                        </p>
+                    </div>
+                    <a href="https://rollerstone.com/catalog/" target="_blank" class="block relative rounded-[2rem] overflow-hidden aspect-video group/thumb">
+                        <img src="https://images.unsplash.com/photo-1595428774223-ef52624120d2?q=80&w=1000&auto=format&fit=crop" class="w-full h-full object-cover group-hover/thumb:scale-105 transition-transform duration-700 brightness-[0.5] contrast-[1.1]">
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <div class="bg-white/10 backdrop-blur-md p-5 rounded-full border border-white/20 group-hover/thumb:scale-110 transition-all">
+                                <i data-lucide="book-open" class="w-8 h-8 text-white"></i>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+
+                <!-- Price Chart -->
+                <div class="bg-white border border-slate-100 rounded-[2.5rem] p-10 shadow-sm">
+                    <h4 class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-8 text-center">面積別コスト・パフォーマンス</h4>
+                    <div class="h-[200px] w-full">
+                        <canvas id="priceChart"></canvas>
+                    </div>
+                    <p class="mt-6 text-[10px] text-slate-400 font-bold text-center italic">広い面積ほど、一平米あたりの投資効率は向上します。</p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Modal -->
+    <div id="modalOverlay" class="fixed inset-0 z-50 hidden flex items-center justify-center p-4">
+        <div class="fixed inset-0 bg-slate-950/95 backdrop-blur-md" onclick="closeModal()"></div>
+        <div class="bg-white w-full max-w-lg rounded-[3.5rem] shadow-2xl relative z-10 overflow-hidden animate-fade-in border border-passion-100">
+            <div class="p-10 bg-passion-50/50 flex justify-between items-center border-b border-passion-100">
+                <div class="space-y-1">
+                    <h3 class="text-2xl font-black text-slate-900">コンタクトを選択</h3>
+                    <p class="text-passion-600 text-[10px] font-black uppercase tracking-widest">株式会社TSK 認定施工窓口</p>
+                </div>
+                <button onclick="closeModal()" class="p-3 hover:bg-passion-100 rounded-2xl transition-all">
+                    <i data-lucide="x" class="w-6 h-6 text-passion-400"></i>
+                </button>
+            </div>
+            
+            <div class="p-10 space-y-6">
+                <!-- Summary Card -->
+                <div class="bg-slate-950 p-8 rounded-[2.5rem] text-center shadow-xl shadow-slate-950/20">
+                     <div class="text-[10px] font-black text-passion-400 uppercase tracking-widest mb-2">Estimated Total</div>
+                     <div id="modalResultText" class="text-4xl font-black text-white">¥0</div>
+                </div>
+
+                <!-- Instagram -->
+                <a href="https://www.instagram.com/tsk.rs_rw/" target="_blank" class="flex items-center gap-5 p-7 bg-white border-2 border-slate-100 hover:border-passion-500 rounded-[2rem] transition-all group shadow-sm hover:shadow-xl">
+                    <div class="bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] p-4 rounded-2xl shadow-lg group-hover:rotate-6 transition-transform">
+                        <i data-lucide="instagram" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-xl font-black text-slate-900">Instagram DM</div>
+                        <div class="text-[10px] text-slate-500 font-bold leading-tight">写真をお送りください。パース図を作成します。</div>
+                    </div>
+                    <i data-lucide="external-link" class="w-5 h-5 text-slate-300 group-hover:text-passion-500"></i>
+                </a>
+
+                <!-- Phone -->
+                <a href="tel:090-○○○○-○○○○" class="flex items-center gap-5 p-7 bg-white border-2 border-slate-100 hover:border-passion-500 rounded-[2rem] transition-all group shadow-sm hover:shadow-xl">
+                    <div class="passion-gradient p-4 rounded-2xl shadow-lg group-hover:scale-110 transition-transform">
+                        <i data-lucide="phone" class="w-7 h-7 text-white"></i>
+                    </div>
+                    <div class="flex-1">
+                        <div class="text-xl font-black text-slate-900">Direct Call</div>
+                        <div class="text-[10px] text-slate-500 font-bold leading-tight">お急ぎの際や現地調査のご相談</div>
+                    </div>
+                    <span class="text-passion-600 font-black text-xs uppercase bg-passion-50 px-3 py-1 rounded-full">Call Now</span>
+                </a>
+            </div>
+            
+            <div class="p-10 pt-0 text-center">
+                <p class="text-[9px] text-slate-300 font-black uppercase tracking-[0.4em]">TSK Fukui Professional</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-slate-50 border-t border-slate-200 py-20">
+        <div class="max-w-5xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div class="space-y-8">
+                <div class="flex items-center gap-4">
+                    <div class="passion-gradient text-white p-4 rounded-[1.5rem] shadow-xl shadow-passion-600/20">
+                        <i data-lucide="shield-check" class="w-8 h-8"></i>
+                    </div>
+                    <div>
+                        <h4 class="text-3xl font-black text-slate-900 uppercase tracking-tight">株式会社TSK</h4>
+                        <p class="text-passion-600 text-xs font-black tracking-widest uppercase">Fukui Authorized Contractor</p>
+                    </div>
+                </div>
+                <div class="space-y-5 text-slate-500 text-sm font-bold border-l-4 border-passion-500 pl-8">
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="map-pin" class="w-5 h-5 text-passion-600"></i>
+                        <span>エリア: <strong class="text-slate-900">福井県全域</strong></span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="phone" class="w-5 h-5 text-passion-600"></i>
+                        <span>電話: 090-○○○○-○○○○</span>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <i data-lucide="award" class="w-5 h-5 text-passion-600"></i>
+                        <span>認定施工技術者 専属在籍</span>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center md:text-right space-y-4">
+                <div class="text-slate-900 font-black text-2xl uppercase tracking-tighter opacity-10">TSK FUKUI</div>
+                <p class="text-slate-400 text-[10px] font-black tracking-[0.4em] uppercase">
+                    © 2024 株式会社TSK / Roller Stone Fukui Branch.
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script>
+        // --- Pricing Logic ---
+        const MINIMUM_SUBTOTAL = 115900;
+        const TAX_RATE = 0.10;
+        const PRICING_TIERS = [
+            { maxArea: 11, price: 11200 }, { maxArea: 12, price: 11100 }, { maxArea: 14, price: 11000 },
+            { maxArea: 15, price: 10900 }, { maxArea: 16, price: 10800 }, { maxArea: 18, price: 10700 },
+            { maxArea: 19, price: 10600 }, { maxArea: 20, price: 10500 }, { maxArea: 22, price: 10400 },
+            { maxArea: 23, price: 10300 }, { maxArea: 25, price: 10200 }, { maxArea: 29, price: 10100 },
+            { maxArea: 31, price: 10000 }, { maxArea: 35, price: 9900 }, { maxArea: 39, price: 9800 },
+            { maxArea: 43, price: 9700 }, { maxArea: 47, price: 9600 }, { maxArea: 51, price: 9500 },
+            { maxArea: 55, price: 9400 }, { maxArea: 62, price: 9400 }, { maxArea: Infinity, price: 9200 }
+        ];
+
+        let areaValue = 20;
+        let priceChartInstance = null;
+
+        const getUnitPrice = (area) => {
+            if (area < 10) return 11200;
+            const tier = PRICING_TIERS.find(t => area <= t.maxArea);
+            return tier ? tier.price : 9200;
+        };
+
+        const formatCurrency = (val) => new Intl.NumberFormat('ja-JP', { style: 'currency', currency: 'JPY' }).format(val);
+
+        const updateSimulation = () => {
+            const unitPrice = getUnitPrice(areaValue);
+            const subtotalRaw = areaValue * unitPrice;
+            const subtotalFinal = Math.max(subtotalRaw, MINIMUM_SUBTOTAL);
+            const tax = Math.floor(subtotalFinal * TAX_RATE);
+            const total = subtotalFinal + tax;
+
+            // Update UI
+            document.getElementById('totalDisplay').textContent = formatCurrency(total);
+            document.getElementById('unitPriceDisplay').textContent = formatCurrency(unitPrice);
+            document.getElementById('modalResultText').textContent = formatCurrency(total);
+        };
+
+        const initChart = () => {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            const dataPoints = [10, 20, 30, 40, 50, 60, 80];
+            const labels = dataPoints.map(a => `${a}㎡`);
+            const prices = dataPoints.map(a => getUnitPrice(a));
+
+            priceChartInstance = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: '平米単価',
+                        data: prices,
+                        borderColor: '#e11d48',
+                        borderWidth: 4,
+                        pointRadius: 6,
+                        pointBackgroundColor: '#fff',
+                        pointBorderColor: '#e11d48',
+                        pointBorderWidth: 3,
+                        fill: true,
+                        backgroundColor: 'rgba(225, 29, 72, 0.05)',
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { 
+                        legend: { display: false },
+                        tooltip: { 
+                            backgroundColor: '#881337',
+                            titleColor: '#fff',
+                            bodyColor: '#fff',
+                            cornerRadius: 12,
+                            padding: 16,
+                            displayColors: false,
+                            callbacks: {
+                                label: (context) => `平米単価: ${formatCurrency(context.parsed.y)}`
+                            }
+                        } 
+                    },
+                    scales: {
+                        x: { 
+                            grid: { display: false },
+                            ticks: { color: '#94a3b8', font: { size: 10, weight: '900' } }
+                        },
+                        y: { 
+                            grid: { color: 'rgba(0,0,0,0.03)' },
+                            ticks: { color: '#94a3b8', font: { size: 10 } }
+                        }
+                    }
+                }
+            });
+        };
+
+        const handleInquiry = () => {
+            document.getElementById('modalOverlay').classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            lucide.createIcons();
+        };
+
+        const closeModal = () => {
+            document.getElementById('modalOverlay').classList.add('hidden');
+            document.body.style.overflow = 'auto';
+        };
+
+        // --- Init ---
+        window.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            initChart();
+
+            const areaInput = document.getElementById('areaInput');
+            areaInput.addEventListener('input', (e) => {
+                areaValue = parseFloat(e.target.value) || 0;
+                updateSimulation();
+            });
+
+            updateSimulation();
+        });
+    </script>
+</body>
+</html>
