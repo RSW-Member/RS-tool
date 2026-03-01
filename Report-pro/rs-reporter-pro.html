@@ -160,7 +160,7 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .sl-a{background:rgba(34,197,94,.85);color:#000;}
 .assign-btn{position:absolute;bottom:22px;right:5px;min-width:28px;height:28px;padding:0 7px;border-radius:8px;background:rgba(0,0,0,.85);border:1.5px solid rgba(232,160,32,.6);color:var(--accent);font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;}
 .assign-btn.unset{border-color:rgba(255,255,255,.2);color:var(--text2);}
-.del-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.9);border:none;color:#fff;font-size:10px;cursor:pointer;}
+.del-btn{position:absolute;top:5px;right:5px;width:28px;height:28px;border-radius:8px;background:rgba(232,160,32,.85);border:none;color:#000;font-size:13px;cursor:pointer;font-weight:900;}
 .solo-section{display:flex;flex-direction:column;gap:10px;}
 .solo-header{display:flex;align-items:center;justify-content:space-between;padding:0 2px;}
 .solo-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
@@ -1277,10 +1277,10 @@ function s3RenderAll(el) {
           <div class="pair-badge ${ok ? 'pb-ok' : 'pb-warn'}">${ok ? '✅ 完成' : '⚠️ 片方なし'}</div>
         </div>
         <div class="pair-images">`;
-      if (b) h += `<div class="pair-slot"><img src="${b.thumb||b.src}" class="${b.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${b.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${b.id})">✕</button></div>`;
+      if (b) h += `<div class="pair-slot"><img src="${b.thumb||b.src}" class="${b.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${b.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" title="ペアから外す" onclick="s3UnpairPhoto(${b.id})">↩</button></div>`;
       else   h += `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickSlotForPair(${n},'b')"><div style="font-size:28px">➕</div><span style="font-size:10px;color:var(--accent);font-weight:700;">Before を選ぶ</span></div>`;
-      if (a) h += `<div class="pair-slot"><img src="${a.thumb||a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${a.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${a.id})">✕</button></div>`;
-      else   h += `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
+      if (a) h += `<div class="pair-slot"><img src="${a.thumb||a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${a.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" title="ペアから外す" onclick="s3UnpairPhoto(${a.id})">↩</button></div>`;
+      else   h += `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickSlotForPair(${n},'a')"><div style="font-size:28px">➕</div><span style="font-size:10px;color:var(--accent);font-weight:700;">After を選ぶ</span></div>`;
       h += `</div></div>`;
     });
     h += '</div>';
@@ -1613,83 +1613,193 @@ function fallbackCopy(txt) {
 async function downloadZip() {
   const d = new Date();
   const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const siteName = (APP.siteName || '現場').replace(/[\s\\/:*?"<>|]/g,'_');
+  const siteName = (APP.siteName || '現場').replace(/[\s\/:*?"<>|]/g,'_');
   const zipName = `RS_報告_${siteName}_${ds}.zip`;
-
-  // JSZipが読み込まれているか確認
-  if (typeof JSZip === 'undefined') {
-    // フォールバック：テキストのみDL
-    const txt2 = document.getElementById('send-text-box').textContent;
-    const b2 = new Blob([txt2], {type:'text/plain;charset=utf-8'});
-    const u2 = URL.createObjectURL(b2);
-    const a2 = document.createElement('a');
-    a2.href=u2; a2.download=`RS_報告_${ds}.txt`; a2.click();
-    URL.revokeObjectURL(u2);
-    showDownloadGuide(`RS_報告_${ds}.txt`);
-    toast('⚠️ ZIPが使えないためテキストのみDLしました（オフライン時はZIP不可）');
-    return;
-  }
-
   const btn = document.getElementById('btn-zip');
   btn.textContent = '⏳ ZIP作成中…';
   btn.disabled = true;
 
+  const tagName = {b:'Before', d:'造形後', a:'After', p:'こだわり', o:'その他'};
+  const tagOrder = ['b','d','a','p','o'];
+  const tagCount = {b:0,d:0,a:0,p:0,o:0};
+  const txt = document.getElementById('send-text-box').textContent;
+
+  // 写真リスト収集
+  const photoFiles = [];
+  for (const tag of tagOrder) {
+    const photos = s3Photos.filter(p => p.tag === tag && p.include !== false);
+    const sorted = [
+      ...photos.filter(p => p.pairNum).sort((a,b) => a.pairNum - b.pairNum),
+      ...photos.filter(p => !p.pairNum)
+    ];
+    for (const photo of sorted) {
+      const base64 = photo.src ? photo.src.split(',')[1] : null;
+      if (!base64) continue;
+      tagCount[tag]++;
+      const num = String(tagCount[tag]).padStart(2,'0');
+      photoFiles.push({ name: `${ds}_${tagName[tag]}_${num}.jpg`, base64 });
+    }
+  }
+
+  // JSZipが使えるか試みる
+  if (typeof JSZip !== 'undefined') {
+    try {
+      const zip = new JSZip();
+      zip.file(`報告書_${ds}.txt`, txt);
+      photoFiles.forEach(f => zip.file(f.name, f.base64, {base64: true}));
+      const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:4}});
+      triggerDownload(blob, zipName);
+      showDownloadGuide(zipName, photoFiles.length);
+      btn.textContent = '📦 ZIPをダウンロード'; btn.disabled = false;
+      return;
+    } catch(e) {
+      console.warn('JSZip failed, trying manual ZIP:', e);
+    }
+  }
+
+  // フォールバック：手動でZIPバイナリを構築（Pure JS、ライブラリ不要）
   try {
-    const zip = new JSZip();
-    const txt = document.getElementById('send-text-box').textContent;
-    // 報告テキストをZIPに含める
-    zip.file(`報告書_${ds}.txt`, txt);
-
-    const tagName = {b:'Before', d:'造形後', a:'After', p:'こだわり', o:'その他'};
-    const tagCount = {b:0, d:0, a:0, p:0, o:0};
-
-    // フラット配置：Before→造形後→After→こだわり→その他 の順
-    // ペアありは番号順を先に、ペアなしを後に
-    const tagOrder = ['b','d','a','p','o'];
-    for (const tag of tagOrder) {
-      const photos = s3Photos.filter(p => p.tag === tag);
-      const sorted = [
-        ...photos.filter(p => p.pairNum).sort((a,b) => a.pairNum - b.pairNum),
-        ...photos.filter(p => !p.pairNum)
-      ];
-      for (const photo of sorted) {
-        if (!photo.src) continue;
-        tagCount[tag]++;
-        const num = String(tagCount[tag]).padStart(2,'0');
-        const fname = `${ds}_${tagName[tag]}_${num}.jpg`;
-        const base64 = photo.src.split(',')[1];
-        if (base64) zip.file(fname, base64, {base64: true});
-      }
+    const entries = [{name:`報告書_${ds}.txt`, data: strToUint8(txt)}];
+    for (const f of photoFiles) {
+      entries.push({name: f.name, data: b64ToUint8(f.base64)});
     }
-
-    // ZIP生成・ダウンロード
-    const photoCount = Object.values(tagCount).reduce((s,v)=>s+v,0);
-    if (photoCount === 0) {
-      // 写真なしでもテキストのみZIPを生成
-      toast('⚠️ 写真データがありません。テキストのみZIPを作成します');
-    }
-    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:4}});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = zipName; a.click();
-    URL.revokeObjectURL(url);
-    showDownloadGuide(zipName);
-
-  } catch(e) {
-    toast('ZIP生成に失敗しました: ' + e.message);
+    const zipBlob = buildZip(entries);
+    triggerDownload(zipBlob, zipName);
+    showDownloadGuide(zipName, photoFiles.length);
+  } catch(e2) {
+    // 最終フォールバック：テキストのみ
+    toast('⚠️ ZIP生成失敗。テキストのみダウンロードします');
+    const b = new Blob([txt], {type:'text/plain;charset=utf-8'});
+    triggerDownload(b, `RS_報告_${ds}.txt`);
   } finally {
-    btn.textContent = '📦 ZIPをダウンロード';
-    btn.disabled = false;
+    btn.textContent = '📦 ZIPをダウンロード'; btn.disabled = false;
   }
 }
-function showDownloadGuide(fname) {
+
+function triggerDownload(blob, filename) {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
+
+function strToUint8(str) {
+  return new TextEncoder().encode(str);
+}
+
+function b64ToUint8(b64) {
+  const bin = atob(b64);
+  const arr = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+  return arr;
+}
+
+// Pure JS ZIP builder（STORE、無圧縮）
+function buildZip(entries) {
+  const parts = [];
+  const centralDir = [];
+  let offset = 0;
+
+  for (const entry of entries) {
+    const nameBytes = new TextEncoder().encode(entry.name);
+    const data = entry.data;
+    const crc = crc32(data);
+    const size = data.length;
+
+    // Local file header
+    const lh = new Uint8Array(30 + nameBytes.length);
+    const lv = new DataView(lh.buffer);
+    lv.setUint32(0, 0x04034b50, true);   // signature
+    lv.setUint16(4, 20, true);            // version needed
+    lv.setUint16(6, 0, true);             // flags
+    lv.setUint16(8, 0, true);             // compression: STORE
+    lv.setUint16(10, 0, true);            // mod time
+    lv.setUint16(12, 0, true);            // mod date
+    lv.setUint32(14, crc, true);          // crc32
+    lv.setUint32(18, size, true);         // compressed size
+    lv.setUint32(22, size, true);         // uncompressed size
+    lv.setUint16(26, nameBytes.length, true); // filename length
+    lv.setUint16(28, 0, true);            // extra length
+    lh.set(nameBytes, 30);
+
+    parts.push(lh);
+    parts.push(data);
+
+    // Central directory entry
+    const cd = new Uint8Array(46 + nameBytes.length);
+    const cv = new DataView(cd.buffer);
+    cv.setUint32(0, 0x02014b50, true);   // signature
+    cv.setUint16(4, 20, true);            // version made by
+    cv.setUint16(6, 20, true);            // version needed
+    cv.setUint16(8, 0, true);             // flags
+    cv.setUint16(10, 0, true);            // compression: STORE
+    cv.setUint16(12, 0, true);            // mod time
+    cv.setUint16(14, 0, true);            // mod date
+    cv.setUint32(16, crc, true);          // crc32
+    cv.setUint32(20, size, true);         // compressed size
+    cv.setUint32(24, size, true);         // uncompressed size
+    cv.setUint16(28, nameBytes.length, true); // filename length
+    cv.setUint16(30, 0, true);            // extra length
+    cv.setUint16(32, 0, true);            // comment length
+    cv.setUint16(34, 0, true);            // disk start
+    cv.setUint16(36, 0, true);            // internal attr
+    cv.setUint32(38, 0, true);            // external attr
+    cv.setUint32(42, offset, true);       // local header offset
+    cd.set(nameBytes, 46);
+    centralDir.push(cd);
+
+    offset += lh.length + data.length;
+  }
+
+  const cdStart = offset;
+  const cdSize = centralDir.reduce((s,c) => s + c.length, 0);
+
+  // End of central directory
+  const eocd = new Uint8Array(22);
+  const ev = new DataView(eocd.buffer);
+  ev.setUint32(0, 0x06054b50, true);    // signature
+  ev.setUint16(4, 0, true);             // disk number
+  ev.setUint16(6, 0, true);             // disk with cd
+  ev.setUint16(8, entries.length, true); // entries on disk
+  ev.setUint16(10, entries.length, true); // total entries
+  ev.setUint32(12, cdSize, true);        // cd size
+  ev.setUint32(16, cdStart, true);       // cd offset
+  ev.setUint16(20, 0, true);             // comment length
+
+  const allParts = [...parts, ...centralDir, eocd];
+  const totalSize = allParts.reduce((s,p) => s + p.length, 0);
+  const result = new Uint8Array(totalSize);
+  let pos = 0;
+  for (const p of allParts) { result.set(p, pos); pos += p.length; }
+  return new Blob([result], {type:'application/zip'});
+}
+
+// CRC32テーブル
+const crc32Table = (() => {
+  const t = new Uint32Array(256);
+  for (let i = 0; i < 256; i++) {
+    let c = i;
+    for (let j = 0; j < 8; j++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[i] = c;
+  }
+  return t;
+})();
+
+function crc32(data) {
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < data.length; i++) crc = crc32Table[(crc ^ data[i]) & 0xFF] ^ (crc >>> 8);
+  return (crc ^ 0xFFFFFFFF) >>> 0;
+}
+function showDownloadGuide(fname, photoCount) {
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
   overlay.innerHTML = `
     <div style="background:#1a1a1a;border:1px solid rgba(232,160,32,.3);border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;">
       <div style="font-size:28px;text-align:center;margin-bottom:12px;">📥</div>
       <div style="font-size:15px;font-weight:900;color:#e8a020;text-align:center;margin-bottom:6px;">ダウンロード完了！</div>
-      <div style="font-size:13px;color:#f0f0f0;font-weight:700;text-align:center;margin-bottom:16px;">${fname}</div>
+      <div style="font-size:13px;color:#f0f0f0;font-weight:700;text-align:center;margin-bottom:16px;">${fname}${photoCount !== undefined ? `<br><span style="font-size:11px;color:#aaa;">(写真 ${photoCount}枚 + 報告テキスト)</span>` : ""}</div>
       <div style="background:#111;border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:#999;line-height:2.2;">
         <div style="color:#e8a020;font-weight:700;margin-bottom:4px;">📁 ファイルの場所</div>
         <div>iPhone：<strong style="color:#f0f0f0;">ファイルアプリ → ダウンロード</strong></div>
