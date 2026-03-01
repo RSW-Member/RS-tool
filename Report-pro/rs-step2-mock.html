@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP2 写真追加モック v4</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+:root{--bg:#0f0f0f;--surface:#191919;--surface2:#222;--border:#2a2a2a;--accent:#e8a020;--text:#f0f0f0;--text2:#777;--before:#4a9eff;--during:#a855f7;--after:#22c55e;--pickup:#f59e0b;--other:#94a3b8;--danger:#ef4444;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#141414;font-family:'Noto Sans JP',sans-serif;color:var(--text);}
+.meta{background:#000;padding:9px 20px;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid #1a1a1a;position:sticky;top:0;z-index:400;}
+.meta-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:2px;}
+.meta-tag{font-size:10px;background:rgba(232,160,32,.14);color:var(--accent);padding:3px 10px;border-radius:100px;font-weight:700;}
+.vbar{background:#080808;border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:6px;position:sticky;top:33px;z-index:300;overflow-x:auto;scrollbar-width:none;}
+.vbar::-webkit-scrollbar{display:none;}
+.vlbl{font-size:10px;color:var(--text2);font-weight:700;flex-shrink:0;}
+.vbtn{flex-shrink:0;padding:5px 12px;border-radius:100px;font-size:10px;font-weight:700;background:var(--surface2);color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .15s;}
+.vbtn.on{background:rgba(232,160,32,.12);color:var(--accent);border-color:rgba(232,160,32,.3);}
+.wrap{display:flex;justify-content:center;padding:24px 16px 64px;}
+.phone{width:100%;max-width:390px;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #2e2e2e,0 40px 80px rgba(0,0,0,.85);}
+.notch{height:44px;background:#000;display:flex;align-items:center;justify-content:center;}
+.notch-pill{width:120px;height:34px;background:#0a0a0a;border-radius:0 0 20px 20px;}
+.ah{background:var(--surface);border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:10px;}
+.back-btn{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;padding:0;line-height:1;}
+.ah-step{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:1px;}
+.ah-title{font-size:13px;font-weight:700;color:var(--text2);}
+.body{padding:16px 16px 40px;display:flex;flex-direction:column;gap:14px;}
+
+/* HINT */
+.hint-card{background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.18);border-radius:12px;padding:11px 13px;}
+.hint-body{font-size:11px;color:var(--text2);line-height:1.8;}
+.hint-body strong{color:var(--text);}
+
+/* TAG BUTTONS — 5列 */
+.tag-bar{display:grid;grid-template-columns:repeat(5,1fr);gap:5px;}
+.tag-btn{padding:8px 3px;border-radius:11px;cursor:pointer;font-family:inherit;text-align:center;min-height:64px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;border:2px solid #1e1e1e;background:#111;color:#333;transition:all .2s;}
+.tag-btn .ti{font-size:18px;line-height:1;}
+.tag-btn .tc{font-size:10px;font-weight:700;}
+.tag-btn .tn{font-size:9px;font-weight:900;background:rgba(255,255,255,.07);padding:1px 6px;border-radius:100px;margin-top:2px;}
+.tag-btn.active{transform:scale(1.05);box-shadow:0 4px 18px rgba(0,0,0,.5);}
+.tag-btn.active.t-before{border-color:var(--before);background:rgba(74,158,255,.14);color:var(--before);}
+.tag-btn.active.t-during{border-color:var(--during);background:rgba(168,85,247,.14);color:var(--during);}
+.tag-btn.active.t-after {border-color:var(--after); background:rgba(34,197,94,.14); color:var(--after);}
+.tag-btn.active.t-pickup{border-color:var(--pickup);background:rgba(245,158,11,.14);color:var(--pickup);}
+.tag-btn.active.t-other {border-color:var(--other); background:rgba(148,163,184,.12);color:var(--other);}
+
+/* UPLOAD */
+.upload-zone{border:2px dashed var(--border);border-radius:14px;padding:20px 16px;text-align:center;cursor:pointer;background:var(--surface);transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:5px;}
+.upload-zone:active{opacity:.8;}
+.uz-icon{font-size:30px;line-height:1;}
+.uz-main{font-size:15px;font-weight:700;}
+.uz-sub{font-size:11px;color:var(--text2);}
+.uz-tag{font-size:11px;font-weight:700;padding:3px 12px;border-radius:100px;margin-top:2px;}
+.uz-b{border-color:var(--before)!important;background:rgba(74,158,255,.05)!important;}
+.uz-d{border-color:var(--during)!important;background:rgba(168,85,247,.05)!important;}
+.uz-a{border-color:var(--after)!important; background:rgba(34,197,94,.05)!important;}
+.uz-p{border-color:var(--pickup)!important;background:rgba(245,158,11,.05)!important;}
+.uz-o{border-color:var(--other)!important; background:rgba(148,163,184,.05)!important;}
+.lbl-b{background:rgba(74,158,255,.15);color:var(--before);}
+.lbl-d{background:rgba(168,85,247,.15);color:var(--during);}
+.lbl-a{background:rgba(34,197,94,.15);color:var(--after);}
+.lbl-p{background:rgba(245,158,11,.15);color:var(--pickup);}
+.lbl-o{background:rgba(148,163,184,.13);color:var(--other);}
+
+/* FILTER AREA */
+.filter-area{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:9px;}
+.filter-top{display:flex;align-items:center;justify-content:space-between;}
+.filter-lbl{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;display:flex;align-items:center;gap:5px;}
+.filter-lbl::before{content:'';width:3px;height:10px;background:var(--accent);border-radius:2px;}
+.total-badge{font-size:11px;font-weight:700;color:var(--accent);}
+.filter-div{width:100%;height:1px;background:var(--border);}
+.frow{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-bottom:1px;}
+.frow::-webkit-scrollbar{display:none;}
+.frow-lbl{font-size:10px;color:var(--text2);font-weight:700;flex-shrink:0;display:flex;align-items:center;}
+.fbtn{flex-shrink:0;padding:6px 10px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.fbtn.on.f-all   {background:var(--accent);border-color:var(--accent);color:#000;}
+.fbtn.on.f-before{background:var(--before);border-color:var(--before);color:#fff;}
+.fbtn.on.f-during{background:var(--during);border-color:var(--during);color:#fff;}
+.fbtn.on.f-after {background:var(--after); border-color:var(--after); color:#000;}
+.fbtn.on.f-pickup{background:var(--pickup);border-color:var(--pickup);color:#000;}
+.fbtn.on.f-other {background:var(--other); border-color:var(--other); color:#000;}
+.fbtn.on.f-ba    {background:linear-gradient(90deg,var(--before),var(--after));border:none;color:#fff;}
+.fbtn.on.f-pair  {background:linear-gradient(90deg,var(--before),var(--after));border:none;color:#fff;}
+.fbtn.on.f-pairv {background:linear-gradient(160deg,var(--before),var(--after));border:none;color:#fff;}
+.fbtn.on.f-port  {background:#333;border-color:#555;color:var(--text);}
+.fbtn.on.f-land  {background:#333;border-color:#555;color:var(--text);}
+.view-row{display:flex;gap:5px;}
+.vmode-btn{flex:1;padding:7px 4px;border-radius:8px;font-size:10px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;text-align:center;transition:all .15s;}
+.vmode-btn.on{background:rgba(232,160,32,.12);border-color:rgba(232,160,32,.4);color:var(--accent);}
+.vmode-icon{font-size:13px;display:block;margin-bottom:2px;}
+
+/* PHOTO ITEMS */
+.photo-section{display:flex;flex-direction:column;gap:8px;}
+.ps-header{display:flex;align-items:center;justify-content:space-between;}
+.ps-label{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
+.ps-dot{width:10px;height:10px;border-radius:50%;}
+.ps-count{font-size:11px;color:var(--text2);}
+.photo-item{position:relative;border-radius:10px;overflow:hidden;}
+.photo-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.photo-badge{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;}
+.orient-badge{position:absolute;top:5px;left:5px;font-size:9px;font-weight:700;padding:2px 5px;border-radius:4px;background:rgba(0,0,0,.65);color:#fff;}
+/* タグ付け直しボタン */
+.retag-btn{position:absolute;bottom:20px;right:5px;width:28px;height:28px;border-radius:8px;background:rgba(0,0,0,.8);border:1.5px solid rgba(255,255,255,.25);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;z-index:10;transition:background .15s;}
+.retag-btn:active{background:rgba(232,160,32,.7);}
+.del{position:absolute;top:5px;right:5px;width:26px;height:26px;border-radius:50%;background:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;cursor:pointer;border:none;font-family:inherit;}
+.pb-b{background:rgba(74,158,255,.85);}
+.pb-d{background:rgba(168,85,247,.85);}
+.pb-a{background:rgba(34,197,94,.85);color:#000;}
+.pb-p{background:rgba(245,158,11,.85);color:#000;}
+.pb-o{background:rgba(148,163,184,.80);color:#000;}
+
+/* ═══ タグ付け直しシート ═══ */
+.retag-sheet{
+  position:absolute;inset:0;background:rgba(0,0,0,.82);
+  backdrop-filter:blur(6px);z-index:200;
+  display:none;flex-direction:column;align-items:center;justify-content:flex-end;
+  padding-bottom:24px;
+}
+.retag-sheet.show{display:flex;}
+.retag-card{
+  width:calc(100% - 32px);background:var(--surface);
+  border:1px solid var(--border);border-radius:20px;
+  padding:20px 16px;
+}
+.retag-title{font-size:13px;font-weight:700;color:var(--text2);margin-bottom:14px;text-align:center;letter-spacing:1px;}
+.retag-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:16px;}
+.retag-thumb img{width:100%;height:100%;object-fit:cover;}
+.retag-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-bottom:14px;}
+.rtag-btn{padding:8px 4px;border-radius:10px;border:2px solid #222;background:#111;color:#444;cursor:pointer;font-family:inherit;text-align:center;display:flex;flex-direction:column;align-items:center;gap:3px;transition:all .15s;}
+.rtag-btn .ri{font-size:20px;line-height:1;}
+.rtag-btn .rl{font-size:10px;font-weight:700;}
+.rtag-btn.cur{border-color:var(--accent);background:rgba(232,160,32,.12);color:var(--accent);}
+.rtag-btn.rt-before:hover,.rtag-btn.rt-before.sel{border-color:var(--before);background:rgba(74,158,255,.14);color:var(--before);}
+.rtag-btn.rt-during:hover,.rtag-btn.rt-during.sel{border-color:var(--during);background:rgba(168,85,247,.14);color:var(--during);}
+.rtag-btn.rt-after:hover, .rtag-btn.rt-after.sel {border-color:var(--after); background:rgba(34,197,94,.14); color:var(--after);}
+.rtag-btn.rt-pickup:hover,.rtag-btn.rt-pickup.sel{border-color:var(--pickup);background:rgba(245,158,11,.14);color:var(--pickup);}
+.rtag-btn.rt-other:hover, .rtag-btn.rt-other.sel {border-color:var(--other); background:rgba(148,163,184,.12);color:var(--other);}
+.retag-actions{display:flex;gap:8px;}
+.retag-cancel{flex:1;padding:13px;background:transparent;border:1px solid var(--border);border-radius:11px;font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;}
+.retag-apply{flex:2;padding:13px;background:var(--accent);border:none;border-radius:11px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;}
+
+/* ペア */
+.pair-card{background:var(--surface2);border-radius:12px;overflow:hidden;margin-bottom:10px;}
+.pair-header{padding:7px 10px 5px;font-size:10px;font-weight:700;color:var(--text2);}
+.pair-h{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.pair-v{display:grid;grid-template-columns:1fr;gap:2px;}
+.pair-slot{position:relative;}
+.pair-slot img{width:100%;height:100%;object-fit:cover;display:block;aspect-ratio:4/3;}
+.pair-slot-empty{background:#111;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--text2);aspect-ratio:4/3;}
+
+.empty-sec{border:1px dashed var(--border);border-radius:10px;padding:18px;text-align:center;font-size:12px;color:var(--text2);line-height:1.9;}
+.empty-sec .ei{font-size:32px;margin-bottom:6px;}
+.photo-total{text-align:center;font-size:12px;color:var(--text2);}
+.photo-total span{color:var(--accent);font-weight:700;}
+.next-btn{width:100%;padding:16px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:700;font-family:inherit;cursor:pointer;transition:opacity .15s;}
+.next-btn:active{opacity:.85;}
+.next-btn:disabled{opacity:.35;cursor:not-allowed;}
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(232,160,32,.96);color:#000;padding:12px 24px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="meta"><span class="meta-title">RS-Reporter Pro</span><span class="meta-tag">STEP2 写真追加 v4 モック</span></div>
+<div class="vbar">
+  <span class="vlbl">写真：</span>
+  <button class="vbtn on" onclick="setV('empty',this)">なし（初期）</button>
+  <button class="vbtn" onclick="setV('some',this)">Before+After</button>
+  <button class="vbtn" onclick="setV('full',this)">全タグ・縦横混在</button>
+</div>
+<div class="wrap"><div class="phone" id="phone">
+<div class="notch"><div class="notch-pill"></div></div>
+<div class="ah">
+  <button class="back-btn" onclick="toast('現場情報に戻ります')">←</button>
+  <div style="display:flex;align-items:baseline;gap:5px;">
+    <span class="ah-step">STEP 2</span><span class="ah-title">／ 写真を追加</span>
+  </div>
+</div>
+<div class="body">
+
+  <div class="hint-card">
+    <div class="hint-body">
+      💡 <strong>① タグを選ぶ　② 写真をアップ</strong>　を繰り返す<br>
+      写真右下の 🏷 ボタンでタグを付け直せます
+    </div>
+  </div>
+
+  <!-- タグボタン 5種 -->
+  <div class="tag-bar">
+    <button class="tag-btn t-before active" id="tb-before" onclick="selectTag('before',this)">
+      <span class="ti">📷</span><span class="tc">Before</span><span class="tn" id="cnt-before">0枚</span>
+    </button>
+    <button class="tag-btn t-during" id="tb-during" onclick="selectTag('during',this)">
+      <span class="ti">🔨</span><span class="tc">造形後</span><span class="tn" id="cnt-during">0枚</span>
+    </button>
+    <button class="tag-btn t-after" id="tb-after" onclick="selectTag('after',this)">
+      <span class="ti">✨</span><span class="tc">After</span><span class="tn" id="cnt-after">0枚</span>
+    </button>
+    <button class="tag-btn t-pickup" id="tb-pickup" onclick="selectTag('pickup',this)">
+      <span class="ti">⭐</span><span class="tc">こだわり</span><span class="tn" id="cnt-pickup">0枚</span>
+    </button>
+    <button class="tag-btn t-other" id="tb-other" onclick="selectTag('other',this)">
+      <span class="ti">📌</span><span class="tc">その他</span><span class="tn" id="cnt-other">0枚</span>
+    </button>
+  </div>
+
+  <!-- アップロードゾーン -->
+  <div class="upload-zone uz-b" id="upload-zone" onclick="onUpload()">
+    <div class="uz-icon">📁</div>
+    <div class="uz-main">写真を追加</div>
+    <div class="uz-sub">タップして選択（複数可）</div>
+    <div class="uz-tag lbl-b" id="uz-tag">📷 Before を追加中</div>
+  </div>
+
+  <!-- フィルター＆表示切替 -->
+  <div class="filter-area">
+    <div class="filter-top">
+      <div class="filter-lbl">表示フィルター</div>
+      <div class="total-badge" id="total-badge">0枚</div>
+    </div>
+    <div class="frow">
+      <button class="fbtn f-all on"    onclick="setFilter('all',this)">すべて</button>
+      <button class="fbtn f-before"    onclick="setFilter('before',this)">📷 Before</button>
+      <button class="fbtn f-during"    onclick="setFilter('during',this)">🔨 造形後</button>
+      <button class="fbtn f-after"     onclick="setFilter('after',this)">✨ After</button>
+      <button class="fbtn f-ba"        onclick="setFilter('ba',this)">Before+After</button>
+      <button class="fbtn f-pickup"    onclick="setFilter('pickup',this)">⭐ こだわり</button>
+      <button class="fbtn f-other"     onclick="setFilter('other',this)">📌 その他</button>
+    </div>
+    <div class="filter-div"></div>
+    <div class="frow">
+      <span class="frow-lbl">ペア：</span>
+      <button class="fbtn f-pair"  onclick="setFilter('pair',this)">⇔ 横</button>
+      <button class="fbtn f-pairv" onclick="setFilter('pairv',this)">↕ 縦</button>
+      <span class="frow-lbl" style="margin-left:8px;">向き：</span>
+      <button class="fbtn f-port"  onclick="setFilter('port',this)">▯ 縦向き</button>
+      <button class="fbtn f-land"  onclick="setFilter('land',this)">▭ 横向き</button>
+    </div>
+    <div class="filter-div" id="vdiv"></div>
+    <div class="view-row" id="view-row">
+      <button class="vmode-btn on" id="vm-grid2" onclick="setViewMode('grid2',this)"><span class="vmode-icon">▦</span>2列</button>
+      <button class="vmode-btn" id="vm-grid3" onclick="setViewMode('grid3',this)"><span class="vmode-icon">▩</span>3列</button>
+      <button class="vmode-btn" id="vm-list" onclick="setViewMode('list',this)"><span class="vmode-icon">☰</span>リスト</button>
+    </div>
+  </div>
+
+  <!-- 写真表示エリア -->
+  <div id="photo-list"></div>
+
+  <div class="photo-total">合計 <span id="total-count">0</span> 枚追加済み</div>
+  <button class="next-btn" id="next-btn" disabled onclick="toast('報告書作成画面へ進みます')">報告書を作成する →</button>
+</div>
+
+<!-- ═══ タグ付け直しシート ═══ -->
+<div class="retag-sheet" id="retag-sheet">
+  <div class="retag-card">
+    <div class="retag-title">🏷 タグを付け直す</div>
+    <div class="retag-thumb"><img id="retag-img" src="" alt=""></div>
+    <div class="retag-grid">
+      <button class="rtag-btn rt-before" onclick="selectRetag('before',this)"><span class="ri">📷</span><span class="rl">Before</span></button>
+      <button class="rtag-btn rt-during" onclick="selectRetag('during',this)"><span class="ri">🔨</span><span class="rl">造形後</span></button>
+      <button class="rtag-btn rt-after"  onclick="selectRetag('after',this)"> <span class="ri">✨</span><span class="rl">After</span></button>
+      <button class="rtag-btn rt-pickup" onclick="selectRetag('pickup',this)"><span class="ri">⭐</span><span class="rl">こだわり</span></button>
+      <button class="rtag-btn rt-other"  onclick="selectRetag('other',this)"> <span class="ri">📌</span><span class="rl">その他</span></button>
+    </div>
+    <div class="retag-actions">
+      <button class="retag-cancel" onclick="closeRetag()">キャンセル</button>
+      <button class="retag-apply" onclick="applyRetag()">このタグに変更する</button>
+    </div>
+  </div>
+</div>
+
+</div></div>
+<div class="toast" id="toast-el"></div>
+<script>
+const TM={
+  before:{uz:'uz-b',lbl:'lbl-b',label:'📷 Before を追加中', badge:'pb-b',text:'Before', dot:'var(--before)'},
+  during:{uz:'uz-d',lbl:'lbl-d',label:'🔨 造形後 を追加中',  badge:'pb-d',text:'造形後', dot:'var(--during)'},
+  after: {uz:'uz-a',lbl:'lbl-a',label:'✨ After を追加中',   badge:'pb-a',text:'After',  dot:'var(--after)'},
+  pickup:{uz:'uz-p',lbl:'lbl-p',label:'⭐ こだわり を追加中', badge:'pb-p',text:'こだわり',dot:'var(--pickup)'},
+  other: {uz:'uz-o',lbl:'lbl-o',label:'📌 その他 を追加中',  badge:'pb-o',text:'その他', dot:'var(--other)'},
+};
+let curTag='before', curFilter='all', curView='grid2';
+const photos={before:[],during:[],after:[],pickup:[],other:[]};
+let pid=0;
+// retag state
+let retagId=null, retagOldTag=null, retagNewTag=null;
+
+const SEEDS=['a1','a2','a3','a4','a5','a6','b1','b2','b3','b4','c1','c2','c3','d1','d2','d3','d4','e1','e2','e3'];
+const ORIENTS=['port','land','port','land','land','port','port','land','land','port','port','land','port','land','port','land','land','port','land','port'];
+let si=0;
+
+function selectTag(tag,btn){
+  curTag=tag;
+  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  const m=TM[tag];
+  document.getElementById('upload-zone').className='upload-zone '+m.uz;
+  const ut=document.getElementById('uz-tag');
+  ut.className='uz-tag '+m.lbl; ut.textContent=m.label;
+}
+
+function onUpload(){
+  const seed=SEEDS[si%SEEDS.length];
+  const orient=ORIENTS[si%ORIENTS.length]; si++;
+  const ar=orient==='port'?'3/4':'4/3';
+  const w=orient==='port'?300:400; const h=orient==='port'?400:300;
+  photos[curTag].push({id:pid++,src:`https://picsum.photos/seed/${seed}/${w}/${h}`,tag:curTag,orient,ar});
+  updateCounts(); renderList();
+  toast(TM[curTag].text+' に写真を追加しました');
+}
+
+function delPhoto(id,tag){
+  photos[tag]=photos[tag].filter(p=>p.id!==id);
+  updateCounts(); renderList(); toast('削除しました');
+}
+
+// ── タグ付け直し ──
+function openRetag(id,tag){
+  retagId=id; retagOldTag=tag; retagNewTag=tag;
+  const p=photos[tag].find(x=>x.id===id);
+  document.getElementById('retag-img').src=p.src;
+  // 現タグをハイライト
+  document.querySelectorAll('.rtag-btn').forEach(b=>{
+    b.classList.remove('sel','cur');
+    if(b.classList.contains('rt-'+tag)) b.classList.add('sel','cur');
+  });
+  document.getElementById('retag-sheet').classList.add('show');
+}
+function selectRetag(tag,btn){
+  retagNewTag=tag;
+  document.querySelectorAll('.rtag-btn').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function closeRetag(){
+  document.getElementById('retag-sheet').classList.remove('show');
+  retagId=null; retagOldTag=null; retagNewTag=null;
+}
+function applyRetag(){
+  if(retagNewTag===retagOldTag){ closeRetag(); toast('タグは変わりませんでした'); return; }
+  const idx=photos[retagOldTag].findIndex(p=>p.id===retagId);
+  if(idx===-1){ closeRetag(); return; }
+  const p=photos[retagOldTag].splice(idx,1)[0];
+  p.tag=retagNewTag;
+  photos[retagNewTag].push(p);
+  updateCounts(); renderList(); closeRetag();
+  toast(TM[retagOldTag].text+' → '+TM[retagNewTag].text+' にタグを変更しました');
+}
+
+function updateCounts(){
+  const all=Object.values(photos).reduce((a,b)=>a+b.length,0);
+  Object.keys(photos).forEach(t=>{
+    document.getElementById('cnt-'+t).textContent=photos[t].length+'枚';
+  });
+  document.getElementById('total-count').textContent=all;
+  document.getElementById('total-badge').textContent=all+'枚';
+  document.getElementById('next-btn').disabled=(all===0);
+}
+
+function setFilter(f,btn){
+  curFilter=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  const isPair=(f==='pair'||f==='pairv');
+  document.getElementById('view-row').style.display=isPair?'none':'flex';
+  document.getElementById('vdiv').style.display=isPair?'none':'block';
+  renderList();
+}
+function setViewMode(mode,btn){
+  curView=mode;
+  document.querySelectorAll('.vmode-btn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); renderList();
+}
+
+function renderList(){
+  const el=document.getElementById('photo-list');
+  if(curFilter==='pair') { renderPair(el,false); return; }
+  if(curFilter==='pairv'){ renderPair(el,true);  return; }
+  if(curFilter==='ba')   { renderBA(el);          return; }
+  if(curFilter==='port'||curFilter==='land'){
+    const list=Object.values(photos).flat().filter(p=>p.orient===curFilter);
+    renderFlat(el,list); return;
+  }
+  if(curFilter==='all'){
+    const tags=['before','during','after','pickup','other'];
+    let html='<div style="display:flex;flex-direction:column;gap:14px;">';
+    tags.forEach(t=>{
+      const m=TM[t]; const L=photos[t];
+      html+=`<div class="photo-section">
+        <div class="ps-header">
+          <div class="ps-label"><div class="ps-dot" style="background:${m.dot}"></div>${m.text}</div>
+          <div class="ps-count">${L.length}枚</div>
+        </div>`;
+      html+=L.length ? gridHTML(L,t) : `<div class="empty-sec"><div class="ei">📷</div>まだ写真がありません</div>`;
+      html+='</div>';
+    });
+    html+='</div>';
+    el.innerHTML=html; return;
+  }
+  const L=photos[curFilter];
+  el.innerHTML=L.length ? gridHTML(L,curFilter) : `<div class="empty-sec"><div class="ei">📷</div>この分類の写真はまだありません</div>`;
+}
+
+function gridHTML(list,tag){
+  const cols=curView==='grid3'?3:curView==='list'?1:2;
+  const gap=6;
+  let h=`<div style="display:grid;grid-template-columns:repeat(${cols},1fr);gap:${gap}px;">`;
+  list.forEach(p=>{
+    const ar=curView==='list'?'16/7':p.ar;
+    const oLbl=p.orient==='port'?'▯縦':'▭横';
+    h+=`<div class="photo-item" style="aspect-ratio:${ar};">
+      <img src="${p.src}" alt="">
+      <div class="photo-badge ${TM[tag].badge}">${TM[tag].text}</div>
+      <div class="orient-badge">${oLbl}</div>
+      <button class="retag-btn" title="タグを変更" onclick="event.stopPropagation();openRetag(${p.id},'${tag}')">🏷</button>
+      <button class="del" onclick="event.stopPropagation();delPhoto(${p.id},'${tag}')">✕</button>
+    </div>`;
+  });
+  h+='</div>'; return h;
+}
+
+function renderFlat(el,list){
+  if(!list.length){ el.innerHTML=`<div class="empty-sec"><div class="ei">🔍</div>該当する写真がありません</div>`; return; }
+  let h=`<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">`;
+  list.forEach(p=>{
+    const oLbl=p.orient==='port'?'▯縦':'▭横';
+    h+=`<div class="photo-item" style="aspect-ratio:${p.ar};">
+      <img src="${p.src}" alt="">
+      <div class="photo-badge ${TM[p.tag].badge}">${TM[p.tag].text}</div>
+      <div class="orient-badge">${oLbl}</div>
+      <button class="retag-btn" onclick="event.stopPropagation();openRetag(${p.id},'${p.tag}')">🏷</button>
+      <button class="del" onclick="event.stopPropagation();delPhoto(${p.id},'${p.tag}')">✕</button>
+    </div>`;
+  });
+  h+='</div>'; el.innerHTML=h;
+}
+
+function renderBA(el){
+  const B=photos.before; const A=photos.after;
+  if(!B.length&&!A.length){ el.innerHTML=`<div class="empty-sec"><div class="ei">📷</div>BeforeとAfterの写真を追加してください</div>`; return; }
+  let html='<div style="display:flex;flex-direction:column;gap:14px;">';
+  if(B.length) html+=`<div class="photo-section"><div class="ps-header"><div class="ps-label"><div class="ps-dot" style="background:var(--before)"></div>Before</div><div class="ps-count">${B.length}枚</div></div>${gridHTML(B,'before')}</div>`;
+  if(A.length) html+=`<div class="photo-section"><div class="ps-header"><div class="ps-label"><div class="ps-dot" style="background:var(--after)"></div>After</div><div class="ps-count">${A.length}枚</div></div>${gridHTML(A,'after')}</div>`;
+  html+='</div>'; el.innerHTML=html;
+}
+
+function renderPair(el,vertical){
+  const B=photos.before; const A=photos.after;
+  const max=Math.max(B.length,A.length);
+  if(!max){ el.innerHTML=`<div class="empty-sec"><div class="ei">⇔</div>BeforeとAfterを追加するとペアで表示されます</div>`; return; }
+  let html='';
+  for(let i=0;i<max;i++){
+    const b=B[i]; const a=A[i];
+    html+=`<div class="pair-card">
+      <div class="pair-header">ペア ${i+1}</div>
+      <div class="${vertical?'pair-v':'pair-h'}">`;
+    if(b) html+=`<div class="pair-slot"><img src="${b.src}"><div class="photo-badge pb-b">Before</div></div>`;
+    else  html+=`<div class="pair-slot-empty">Before なし</div>`;
+    if(a) html+=`<div class="pair-slot"><img src="${a.src}"><div class="photo-badge pb-a">After</div></div>`;
+    else  html+=`<div class="pair-slot-empty">After なし</div>`;
+    html+=`</div></div>`;
+  }
+  if(photos.pickup.length) html+=`<div class="photo-section" style="margin-top:4px;"><div class="ps-header"><div class="ps-label"><div class="ps-dot" style="background:var(--pickup)"></div>こだわり</div><div class="ps-count">${photos.pickup.length}枚</div></div>${gridHTML(photos.pickup,'pickup')}</div>`;
+  el.innerHTML=html;
+}
+
+// バリエーション
+const VD={
+  empty:[],
+  some:[
+    {tag:'before',data:[['a1','port'],['a2','land'],['a3','port']]},
+    {tag:'after', data:[['b1','land'],['b2','port'],['b3','land']]},
+  ],
+  full:[
+    {tag:'before', data:[['a1','port'],['a2','land'],['a3','port'],['a4','land']]},
+    {tag:'during', data:[['c1','land'],['c2','port']]},
+    {tag:'after',  data:[['b1','land'],['b2','port'],['b3','land'],['b4','port']]},
+    {tag:'pickup', data:[['d1','port'],['d2','land']]},
+    {tag:'other',  data:[['e1','land'],['e2','port']]},
+  ],
+};
+function setV(mode,btn){
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  Object.keys(photos).forEach(t=>photos[t]=[]); pid=0; si=0;
+  (VD[mode]||[]).forEach(({tag,data})=>{
+    data.forEach(([seed,orient])=>{
+      const ar=orient==='port'?'3/4':'4/3';
+      const w=orient==='port'?300:400; const h=orient==='port'?400:300;
+      photos[tag].push({id:pid++,src:`https://picsum.photos/seed/${seed}/${w}/${h}`,tag,orient,ar});
+    });
+  });
+  si=(VD[mode]||[]).reduce((a,{data})=>a+data.length,0);
+  updateCounts(); renderList(); window.scrollTo({top:70,behavior:'smooth'});
+}
+
+let tt;
+function toast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2200);}
+
+updateCounts(); renderList();
+</script>
+</body>
+</html>
