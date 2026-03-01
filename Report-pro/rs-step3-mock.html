@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEP3 写真整理・ペアリング</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+:root{--bg:#0f0f0f;--surface:#191919;--surface2:#222;--border:#2a2a2a;--accent:#e8a020;--text:#f0f0f0;--text2:#777;--before:#4a9eff;--during:#a855f7;--after:#22c55e;--pickup:#f59e0b;--other:#94a3b8;--danger:#ef4444;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{background:#141414;font-family:'Noto Sans JP',sans-serif;color:var(--text);}
+.meta{background:#000;padding:9px 20px;display:flex;align-items:center;justify-content:center;gap:10px;border-bottom:1px solid #1a1a1a;position:sticky;top:0;z-index:400;}
+.meta-title{font-size:11px;color:var(--accent);font-weight:700;letter-spacing:2px;}
+.meta-tag{font-size:10px;background:rgba(232,160,32,.14);color:var(--accent);padding:3px 10px;border-radius:100px;font-weight:700;}
+.vbar{background:#080808;border-bottom:1px solid var(--border);padding:8px 16px;display:flex;align-items:center;gap:6px;position:sticky;top:33px;z-index:300;overflow-x:auto;scrollbar-width:none;}
+.vbar::-webkit-scrollbar{display:none;}
+.vlbl{font-size:10px;color:var(--text2);font-weight:700;flex-shrink:0;}
+.vbtn{flex-shrink:0;padding:5px 12px;border-radius:100px;font-size:10px;font-weight:700;background:#1a1a1a;color:var(--text2);border:1px solid var(--border);cursor:pointer;font-family:inherit;transition:all .15s;}
+.vbtn.on{background:rgba(232,160,32,.12);color:var(--accent);border-color:rgba(232,160,32,.3);}
+.wrap{display:flex;justify-content:center;padding:24px 16px 64px;}
+.phone{width:100%;max-width:390px;background:var(--bg);border-radius:40px;overflow:hidden;box-shadow:0 0 0 1px #2e2e2e,0 40px 80px rgba(0,0,0,.85);position:relative;}
+.notch{height:44px;background:#000;display:flex;align-items:center;justify-content:center;}
+.notch-pill{width:120px;height:34px;background:#0a0a0a;border-radius:0 0 20px 20px;}
+.ah{background:var(--surface);border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:8px;}
+.back-btn{background:none;border:none;color:var(--text2);font-size:22px;cursor:pointer;line-height:1;}
+.ah-step{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:1px;}
+.ah-title{font-size:13px;font-weight:700;color:var(--text2);}
+.body{padding:16px 16px 40px;display:flex;flex-direction:column;gap:16px;}
+.section-label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+.section-label::before{content:'';width:3px;height:11px;background:var(--accent);border-radius:2px;}
+
+/* 進捗 */
+.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
+.prog-top{display:flex;align-items:center;justify-content:space-between;}
+.prog-label{font-size:12px;font-weight:700;color:var(--text2);}
+.prog-nums{display:flex;gap:14px;}
+.pn{text-align:center;}
+.pn-v{font-size:20px;font-weight:900;line-height:1;}
+.pn-l{font-size:10px;color:var(--text2);margin-top:2px;}
+.prog-bar-wrap{background:#111;border-radius:100px;height:5px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--before),var(--after));transition:width .4s;}
+.prog-msg{font-size:11px;line-height:1.6;}
+.ok{color:var(--after);}
+.warn{color:var(--danger);}
+.dim{color:var(--text2);}
+
+/* フィルター */
+.frow{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-right:4px;}
+.frow::-webkit-scrollbar{display:none;}
+.fbtn{flex-shrink:0;padding:7px 12px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.fbtn.on.f-all  {background:var(--accent);border-color:var(--accent);color:#000;}
+.fbtn.on.f-b    {background:var(--before);border-color:var(--before);color:#fff;}
+.fbtn.on.f-a    {background:var(--after); border-color:var(--after); color:#000;}
+.fbtn.on.f-pair {background:linear-gradient(90deg,var(--before),var(--after));border:none;color:#fff;}
+.fbtn.on.f-none {background:var(--danger);border-color:var(--danger);color:#fff;}
+.fbtn.on.f-solo {background:var(--pickup);border-color:var(--pickup);color:#000;}
+
+/* ─── ペアカード ─── */
+.pair-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.pair-card.ok{border-color:rgba(34,197,94,.3);}
+.pair-card.warn{border-color:rgba(239,68,68,.25);}
+.pair-header{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.pair-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:1px;}
+.pair-badge{font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px;margin-left:auto;}
+.pb-ok  {background:rgba(34,197,94,.12);color:var(--after);}
+.pb-warn{background:rgba(239,68,68,.1); color:var(--danger);}
+.pair-images{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.pair-slot{position:relative;}
+.pair-slot img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.pair-slot-empty{aspect-ratio:4/3;background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:11px;color:var(--text2);}
+.slot-lbl{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;}
+.sl-b{background:rgba(74,158,255,.85);}
+.sl-a{background:rgba(34,197,94,.85);color:#000;}
+/* ペア番号割当ボタン（写真上） */
+.assign-btn{position:absolute;bottom:22px;right:5px;min-width:28px;height:28px;padding:0 7px;border-radius:8px;background:rgba(0,0,0,.85);border:1.5px solid rgba(232,160,32,.6);color:var(--accent);font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;}
+.assign-btn.unset{border-color:rgba(255,255,255,.2);color:var(--text2);}
+.del-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.9);border:none;color:#fff;font-size:10px;cursor:pointer;}
+
+/* ─── 単体写真カード（こだわり等） ─── */
+.solo-section{display:flex;flex-direction:column;gap:10px;}
+.solo-header{display:flex;align-items:center;justify-content:space-between;padding:0 2px;}
+.solo-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
+.solo-dot{width:9px;height:9px;border-radius:50%;}
+.solo-count{font-size:11px;color:var(--text2);}
+.solo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.solo-item{position:relative;border-radius:10px;overflow:hidden;}
+.solo-item img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.solo-tag{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;}
+.st-d{background:rgba(168,85,247,.85);}
+.st-p{background:rgba(245,158,11,.85);color:#000;}
+.st-o{background:rgba(148,163,184,.8);color:#000;}
+.st-b{background:rgba(74,158,255,.85);}
+.st-a{background:rgba(34,197,94,.85);color:#000;}
+/* 報告書に含めるトグル */
+.include-toggle{
+  position:absolute;top:5px;left:5px;
+  display:flex;align-items:center;gap:0;
+  background:rgba(0,0,0,.8);border-radius:100px;
+  padding:3px 8px 3px 4px;
+  cursor:pointer;border:none;font-family:inherit;
+}
+.toggle-dot{width:14px;height:14px;border-radius:50%;background:#333;transition:background .2s;flex-shrink:0;}
+.toggle-dot.on{background:var(--after);}
+.toggle-lbl{font-size:9px;font-weight:700;color:var(--text2);margin-left:4px;transition:color .2s;white-space:nowrap;}
+.toggle-lbl.on{color:var(--after);}
+
+/* 未割当てエリア */
+.nopair-section{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:14px;padding:12px;}
+.nopair-header{font-size:12px;font-weight:700;color:var(--danger);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.nopair-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.nopair-item{position:relative;border-radius:8px;overflow:hidden;}
+.nopair-item img{width:100%;display:block;object-fit:cover;aspect-ratio:1;}
+.nopair-assign{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px;}
+
+/* 空 */
+.empty-sec{border:1px dashed var(--border);border-radius:12px;padding:24px;text-align:center;font-size:12px;color:var(--text2);line-height:2;}
+.empty-sec .ei{font-size:36px;margin-bottom:8px;}
+
+/* フッター */
+.next-btn{width:100%;padding:18px;background:var(--accent);color:#000;border:none;border-radius:14px;font-size:17px;font-weight:900;font-family:inherit;cursor:pointer;}
+.next-btn:disabled{opacity:.35;cursor:not-allowed;}
+.footer-note{font-size:11px;color:var(--text2);text-align:center;line-height:1.7;}
+.footer-note span{color:var(--accent);font-weight:700;}
+
+/* ─── ペア番号割当シート ─── */
+.sheet{position:absolute;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:200;display:none;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:28px;}
+.sheet.show{display:flex;}
+.sheet-card{width:calc(100% - 28px);background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px 16px;}
+.sheet-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.sheet-thumb img{width:100%;height:100%;object-fit:cover;}
+.sheet-label{font-size:12px;font-weight:700;color:var(--text2);text-align:center;margin-bottom:12px;}
+.sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.sn-btn{aspect-ratio:1;border-radius:12px;border:2px solid var(--border);background:#111;color:var(--text2);font-size:24px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.sn-btn.sel{border-color:var(--accent);background:var(--accent);color:#000;transform:scale(1.05);box-shadow:0 4px 16px rgba(232,160,32,.4);}
+.sn-btn.paired{border-color:rgba(34,197,94,.4);color:var(--after);}
+.sn-add{font-size:16px;border-style:dashed;border-color:rgba(232,160,32,.35);color:var(--accent);}
+.sn-none{grid-column:span 4;border-radius:12px;border:2px solid var(--border);background:#111;color:var(--text2);font-size:12px;font-weight:700;padding:12px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;}
+.sn-none.sel{border-color:var(--other);background:rgba(148,163,184,.1);color:var(--other);}
+.sheet-actions{display:flex;gap:8px;margin-top:4px;}
+.sh-cancel{flex:1;padding:14px;background:transparent;border:1px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;}
+.sh-apply{flex:2;padding:14px;background:var(--accent);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;}
+
+.toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(16px);background:rgba(232,160,32,.97);color:#000;padding:12px 28px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+<div class="meta"><span class="meta-title">RS-Reporter Pro</span><span class="meta-tag">STEP3 写真整理・ペアリング</span></div>
+<div class="vbar">
+  <span class="vlbl">データ：</span>
+  <button class="vbtn on" onclick="setV('some',this)">ペアあり</button>
+  <button class="vbtn" onclick="setV('mixed',this)">未割当て混在</button>
+  <button class="vbtn" onclick="setV('full',this)">全タグ充実</button>
+</div>
+<div class="wrap"><div class="phone" id="phone">
+<div class="notch"><div class="notch-pill"></div></div>
+<div class="ah">
+  <button class="back-btn" onclick="toast('写真アップロードに戻ります')">←</button>
+  <span class="ah-step">STEP 3</span>
+  <span class="ah-title" style="margin-left:6px;">／ 写真を整理する</span>
+</div>
+<div class="body">
+
+  <!-- 進捗 -->
+  <div class="prog-card">
+    <div class="prog-top">
+      <div class="prog-label">ペアリング進捗</div>
+      <div class="prog-nums">
+        <div class="pn"><div class="pn-v" id="st-paired">0</div><div class="pn-l">ペア完成</div></div>
+        <div class="pn"><div class="pn-v" style="color:var(--danger)" id="st-unpaired">0</div><div class="pn-l">未割当て</div></div>
+        <div class="pn"><div class="pn-v" style="color:var(--text2)" id="st-total">0</div><div class="pn-l">合計</div></div>
+      </div>
+    </div>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="prog-bar" style="width:0%"></div></div>
+    <div class="prog-msg" id="prog-msg"><span class="dim">BeforeとAfterに同じペア番号を割り当ててください</span></div>
+  </div>
+
+  <!-- フィルター -->
+  <div class="frow">
+    <button class="fbtn f-all on" onclick="setF('all',this)">すべて</button>
+    <button class="fbtn f-pair"   onclick="setF('pair',this)">⇔ ペア確認</button>
+    <button class="fbtn f-b"      onclick="setF('b',this)">📷 Before</button>
+    <button class="fbtn f-a"      onclick="setF('a',this)">✨ After</button>
+    <button class="fbtn f-none"   onclick="setF('none',this)">⚠️ 未割当て</button>
+    <button class="fbtn f-solo"   onclick="setF('solo',this)">⭐ 単体写真</button>
+  </div>
+
+  <!-- メインエリア -->
+  <div id="main-area"></div>
+
+  <!-- フッター -->
+  <div class="footer-note" id="footer-note"></div>
+  <button class="next-btn" id="next-btn" onclick="toast('報告書入力へ進みます')">報告書を作成する →</button>
+
+</div>
+
+<!-- ペア番号割当シート -->
+<div class="sheet" id="sheet">
+  <div class="sheet-card">
+    <div class="sheet-thumb"><img id="sheet-img" src="" alt=""></div>
+    <div class="sheet-label">この写真の画角番号を選んでください</div>
+    <div class="sheet-grid" id="sheet-grid"></div>
+    <div class="sheet-actions">
+      <button class="sh-cancel" onclick="closeSheet()">キャンセル</button>
+      <button class="sh-apply"  onclick="applySheet()">決定する</button>
+    </div>
+  </div>
+</div>
+
+</div></div>
+<div class="toast" id="toast-el"></div>
+<script>
+const NC=['①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
+const fn=n=>NC[n-1]||n+'';
+const TM={
+  b:{name:'Before',dot:'var(--before)',badge:'sl-b'},
+  d:{name:'造形後', dot:'var(--during)',badge:'st-d'},
+  a:{name:'After', dot:'var(--after)', badge:'sl-a'},
+  p:{name:'こだわり',dot:'var(--pickup)',badge:'st-p'},
+  o:{name:'その他', dot:'var(--other)', badge:'st-o'},
+};
+
+let photos=[], curF='all', maxPair=3;
+let sheetId=null, sheetNewPair=null;
+
+// ── データ定義 ──
+const VD={
+  some:[
+    {id:1,tag:'b',src:'https://picsum.photos/seed/a1/400/300',pairNum:1,include:true},
+    {id:2,tag:'b',src:'https://picsum.photos/seed/a2/300/400',pairNum:2,include:true},
+    {id:3,tag:'b',src:'https://picsum.photos/seed/a3/400/300',pairNum:3,include:true},
+    {id:4,tag:'a',src:'https://picsum.photos/seed/b1/400/300',pairNum:1,include:true},
+    {id:5,tag:'a',src:'https://picsum.photos/seed/b2/300/400',pairNum:2,include:true},
+    {id:6,tag:'a',src:'https://picsum.photos/seed/b3/400/300',pairNum:3,include:true},
+    {id:7,tag:'p',src:'https://picsum.photos/seed/d1/300/400',pairNum:null,include:true},
+    {id:8,tag:'p',src:'https://picsum.photos/seed/d2/400/300',pairNum:null,include:false},
+  ],
+  mixed:[
+    {id:1,tag:'b',src:'https://picsum.photos/seed/a1/400/300',pairNum:1,include:true},
+    {id:2,tag:'b',src:'https://picsum.photos/seed/a2/300/400',pairNum:null,include:true},
+    {id:3,tag:'b',src:'https://picsum.photos/seed/a3/400/300',pairNum:null,include:true},
+    {id:4,tag:'a',src:'https://picsum.photos/seed/b1/400/300',pairNum:1,include:true},
+    {id:5,tag:'a',src:'https://picsum.photos/seed/b2/300/400',pairNum:null,include:true},
+    {id:6,tag:'d',src:'https://picsum.photos/seed/c1/400/300',pairNum:null,include:true},
+    {id:7,tag:'p',src:'https://picsum.photos/seed/d1/300/400',pairNum:null,include:true},
+    {id:8,tag:'o',src:'https://picsum.photos/seed/e1/400/300',pairNum:null,include:false},
+  ],
+  full:[
+    {id:1, tag:'b',src:'https://picsum.photos/seed/a1/400/300',pairNum:1,include:true},
+    {id:2, tag:'b',src:'https://picsum.photos/seed/a2/300/400',pairNum:2,include:true},
+    {id:3, tag:'b',src:'https://picsum.photos/seed/a3/400/300',pairNum:3,include:true},
+    {id:4, tag:'b',src:'https://picsum.photos/seed/a4/400/300',pairNum:null,include:true},
+    {id:5, tag:'a',src:'https://picsum.photos/seed/b1/400/300',pairNum:1,include:true},
+    {id:6, tag:'a',src:'https://picsum.photos/seed/b2/300/400',pairNum:2,include:true},
+    {id:7, tag:'a',src:'https://picsum.photos/seed/b3/400/300',pairNum:3,include:true},
+    {id:8, tag:'d',src:'https://picsum.photos/seed/c1/400/300',pairNum:null,include:true},
+    {id:9, tag:'d',src:'https://picsum.photos/seed/c2/300/400',pairNum:null,include:false},
+    {id:10,tag:'p',src:'https://picsum.photos/seed/d1/300/400',pairNum:null,include:true},
+    {id:11,tag:'p',src:'https://picsum.photos/seed/d2/400/300',pairNum:null,include:true},
+    {id:12,tag:'o',src:'https://picsum.photos/seed/e1/400/300',pairNum:null,include:false},
+  ],
+};
+
+function setV(mode,btn){
+  document.querySelectorAll('.vbtn').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  photos=VD[mode].map(p=>({...p}));
+  maxPair=Math.max(...photos.filter(p=>p.pairNum).map(p=>p.pairNum),3);
+  curF='all';
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  document.querySelector('.fbtn.f-all').classList.add('on');
+  updateStats(); render(); window.scrollTo({top:70,behavior:'smooth'});
+}
+
+function updateStats(){
+  const bs=photos.filter(p=>p.tag==='b');
+  const as=photos.filter(p=>p.tag==='a');
+  const pnums=[...new Set([...bs,...as].filter(p=>p.pairNum).map(p=>p.pairNum))];
+  const paired=pnums.filter(n=>bs.find(p=>p.pairNum===n)&&as.find(p=>p.pairNum===n)).length;
+  const unpaired=photos.filter(p=>(p.tag==='b'||p.tag==='a')&&!p.pairNum).length;
+  const total=photos.length;
+  document.getElementById('st-paired').textContent=paired;
+  document.getElementById('st-unpaired').textContent=unpaired;
+  document.getElementById('st-total').textContent=total;
+  const baTotal=bs.length+as.length;
+  const pct=baTotal>0?Math.round(paired*2/baTotal*100):0;
+  document.getElementById('prog-bar').style.width=pct+'%';
+  const incl=photos.filter(p=>p.include).length;
+  if(unpaired===0&&baTotal>0){
+    document.getElementById('prog-msg').innerHTML=`<span class="ok">✅ ペアリング完了</span>`;
+  } else if(unpaired>0){
+    document.getElementById('prog-msg').innerHTML=`<span class="warn">⚠️ ${unpaired}枚が未割当て</span>`;
+  }
+  document.getElementById('footer-note').innerHTML=`報告書に含める写真：<span>${incl}</span>枚`;
+  document.getElementById('next-btn').disabled=(total===0);
+}
+
+function setF(f,btn){
+  curF=f;
+  document.querySelectorAll('.fbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on'); render();
+}
+
+// ── メインレンダリング ──
+function render(){
+  const el=document.getElementById('main-area');
+  if(curF==='pair'){ renderPair(el); return; }
+
+  let list=photos;
+  if(curF==='b')    list=photos.filter(p=>p.tag==='b');
+  else if(curF==='a') list=photos.filter(p=>p.tag==='a');
+  else if(curF==='none') list=photos.filter(p=>(p.tag==='b'||p.tag==='a')&&!p.pairNum);
+  else if(curF==='solo') list=photos.filter(p=>p.tag!=='b'&&p.tag!=='a');
+
+  if(!list.length){
+    const msg=curF==='none'?'✅ 未割当ての写真はありません':'写真がありません';
+    const icon=curF==='none'?'✅':'📷';
+    el.innerHTML=`<div class="empty-sec"><div class="ei">${icon}</div>${msg}</div>`;
+    return;
+  }
+
+  if(curF==='all'){
+    // ペアセクション + 単体セクション
+    renderAll(el); return;
+  }
+
+  // グリッド表示
+  let h='<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">';
+  list.forEach(p=>{
+    const isPairable=p.tag==='b'||p.tag==='a';
+    const pnLabel=p.pairNum?fn(p.pairNum):'─';
+    const pnClass=p.pairNum?'':'unset';
+    const badge=TM[p.tag].badge;
+    h+=`<div class="solo-item">
+      <img src="${p.src}" alt="">
+      <div class="solo-tag ${badge}">${TM[p.tag].name}</div>
+      ${isPairable?`<button class="assign-btn ${pnClass}" onclick="event.stopPropagation();openSheet(${p.id})">${pnLabel}</button>`:''}
+      ${!isPairable?includeToggleHTML(p):''}
+      <button class="del-btn" onclick="event.stopPropagation();delPhoto(${p.id})">✕</button>
+    </div>`;
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function renderAll(el){
+  const bs=photos.filter(p=>p.tag==='b');
+  const as=photos.filter(p=>p.tag==='a');
+  const pnums=[...new Set([...bs,...as].filter(p=>p.pairNum).map(p=>p.pairNum))].sort((a,b)=>a-b);
+  const unB=bs.filter(p=>!p.pairNum);
+  const unA=as.filter(p=>!p.pairNum);
+  const solos=photos.filter(p=>p.tag!=='b'&&p.tag!=='a');
+
+  let h='<div style="display:flex;flex-direction:column;gap:14px;">';
+
+  // ── ペアカード群 ──
+  if(pnums.length){
+    h+=`<div style="display:flex;flex-direction:column;gap:10px;">`;
+    pnums.forEach(n=>{
+      const b=bs.find(p=>p.pairNum===n);
+      const a=as.find(p=>p.pairNum===n);
+      const ok=b&&a;
+      h+=`<div class="pair-card ${ok?'ok':'warn'}">
+        <div class="pair-header">
+          <div class="pair-num">PAIR ${fn(n)}</div>
+          <div class="pair-badge ${ok?'pb-ok':'pb-warn'}">${ok?'✅ 完成':'⚠️ 片方なし'}</div>
+        </div>
+        <div class="pair-images">`;
+      if(b) h+=`<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="event.stopPropagation();openSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="event.stopPropagation();delPhoto(${b.id})">✕</button></div>`;
+      else  h+=`<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`;
+      if(a) h+=`<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="event.stopPropagation();openSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="event.stopPropagation();delPhoto(${a.id})">✕</button></div>`;
+      else  h+=`<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
+      h+=`</div></div>`;
+    });
+    h+=`</div>`;
+  }
+
+  // ── 未割当てBefore/After ──
+  if(unB.length||unA.length){
+    h+=`<div class="nopair-section">
+      <div class="nopair-header">⚠️ ペア番号 未割当て（${unB.length+unA.length}枚）</div>
+      <div class="nopair-grid">`;
+    [...unB,...unA].forEach(p=>{
+      h+=`<div class="nopair-item">
+        <img src="${p.src}" alt="" style="width:100%;display:block;object-fit:cover;aspect-ratio:1;border-radius:8px;">
+        <div class="solo-tag ${TM[p.tag].badge}" style="border-radius:0 0 8px 8px;">${TM[p.tag].name}</div>
+        <div class="nopair-assign">
+          <button class="assign-btn unset" style="position:static;" onclick="openSheet(${p.id})">─</button>
+        </div>
+      </div>`;
+    });
+    h+=`</div></div>`;
+  }
+
+  // ── 単体写真（こだわり・造形後・その他） ──
+  if(solos.length){
+    const soloTags=['d','p','o'];
+    soloTags.forEach(t=>{
+      const L=solos.filter(s=>s.tag===t);
+      if(!L.length) return;
+      const m=TM[t];
+      h+=`<div class="solo-section">
+        <div class="solo-header">
+          <div class="solo-title"><div class="solo-dot" style="background:${m.dot}"></div>${m.name}</div>
+          <div class="solo-count">${L.length}枚</div>
+        </div>
+        <div class="solo-grid">`;
+      L.forEach(p=>{
+        h+=`<div class="solo-item">
+          <img src="${p.src}" alt="">
+          <div class="solo-tag ${m.badge}">${m.name}</div>
+          ${includeToggleHTML(p)}
+          <button class="del-btn" onclick="event.stopPropagation();delPhoto(${p.id})">✕</button>
+        </div>`;
+      });
+      h+=`</div></div>`;
+    });
+  }
+
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+function renderPair(el){
+  const bs=photos.filter(p=>p.tag==='b');
+  const as=photos.filter(p=>p.tag==='a');
+  const pnums=[...new Set([...bs,...as].filter(p=>p.pairNum).map(p=>p.pairNum))].sort((a,b)=>a-b);
+  if(!pnums.length){
+    el.innerHTML=`<div class="empty-sec"><div class="ei">⇔</div>ペア番号が割り当てられた写真がありません</div>`;
+    return;
+  }
+  let h='<div style="display:flex;flex-direction:column;gap:10px;">';
+  pnums.forEach(n=>{
+    const b=bs.find(p=>p.pairNum===n);
+    const a=as.find(p=>p.pairNum===n);
+    const ok=b&&a;
+    h+=`<div class="pair-card ${ok?'ok':'warn'}">
+      <div class="pair-header">
+        <div class="pair-num">PAIR ${fn(n)}</div>
+        <div class="pair-badge ${ok?'pb-ok':'pb-warn'}">${ok?'✅ 完成':'⚠️ 片方なし'}</div>
+      </div>
+      <div class="pair-images">`;
+    if(b) h+=`<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div></div>`;
+    else  h+=`<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`;
+    if(a) h+=`<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div></div>`;
+    else  h+=`<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
+    h+=`</div></div>`;
+  });
+  h+='</div>';
+  el.innerHTML=h;
+}
+
+// ── 報告書に含めるトグル ──
+function includeToggleHTML(p){
+  return `<button class="include-toggle" onclick="event.stopPropagation();toggleInclude(${p.id})">
+    <div class="toggle-dot ${p.include?'on':''}"></div>
+    <div class="toggle-lbl ${p.include?'on':''}">報告書に${p.include?'含める':'含めない'}</div>
+  </button>`;
+}
+function toggleInclude(id){
+  const p=photos.find(x=>x.id===id);
+  p.include=!p.include;
+  updateStats(); render();
+  toast(p.include?'報告書に含めます':'報告書から除外しました');
+}
+
+function delPhoto(id){
+  photos=photos.filter(p=>p.id!==id);
+  updateStats(); render(); toast('削除しました');
+}
+
+// ── ペア番号割当シート ──
+function openSheet(id){
+  sheetId=id;
+  const p=photos.find(x=>x.id===id);
+  sheetNewPair=p.pairNum;
+  document.getElementById('sheet-img').src=p.src;
+  const usedSame=photos.filter(x=>x.tag===p.tag&&x.pairNum&&x.id!==id).map(x=>x.pairNum);
+  const usedOther=photos.filter(x=>((p.tag==='b'&&x.tag==='a')||(p.tag==='a'&&x.tag==='b'))&&x.pairNum).map(x=>x.pairNum);
+  let g='';
+  for(let n=1;n<=Math.max(maxPair,3);n++){
+    const isSel=sheetNewPair===n;
+    const isPaired=usedOther.includes(n)&&!usedSame.includes(n);
+    g+=`<button class="sn-btn ${isSel?'sel':''} ${isPaired?'paired':''}" onclick="selPair(${n},this)">${fn(n)}</button>`;
+  }
+  g+=`<button class="sn-btn sn-add" onclick="addPair()">＋</button>`;
+  g+=`<button class="sn-none ${sheetNewPair===null?'sel':''}" onclick="selNone(this)">📌 ペアなし（こだわり・その他・整理後に削除予定）</button>`;
+  document.getElementById('sheet-grid').innerHTML=g;
+  document.getElementById('sheet').classList.add('show');
+}
+function selPair(n,btn){
+  sheetNewPair=n;
+  document.querySelectorAll('.sn-btn,.sn-none').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function selNone(btn){
+  sheetNewPair=null;
+  document.querySelectorAll('.sn-btn,.sn-none').forEach(b=>b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function addPair(){
+  maxPair++;
+  openSheet(sheetId);
+}
+function closeSheet(){ document.getElementById('sheet').classList.remove('show'); }
+function applySheet(){
+  const p=photos.find(x=>x.id===sheetId);
+  p.pairNum=sheetNewPair;
+  closeSheet(); updateStats(); render();
+  toast(sheetNewPair?`ペア ${fn(sheetNewPair)} に割り当てました`:'ペアなしに変更しました');
+}
+
+let tt;
+function toast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2200);}
+
+setV('some',document.querySelector('.vbtn.on'));
+</script>
+</body>
+</html>
