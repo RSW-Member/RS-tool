@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RS-Reporter Pro - 報告書作成</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+:root{
+  --bg:#0f0f0f;--surface:#191919;--surface2:#222;--border:#2a2a2a;
+  --accent:#e8a020;--text:#f0f0f0;--text2:#777;--danger:#ef4444;--ok:#22c55e;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;background:var(--bg);}
+body{font-family:'Noto Sans JP',sans-serif;color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;}
+
+/* ─── ヘッダー ─── */
+.hdr{background:#000;border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:100;}
+.hdr-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;line-height:1;}
+.hdr-sub{font-size:10px;color:var(--text2);margin-top:1px;}
+.hdr-right{margin-left:auto;font-size:11px;color:var(--text2);}
+
+/* ─── 画面切替 ─── */
+.screen{display:none;flex-direction:column;min-height:calc(100vh - 48px);}
+.screen.active{display:flex;}
+
+/* ─── セクション ─── */
+.form-body{padding:16px;display:flex;flex-direction:column;gap:0;padding-bottom:100px;}
+.field{border-left:3px solid var(--accent);padding:14px 14px 14px 12px;margin-bottom:1px;background:var(--surface);}
+.field:first-child{border-radius:12px 12px 0 0;}
+.field:last-child{border-radius:0 0 12px 12px;margin-bottom:16px;}
+.field-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.field-label .badge{font-size:9px;padding:1px 6px;border-radius:100px;background:rgba(232,160,32,.15);color:var(--accent);font-weight:700;}
+.field-label .opt{font-size:9px;color:var(--text2);font-weight:400;}
+
+/* チップ選択 */
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.chip{padding:7px 14px;border-radius:100px;font-size:13px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.chip.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+.chip.on.c-multi{border-color:var(--accent);}
+
+/* テキスト入力 */
+.finput{width:100%;background:#111;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:rgba(232,160,32,.5);}
+.finput::placeholder{color:#444;}
+textarea.finput{resize:none;line-height:1.7;}
+
+/* 数値入力行 */
+.num-row{display:flex;gap:10px;align-items:center;}
+.num-wrap{display:flex;align-items:center;gap:6px;flex:1;}
+.num-wrap .finput{text-align:right;}
+.num-unit{font-size:12px;color:var(--text2);white-space:nowrap;}
+
+/* 下地 あり/なし */
+.yn-row{display:flex;gap:8px;margin-bottom:8px;}
+.yn-btn{padding:7px 20px;border-radius:100px;font-size:13px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.yn-btn.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+
+/* カラードット */
+.color-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.color-chip.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+.cdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+
+/* 例文ボタン */
+.ex-btn{font-size:11px;color:var(--accent);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:4px 0;text-decoration:underline;display:block;margin-top:4px;}
+
+/* ─── 固定フッターボタン ─── */
+.fixed-btn{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:12px 16px;background:rgba(15,15,15,.95);backdrop-filter:blur(10px);border-top:1px solid var(--border);z-index:50;}
+.preview-btn{width:100%;padding:16px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:17px;font-weight:900;font-family:inherit;cursor:pointer;transition:opacity .15s;}
+.preview-btn:active{opacity:.85;}
+
+/* ─── プレビュー画面 ─── */
+.preview-body{padding:16px;display:flex;flex-direction:column;gap:12px;padding-bottom:180px;}
+.send-text-box{background:#111;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-all;font-family:'Noto Sans JP',sans-serif;}
+.send-section-title{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;padding:0 2px;display:flex;align-items:center;gap:6px;}
+.send-section-title::before{content:'';width:3px;height:10px;background:var(--accent);border-radius:2px;}
+.steps-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.steps-title{font-size:12px;font-weight:900;color:var(--accent);margin-bottom:8px;}
+.step-row{font-size:12px;color:var(--text2);margin-bottom:4px;display:flex;align-items:flex-start;gap:6px;}
+.step-num{color:var(--accent);font-weight:700;flex-shrink:0;}
+.fixed-actions{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 16px;background:rgba(15,15,15,.95);backdrop-filter:blur(10px);border-top:1px solid var(--border);z-index:50;display:flex;flex-direction:column;gap:8px;}
+.act-btn{width:100%;padding:15px;border-radius:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all .15s;}
+.act-btn:active{opacity:.85;}
+.btn-copy{background:var(--accent);color:#000;border:none;}
+.btn-zip {background:#222;color:var(--text);border:1.5px solid var(--border);}
+.btn-zip:active{background:#2a2a2a;}
+.btn-back{background:transparent;color:var(--text2);border:1.5px solid var(--border);padding:11px;font-size:13px;}
+.btn-delete{background:transparent;color:var(--danger);border:1.5px solid rgba(239,68,68,.3);padding:11px;font-size:13px;}
+
+/* コピー完了フラッシュ */
+.copied-flash{background:var(--ok);color:#000;border-color:var(--ok);}
+
+/* トースト */
+.toast{position:fixed;bottom:220px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(232,160,32,.97);color:#000;padding:12px 28px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+</style>
+</head>
+<body>
+
+<!-- ヘッダー -->
+<div class="hdr">
+  <div>
+    <div class="hdr-logo">RS-Reporter Pro</div>
+    <div class="hdr-sub">職人の3秒を、会社の資産に変える</div>
+  </div>
+  <div class="hdr-right" id="hdr-right">入力中</div>
+</div>
+
+<!-- ══════════════════════════════
+     SCREEN A: 入力フォーム
+══════════════════════════════ -->
+<div class="screen active" id="screen-input">
+<div class="form-body">
+
+  <!-- 操作ガイド -->
+  <div style="background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:13px 14px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:900;color:var(--accent);margin-bottom:8px;">📋 操作方法</div>
+    <div style="font-size:11px;color:var(--text2);line-height:2;">
+      <div>① 施工種別を選ぶ（ローラーストーン / ローラーウォール）</div>
+      <div>② 各項目を入力・選択する（例文ボタンも活用）</div>
+      <div>③「プレビューを確認する」を押す</div>
+      <div>④ テキストをコピー → LINEに貼り付け</div>
+      <div>⑤ ZIPをダウンロード → LINEに添付して完了</div>
+    </div>
+  </div>
+
+  <!-- 担当者名 -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+    <div style="font-size:13px;">👤</div>
+    <div style="flex:1;">
+      <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">担当者名</div>
+      <input class="finput" id="h-staff" placeholder="ぬーまん" style="padding:8px 10px;">
+    </div>
+  </div>
+
+  <!-- 施工種別 -->
+  <div class="field" style="border-radius:12px 12px 0 0;">
+    <div class="field-label">施工種別</div>
+    <div style="display:flex;gap:10px;">
+      <button class="yn-btn on" id="type-rs" style="flex:1;padding:12px 8px;font-size:13px;" onclick="setType('rs')">
+        🏗 ローラーストーン
+      </button>
+      <button class="yn-btn" id="type-rw" style="flex:1;padding:12px 8px;font-size:13px;" onclick="setType('rw')">
+        🧱 ローラーウォール
+      </button>
+    </div>
+  </div>
+
+  <!-- タイトル -->
+  <div class="field">
+    <div class="field-label">タイトル</div>
+    <div class="chips" id="chips-title">
+      <button class="chip" onclick="chipToggle(this,'title',false)">玄関アプローチ施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">駐車場施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">タイルデッキ施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">外構施工</button>
+    </div>
+    <input class="finput" id="title-custom" placeholder="その他（自由記述）" oninput="syncCustom(this,'title-custom')">
+  </div>
+
+  <!-- 規模・施工日数 -->
+  <div class="field">
+    <div class="field-label">規模</div>
+    <div class="num-row">
+      <div class="num-wrap" style="flex:3;">
+        <input class="finput" id="f-size" type="number" placeholder="25" inputmode="numeric">
+        <span class="num-unit">㎡</span>
+      </div>
+      <div style="flex:1.5;">
+        <div class="field-label" style="margin-bottom:4px;">施工日数</div>
+        <div class="num-wrap">
+          <input class="finput" id="f-days" type="number" placeholder="3" inputmode="numeric">
+          <span class="num-unit">日</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- 下地処理 -->
+  <div class="field">
+    <div class="field-label">下地処理</div>
+    <div class="yn-row">
+      <button class="yn-btn on" id="yn-yes" onclick="setYN('yes')">あり</button>
+      <button class="yn-btn"    id="yn-no"  onclick="setYN('no')">なし</button>
+    </div>
+    <input class="finput" id="f-base" placeholder="ケレン処理、下地調整など（任意）">
+  </div>
+
+  <!-- パターン -->
+  <div class="field">
+    <div class="field-label">パターン <span class="opt">複数可</span></div>
+    <div class="chips" id="chips-pattern">
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">乱形石調</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">タイル調</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">特殊・ロゴ</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">その他</button>
+    </div>
+    <input class="finput" id="pattern-custom" placeholder="その他（自由記述）">
+  </div>
+
+  <!-- 仕上げカラー メイン -->
+  <div class="field">
+    <div class="field-label">仕上げカラー（メイン） <span class="opt">複数可</span></div>
+    <div class="chips" id="chips-color-main">
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#999"></span>グレー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#222;border:1px solid #555"></span>ブラック</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#e8d5a0"></span>イエローベージュ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#c9a882"></span>ミルクティー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#e87030"></span>オレンジ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#5a7a50"></span>モスグリーン</button>
+    </div>
+    <input class="finput" id="color-main-custom" placeholder="その他のカラー（任意）">
+  </div>
+
+  <!-- 仕上げカラー サブ -->
+  <div class="field">
+    <div class="field-label">仕上げカラー（サブ） <span class="opt">任意・複数可</span></div>
+    <div class="chips" id="chips-color-sub">
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#999"></span>グレー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#222;border:1px solid #555"></span>ブラック</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#e8d5a0"></span>イエローベージュ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#c9a882"></span>ミルクティー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#e87030"></span>オレンジ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#5a7a50"></span>モスグリーン</button>
+    </div>
+    <input class="finput" id="color-sub-custom" placeholder="その他のサブカラー（任意）">
+  </div>
+
+  <!-- 目地カラー -->
+  <div class="field">
+    <div class="field-label">目地カラー</div>
+    <input class="finput" id="f-grout" placeholder="ホワイト、グレー、ブラックなど">
+  </div>
+
+  <!-- こだわりポイント -->
+  <div class="field">
+    <div class="field-label">こだわりポイント </div>
+    <textarea class="finput" id="f-point" rows="3" placeholder="施工のこだわりや特徴を入力…"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-point','目地幅を3mmに統一し、上質な仕上がりを実現。石の向きを揃えて整然とした印象に。')">例文を使う</button>
+  </div>
+
+  <!-- お客様の声 -->
+  <div class="field">
+    <div class="field-label">お客様の声 </div>
+    <textarea class="finput" id="f-voice" rows="2" placeholder="「想像以上の仕上がりで大満足です！」など"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-voice','「想像以上の仕上がりで大満足です！近所の方にも褒められました」')">例文を使う</button>
+  </div>
+
+  <!-- お客様のお悩み -->
+  <div class="field">
+    <div class="field-label">お客様のお悩み <span class="opt">任意</span></div>
+    <textarea class="finput" id="f-problem" rows="2" placeholder="「コンクリートが味気なくておしゃれにしたかった」など"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-problem','コンクリートが味気なくておしゃれにしたかった')">例文を使う</button>
+  </div>
+
+  <!-- 自由記述 -->
+  <div class="field" style="border-radius:0 0 12px 12px;">
+    <div class="field-label">その他・自由記述 <span class="opt">任意</span></div>
+    <textarea class="finput" id="f-free" rows="2" placeholder="自由記入"></textarea>
+  </div>
+
+  <!-- 写真サマリー表示 -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.8;">
+    📸 添付予定：Before <span style="color:var(--text);font-weight:700;">3</span>枚 ／ 造形後 <span style="color:var(--text);font-weight:700;">2</span>枚 ／ After <span style="color:var(--text);font-weight:700;">3</span>枚 ／ ⭐ <span style="color:var(--text);font-weight:700;">2</span>枚　計 <span style="color:var(--accent);font-weight:900;">10</span>枚
+  </div>
+
+</div><!-- form-body -->
+<!-- 固定ボタン -->
+<div class="fixed-btn">
+  <button class="preview-btn" onclick="goPreview()">プレビューを確認する →</button>
+</div>
+</div><!-- screen-input -->
+
+
+<!-- ══════════════════════════════
+     SCREEN B: プレビュー・送付
+══════════════════════════════ -->
+<div class="screen" id="screen-preview">
+<div class="preview-body">
+
+  <div class="send-section-title">送付テキスト</div>
+  <div class="send-text-box" id="send-text-box"></div>
+
+  <div class="steps-card">
+    <div class="steps-title">2ステップで送付</div>
+    <div class="step-row"><span class="step-num">①</span>テキストをコピー → LINEに貼り付け</div>
+    <div class="step-row"><span class="step-num">②</span>ZIPをダウンロード → LINEに添付</div>
+  </div>
+
+  <!-- フィードバック欄 -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-top:4px;">
+    <div style="font-size:13px;font-weight:900;color:var(--text);margin-bottom:4px;">お疲れ様でした！🎉</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px;">
+      使い心地はいかがでしたか？<br>よかったら簡単なフィードバックをいただけると嬉しいです。
+    </div>
+    <textarea class="finput" id="fb-text" rows="3" placeholder="例）入力がスムーズだった・ここが使いにくかった など"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;">
+      <button onclick="sendFeedback()" style="flex:1;padding:12px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:13px;font-weight:900;font-family:inherit;cursor:pointer;">
+        📨 送信する
+      </button>
+      <button onclick="skipFeedback()" style="flex:1;padding:12px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">
+        スキップ
+      </button>
+    </div>
+    <div id="fb-sent" style="display:none;text-align:center;padding:10px;font-size:12px;color:var(--ok);font-weight:700;">
+      ✅ フィードバックを受け取りました！ありがとうございます
+    </div>
+  </div>
+
+</div>
+<!-- 固定ボタン群 -->
+<div class="fixed-actions">
+  <button class="act-btn btn-copy" id="btn-copy" onclick="copyText()">📋 テキストをコピー</button>
+  <button class="act-btn btn-zip"  onclick="downloadZip()">📦 ZIPをダウンロード</button>
+  <div style="display:flex;gap:8px;">
+    <button class="act-btn btn-back"   onclick="goInput()">← 写真を追加・修正</button>
+    <button class="act-btn btn-delete" onclick="confirmDelete()">🗑 この現場を削除</button>
+  </div>
+</div>
+</div><!-- screen-preview -->
+
+<div class="toast" id="toast-el"></div>
+
+<script>
+// ══ 状態 ══
+const state={
+  title:'', titleCustom:'',
+  size:'', days:'',
+  baseYN:'yes', baseText:'',
+  patterns:[], patternCustom:'',
+  colorMain:[], colorMainCustom:'',
+  colorSub:[], colorSubCustom:'',
+  grout:'',
+  point:'', voice:'', problem:'', free:''
+};
+
+// ══ チップ選択 ══
+function chipToggle(btn, group, multi){
+  if(!multi){
+    // 単一選択：同グループを全解除
+    document.querySelectorAll(`#chips-${group} .chip, #chips-${group} .color-chip`).forEach(b=>b.classList.remove('on'));
+  }
+  btn.classList.toggle('on');
+}
+
+function setYN(v){
+  document.getElementById('yn-yes').classList.toggle('on',v==='yes');
+  document.getElementById('yn-no').classList.toggle('on',v==='no');
+}
+function setType(v){
+  document.getElementById('type-rs').classList.toggle('on',v==='rs');
+  document.getElementById('type-rw').classList.toggle('on',v==='rw');
+}
+
+function fillEx(id,text){
+  document.getElementById(id).value=text;
+  toast('例文を入力しました');
+}
+
+// ══ プレビュー生成 ══
+function buildSendText(){
+  const title=getChips('chips-title') || document.getElementById('title-custom').value || '（タイトル未入力）';
+  const size=document.getElementById('f-size').value;
+  const days=document.getElementById('f-days').value;
+  const baseYN=document.getElementById('yn-yes').classList.contains('on')?'あり':'なし';
+  const baseText=document.getElementById('f-base').value;
+  const patterns=[...getChipsArr('chips-pattern'), document.getElementById('pattern-custom').value].filter(Boolean).join('、');
+  const colorMain=[...getChipsArr('chips-color-main'), document.getElementById('color-main-custom').value].filter(Boolean).join(' / ');
+  const colorSub=[...getChipsArr('chips-color-sub'), document.getElementById('color-sub-custom').value].filter(Boolean).join(' / ');
+  const grout=document.getElementById('f-grout').value;
+  const point=document.getElementById('f-point').value;
+  const voice=document.getElementById('f-voice').value;
+  const problem=document.getElementById('f-problem').value;
+  const free=document.getElementById('f-free').value;
+
+  // ホーム情報
+  const staff=document.getElementById('h-staff').value||'（担当者未入力）';
+  const isRS=document.getElementById('type-rs').classList.contains('on');
+  const typeName=isRS?'RollerStone':'RollerWall';
+
+  let txt='';
+  txt+=`【施工報告】${typeName}\n`;
+  txt+=`◆ ${title}\n`;
+  txt+=`${'─'.repeat(18)}\n\n`;
+  txt+=`■ 担当：${staff}\n`;
+  txt+=`■ 日付：${new Date().toLocaleDateString('ja-JP',{year:'numeric',month:'numeric',day:'numeric'})}\n\n`;
+  if(size)   txt+=`▷ 規模：${size}㎡\n`;
+  if(days)   txt+=`▷ 施工日数：${days}日\n`;
+  txt+=`▷ 下地処理：${baseYN}${baseText?' （'+baseText+'）':''}\n`;
+  if(patterns) txt+=`▷ パターン：${patterns}\n`;
+  if(colorMain){
+    txt+=`▷ 仕上げカラー：${colorMain}`;
+    if(colorSub) txt+=` / サブ：${colorSub}`;
+    txt+='\n';
+  }
+  if(grout)  txt+=`▷ 目地カラー：${grout}\n`;
+  if(point)  txt+=`\n★ こだわりポイント\n${point}\n`;
+  if(voice)  txt+=`\n💬 お客様の声\n${voice}\n`;
+  if(problem)txt+=`\n😟 お客様のお悩み\n${problem}\n`;
+  if(free)   txt+=`\n📝 ${free}\n`;
+  txt+=`\n${'─'.repeat(18)}\n`;
+  txt+=`📷 添付：10枚（Before:3 造形後:2 After:3 ⭐:2）`;
+  return txt;
+}
+
+function getChips(containerId){
+  const sel=[...document.querySelectorAll(`#${containerId} .on`)];
+  return sel.map(b=>b.textContent.trim()).join('・');
+}
+function getChipsArr(containerId){
+  return [...document.querySelectorAll(`#${containerId} .on`)].map(b=>b.textContent.replace(/●|○|▪/g,'').trim());
+}
+
+function goPreview(){
+  const txt=buildSendText();
+  document.getElementById('send-text-box').textContent=txt;
+  document.getElementById('screen-input').classList.remove('active');
+  document.getElementById('screen-preview').classList.add('active');
+  document.getElementById('hdr-right').textContent='プレビュー';
+  window.scrollTo(0,0);
+}
+
+function goInput(){
+  document.getElementById('screen-preview').classList.remove('active');
+  document.getElementById('screen-input').classList.add('active');
+  document.getElementById('hdr-right').textContent='入力中';
+  window.scrollTo(0,0);
+}
+
+// ══ テキストコピー ══
+function copyText(){
+  const txt=document.getElementById('send-text-box').textContent;
+  if(navigator.clipboard){
+    navigator.clipboard.writeText(txt).then(()=>{
+      const btn=document.getElementById('btn-copy');
+      btn.textContent='✅ コピーしました！';
+      btn.classList.add('copied-flash');
+      setTimeout(()=>{btn.textContent='📋 テキストをコピー';btn.classList.remove('copied-flash');},2500);
+    }).catch(()=>fallbackCopy(txt));
+  } else { fallbackCopy(txt); }
+}
+function fallbackCopy(txt){
+  const ta=document.createElement('textarea');
+  ta.value=txt; ta.style.position='fixed'; ta.style.opacity='0';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  toast('コピーしました');
+}
+
+// ══ ZIP ダウンロード ══
+async function downloadZip(){
+  // JSZipが使えない環境のため、テキストファイルをBlobで保存
+  // 実際はJSZipライブラリで写真込みZIPを生成
+  const txt=document.getElementById('send-text-box').textContent;
+  const blob=new Blob([txt],{type:'text/plain;charset=utf-8'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download=`RS_施工報告_${formatDate()}.txt`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('📄 テキストをダウンロードしました（実装時はZIPで写真も含みます）');
+}
+
+function formatDate(){
+  const d=new Date();
+  return `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+}
+
+function confirmDelete(){
+  if(confirm('この現場データを削除しますか？\n※この操作は取り消せません')){
+    toast('現場データを削除しました');
+    setTimeout(()=>goInput(),1000);
+  }
+}
+
+// フィードバック送信（Formspree）
+async function sendFeedback(){
+  const msg=document.getElementById('fb-text').value.trim();
+  if(!msg){ toast('フィードバック内容を入力してください'); return; }
+  const staff=document.getElementById('h-staff').value||'匿名';
+  try{
+    // Formspree endpoint（実装時は https://formspree.io/f/YOUR_ID に差し替え）
+    const res=await fetch('https://formspree.io/f/xjkwgqpk',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify({
+        message:msg,
+        staff:staff,
+        date:new Date().toLocaleDateString('ja-JP'),
+        _subject:`RS-Reporter フィードバック from ${staff}`
+      })
+    });
+    if(res.ok){
+      document.getElementById('fb-sent').style.display='block';
+      document.getElementById('fb-text').style.display='none';
+      document.querySelector('[onclick="sendFeedback()"]').style.display='none';
+      document.querySelector('[onclick="skipFeedback()"]').style.display='none';
+    } else { throw new Error(); }
+  } catch(e){
+    // オフライン時はローカルに保存してトースト
+    const saved=JSON.parse(localStorage.getItem('rs_fb')||'[]');
+    saved.push({msg,staff,date:new Date().toISOString()});
+    localStorage.setItem('rs_fb',JSON.stringify(saved));
+    document.getElementById('fb-sent').style.display='block';
+    document.getElementById('fb-text').style.display='none';
+    document.querySelector('[onclick="sendFeedback()"]').style.display='none';
+    document.querySelector('[onclick="skipFeedback()"]').style.display='none';
+    toast('オフラインのため一時保存しました');
+  }
+}
+function skipFeedback(){
+  document.getElementById('fb-sent').style.display='none';
+  document.getElementById('fb-text').style.display='none';
+  document.querySelector('[onclick="sendFeedback()"]').style.display='none';
+  document.querySelector('[onclick="skipFeedback()"]').style.display='none';
+  const area=document.getElementById('fb-text').closest('div[style*="border-radius:14px"]');
+  if(area) area.style.opacity='.4';
+}
+
+let tt;
+function toast(msg){
+  const el=document.getElementById('toast-el');
+  el.textContent=msg;el.classList.add('show');
+  clearTimeout(tt);tt=setTimeout(()=>el.classList.remove('show'),2500);
+}
+</script>
+</body>
+</html>
