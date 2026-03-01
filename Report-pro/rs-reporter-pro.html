@@ -270,9 +270,9 @@ textarea.finput{resize:none;line-height:1.7;}
 .empty-home{text-align:center;padding:40px 20px;color:var(--text2);font-size:13px;line-height:2;}
 .empty-home .ei{font-size:40px;margin-bottom:12px;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js" onerror="window._jszipFailed=true"></script>
 
 <!-- ═══════════════════════════════════
      共通ヘッダー
@@ -572,6 +572,18 @@ textarea.finput{resize:none;line-height:1.7;}
     <div class="sheet-actions">
       <button class="sh-cancel" onclick="s3CloseSheet()">キャンセル</button>
       <button class="sh-apply"  onclick="s3ApplySheet()">決定する</button>
+    </div>
+  </div>
+</div>
+
+<!-- 未割当て写真から選択シート -->
+<div class="sheet" id="s3-pick-sheet">
+  <div class="sheet-card">
+    <div style="font-size:15px;font-weight:900;color:var(--text);margin-bottom:4px;" id="s3-pick-title">未割当て写真から選ぶ</div>
+    <div style="font-size:11px;color:var(--text2);margin-bottom:14px;" id="s3-pick-sub"></div>
+    <div id="s3-pick-grid" style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-height:50vh;overflow-y:auto;"></div>
+    <div style="margin-top:14px;">
+      <button class="sh-cancel" style="width:100%;" onclick="s3ClosePickSheet()">キャンセル</button>
     </div>
   </div>
 </div>
@@ -1266,7 +1278,7 @@ function s3RenderAll(el) {
         </div>
         <div class="pair-images">`;
       if (b) h += `<div class="pair-slot"><img src="${b.thumb||b.src}" class="${b.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${b.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${b.id})">✕</button></div>`;
-      else   h += `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`;
+      else   h += `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickSlotForPair(${n},'b')"><div style="font-size:28px">➕</div><span style="font-size:10px;color:var(--accent);font-weight:700;">Before を選ぶ</span></div>`;
       if (a) h += `<div class="pair-slot"><img src="${a.thumb||a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${a.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${a.id})">✕</button></div>`;
       else   h += `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
       h += `</div></div>`;
@@ -1331,11 +1343,7 @@ function s3RenderPair(el) {
       <div class="pair-images">
         ${b ? `<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div></div>` : `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`}
         ${a ? `<div class="pair-slot"><img src="${a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="slot-lbl sl-a">After</div></div>` :
-        `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickAfterForPair(${n})">
-          <div style="font-size:28px">➕</div>
-          <span style="font-size:10px;color:var(--accent);font-weight:700;">After を選ぶ</span>
-          <input type="file" accept="image/*" style="display:none;" id="pick-after-${n}" onchange="s3HandlePickAfter(this.files,${n})">
-        </div>`}
+        `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickSlotForPair(${n},'a')"><div style="font-size:28px">➕</div><span style="font-size:10px;color:var(--accent);font-weight:700;">After を選ぶ</span></div>`}
       </div></div>`;
   });
   h += '</div>';
@@ -1610,7 +1618,15 @@ async function downloadZip() {
 
   // JSZipが読み込まれているか確認
   if (typeof JSZip === 'undefined') {
-    toast('⚠️ ZIPライブラリ未読込。ネット接続を確認してください');
+    // フォールバック：テキストのみDL
+    const txt2 = document.getElementById('send-text-box').textContent;
+    const b2 = new Blob([txt2], {type:'text/plain;charset=utf-8'});
+    const u2 = URL.createObjectURL(b2);
+    const a2 = document.createElement('a');
+    a2.href=u2; a2.download=`RS_報告_${ds}.txt`; a2.click();
+    URL.revokeObjectURL(u2);
+    showDownloadGuide(`RS_報告_${ds}.txt`);
+    toast('⚠️ ZIPが使えないためテキストのみDLしました（オフライン時はZIP不可）');
     return;
   }
 
@@ -1625,38 +1641,34 @@ async function downloadZip() {
     zip.file(`報告書_${ds}.txt`, txt);
 
     const tagName = {b:'Before', d:'造形後', a:'After', p:'こだわり', o:'その他'};
-    // タグ別カウンター
     const tagCount = {b:0, d:0, a:0, p:0, o:0};
 
-    // ペアありの写真（Pair別フォルダ）
-    const pairNums = [...new Set(s3Photos.filter(p => p.pairNum).map(p => p.pairNum))].sort((a,b)=>a-b);
-    for (const n of pairNums) {
-      const folderName = `Pair${n}`;
-      const pairPhotos = s3Photos.filter(p => p.pairNum === n);
-      for (const photo of pairPhotos) {
+    // フラット配置：Before→造形後→After→こだわり→その他 の順
+    // ペアありは番号順を先に、ペアなしを後に
+    const tagOrder = ['b','d','a','p','o'];
+    for (const tag of tagOrder) {
+      const photos = s3Photos.filter(p => p.tag === tag);
+      const sorted = [
+        ...photos.filter(p => p.pairNum).sort((a,b) => a.pairNum - b.pairNum),
+        ...photos.filter(p => !p.pairNum)
+      ];
+      for (const photo of sorted) {
         if (!photo.src) continue;
-        tagCount[photo.tag] = (tagCount[photo.tag] || 0) + 1;
-        const num = String(tagCount[photo.tag]).padStart(2,'0');
-        const fname = `${ds}_${tagName[photo.tag]}_${num}.jpg`;
-        // Base64データをバイナリに変換
+        tagCount[tag]++;
+        const num = String(tagCount[tag]).padStart(2,'0');
+        const fname = `${ds}_${tagName[tag]}_${num}.jpg`;
         const base64 = photo.src.split(',')[1];
-        if (base64) zip.folder(folderName).file(fname, base64, {base64: true});
+        if (base64) zip.file(fname, base64, {base64: true});
       }
     }
 
-    // ペアなし・単体写真（その他フォルダ）
-    const soloPhotos = s3Photos.filter(p => !p.pairNum);
-    for (const photo of soloPhotos) {
-      if (!photo.src) continue;
-      tagCount[photo.tag] = (tagCount[photo.tag] || 0) + 1;
-      const num = String(tagCount[photo.tag]).padStart(2,'0');
-      const fname = `${ds}_${tagName[photo.tag]}_${num}.jpg`;
-      const base64 = photo.src.split(',')[1];
-      if (base64) zip.folder('その他').file(fname, base64, {base64: true});
-    }
-
     // ZIP生成・ダウンロード
-    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+    const photoCount = Object.values(tagCount).reduce((s,v)=>s+v,0);
+    if (photoCount === 0) {
+      // 写真なしでもテキストのみZIPを生成
+      toast('⚠️ 写真データがありません。テキストのみZIPを作成します');
+    }
+    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:4}});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = zipName; a.click();
@@ -1799,34 +1811,56 @@ function saveAndExit() {
   const total = Object.values(s2Photos).reduce((s, a) => s + a.length, 0);
   if (total === 0) { toast('写真が1枚もありません'); return; }
   try {
-    // 写真データは容量が大きいためsrcは省略してメタ情報のみ保存
+    // サムネイル（200px版）のみ保存してメタ情報と共にlocalStorageへ
     const meta = {};
     ['b','d','a','p','o'].forEach(t => {
       meta[t] = s2Photos[t].map(p => ({
         id: p.id, tag: p.tag, orient: p.orient,
         pairNum: p.pairNum, include: p.include,
-        thumb: p.thumb  // サムネイルは保存（小さいので問題ない）
+        thumb: p.thumb || ''
       }));
     });
     const data = {
       savedAt: new Date().toISOString(),
       pref: APP.pref, company: APP.company, staff: APP.staff,
+      siteName: APP.siteName || '',
       photoMeta: meta,
       totalCount: total
     };
-    localStorage.setItem('rs_midway', JSON.stringify(data));
-    // 保存成功UI
-    const btn = document.getElementById('s2-save-btn');
-    btn.textContent = '✅ 保存しました！';
-    btn.style.background = 'rgba(34,197,94,.3)';
-    setTimeout(() => {
-      btn.textContent = '💾 途中保存して終わる';
-      btn.style.background = 'rgba(34,197,94,.15)';
-    }, 2500);
-    toast(`💾 ${total}枚のデータを保存しました。次回続きからアップできます`);
+    const json = JSON.stringify(data);
+    localStorage.setItem('rs_midway', json);
+
+    // 保存確認モーダルを表示
+    showMidwaySavedModal(total, json.length);
   } catch(e) {
-    toast('保存に失敗しました（容量不足の可能性があります）');
+    if (e.name === 'QuotaExceededError') {
+      toast('⚠️ 保存容量が不足しています。古いデータを削除してください');
+    } else {
+      toast('保存に失敗しました: ' + e.message);
+    }
   }
+}
+
+function showMidwaySavedModal(total, byteSize) {
+  const kb = Math.round(byteSize / 1024);
+  const overlay = document.createElement('div');
+  overlay.id = 'midway-modal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
+  overlay.innerHTML = `
+    <div style="background:#1a1a1a;border:1.5px solid rgba(34,197,94,.4);border-radius:20px;padding:24px;width:calc(100% - 32px);">
+      <div style="font-size:28px;text-align:center;margin-bottom:10px;">💾</div>
+      <div style="font-size:16px;font-weight:900;color:var(--ok);text-align:center;margin-bottom:6px;">途中保存しました</div>
+      <div style="background:#111;border-radius:12px;padding:14px;margin:14px 0;font-size:13px;color:#ccc;line-height:2.2;">
+        <div>📷 写真枚数：<strong style="color:#fff;">${total}枚</strong>（サムネイルのみ保存）</div>
+        <div>💾 保存サイズ：<strong style="color:#fff;">${kb} KB</strong></div>
+        <div>🕐 保存日時：<strong style="color:#fff;">${new Date().toLocaleString('ja-JP')}</strong></div>
+        <div style="margin-top:8px;padding-top:8px;border-top:1px solid #333;font-size:11px;color:#888;">
+          ⚠️ 写真の実データは保存されません。<br>次回は再度写真をアップしてください。
+        </div>
+      </div>
+      <button onclick="document.getElementById('midway-modal').remove()" style="width:100%;padding:14px;background:var(--ok);color:#000;border:none;border-radius:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;">OK、確認しました</button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 // ── 報告書保存 ──
@@ -1860,37 +1894,64 @@ function saveReport() {
 }
 
 // ── STEP3 ペア確認からAfterを直接アップロード ──
-function s3PickAfterForPair(pairNum) {
-  const input = document.getElementById(`pick-after-${pairNum}`);
-  if (input) input.click();
+// 未割当て写真から選ぶシート
+let s3PickTargetPair = null;
+let s3PickTargetTag = null;
+
+function s3PickSlotForPair(pairNum, tag) {
+  s3PickTargetPair = pairNum;
+  s3PickTargetTag = tag;
+  const tagLabel = tag === 'b' ? 'Before' : 'After';
+  const oppTag   = tag === 'b' ? 'a' : 'b';
+
+  // 未割当て写真を取得（同じタグ or 逆タグでペアなし）
+  // Before空欄→Before未割当て、After空欄→After未割当て を対象
+  const candidates = s3Photos.filter(p => p.tag === tag && !p.pairNum);
+
+  const title = document.getElementById('s3-pick-title');
+  const sub   = document.getElementById('s3-pick-sub');
+  const grid  = document.getElementById('s3-pick-grid');
+  title.textContent = `PAIR ${fn(pairNum)} の ${tagLabel} を選ぶ`;
+  sub.textContent   = `未割当ての ${tagLabel} 写真（${candidates.length}枚）から選択してください`;
+
+  if (!candidates.length) {
+    grid.innerHTML = `<div style="grid-column:span 3;text-align:center;padding:24px;color:var(--text2);font-size:13px;">
+      未割当ての${tagLabel}写真がありません<br>
+      <span style="font-size:11px;">STEP2で${tagLabel}写真を追加してください</span>
+    </div>`;
+  } else {
+    grid.innerHTML = candidates.map(p => `
+      <div onclick="s3AssignToSlot(${p.id})" style="cursor:pointer;border-radius:10px;overflow:hidden;border:2px solid var(--border);aspect-ratio:1;position:relative;">
+        <img src="${p.thumb||p.src}" style="width:100%;height:100%;object-fit:cover;">
+        <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.6);font-size:9px;font-weight:700;color:#fff;padding:3px;text-align:center;">${p.orient==='port'?'▯縦':'▭横'}</div>
+      </div>
+    `).join('');
+  }
+  document.getElementById('s3-pick-sheet').classList.add('show');
 }
-function s3HandlePickAfter(files, pairNum) {
-  if (!files || !files.length) return;
-  const file = files[0];
-  const reader = new FileReader();
-  reader.onload = e => {
-    const img = new Image();
-    img.onload = () => {
-      const orient = img.naturalHeight > img.naturalWidth ? 'port' : 'land';
-      const newPhoto = {
-        id: s2Pid++,
-        src: e.target.result,
-        tag: 'a',
-        orient,
-        pairNum: pairNum,
-        include: true
-      };
-      s2Photos['a'].push(newPhoto);
-      s3Photos.push(newPhoto);
-      if (pairNum > s3MaxPair) s3MaxPair = pairNum;
-      s2UpdateAll();
-      s3UpdateStats();
-      s3Render();
-      toast(`✅ After を PAIR ${fn(pairNum)} に追加しました`);
-    };
-    img.src = e.target.result;
-  };
-  reader.readAsDataURL(file);
+
+function s3AssignToSlot(photoId) {
+  const p = s3Photos.find(x => x.id === photoId);
+  if (!p) return;
+  p.pairNum = s3PickTargetPair;
+  // S2にも反映
+  const s2p = s2Photos[p.tag]?.find(x => x.id === photoId);
+  if (s2p) s2p.pairNum = s3PickTargetPair;
+  if (s3PickTargetPair > s3MaxPair) s3MaxPair = s3PickTargetPair;
+  s3ClosePickSheet();
+  s3UpdateStats();
+  s3Render();
+  toast(`✅ PAIR ${fn(s3PickTargetPair)} に割り当てました`);
+}
+
+function s3ClosePickSheet() {
+  document.getElementById('s3-pick-sheet').classList.remove('show');
+  s3PickTargetPair = null;
+  s3PickTargetTag  = null;
+}
+
+function s3PickAfterForPair(pairNum) {
+  s3PickSlotForPair(pairNum, 'a');
 }
 
 let toastTimer;
