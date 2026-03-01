@@ -2,1194 +2,1251 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>RS-Reporter Pro</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700;900&family=Bebas+Neue&display=swap');
-:root {
-  --bg:#0f0f0f; --surface:#1a1a1a; --surface2:#242424; --border:#2e2e2e;
-  --accent:#e8a020; --text:#f0f0f0; --text2:#666;
-  --before:#4a9eff; --during:#a855f7; --after:#22c55e; --pickup:#f59e0b; --danger:#ef4444;
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+:root{
+  --bg:#0f0f0f;--surface:#191919;--surface2:#222;--border:#2a2a2a;
+  --accent:#e8a020;--text:#f0f0f0;--text2:#777;--danger:#ef4444;--ok:#22c55e;
+  --before:#4a9eff;--during:#a855f7;--after:#22c55e;--pickup:#f59e0b;--other:#94a3b8;
 }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{background:var(--bg);color:var(--text);font-family:'Noto Sans JP',sans-serif;min-height:100vh;overflow-x:hidden;padding-bottom:60px;}
+html{height:100%;}
+body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;}
 
-/* HEADER */
-.header{background:var(--surface);border-bottom:2px solid var(--accent);padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100;}
-.logo{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:2px;color:var(--accent);}
-.logo-sub{font-size:9px;color:var(--text2);letter-spacing:1px;margin-top:1px;}
+/* ─── 共通ヘッダー ─── */
+.app-header{background:#000;border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
+.app-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;}
+.app-sub{font-size:10px;color:var(--text2);}
+.header-step{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);letter-spacing:1px;}
+.header-back{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;margin-right:4px;}
 
-/* SCREENS */
-.screen{display:none;padding:20px 16px;}
-.screen.active{display:block;}
+/* ─── 画面管理 ─── */
+.screen{display:none;flex-direction:column;min-height:calc(100vh - 48px);}
+.screen.active{display:flex;}
 
-/* BUTTONS */
-.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:16px;border:none;border-radius:12px;font-family:'Noto Sans JP',sans-serif;font-size:16px;font-weight:700;cursor:pointer;transition:all .15s;min-height:56px;width:100%;}
-.btn:active{transform:scale(.97);}
-.btn-primary{background:var(--accent);color:#000;}
-.btn-secondary{background:var(--surface2);color:var(--text);border:1px solid var(--border);}
-.btn-ghost{background:transparent;color:var(--text2);border:1px solid var(--border);font-size:14px;min-height:44px;}
-.btn-danger{background:transparent;color:var(--danger);border:1px solid var(--danger);font-size:14px;min-height:44px;}
-.btn-add{background:rgba(232,160,32,.1);color:var(--accent);border:1px dashed var(--accent);font-size:14px;min-height:48px;border-radius:10px;}
-.btn-sm{min-height:44px;font-size:14px;padding:10px 16px;border-radius:8px;}
+/* ─── ホーム画面 ─── */
+.home-hero{background:linear-gradient(160deg,#111 0%,#0a0a0a 100%);padding:48px 24px 36px;text-align:center;border-bottom:1px solid var(--border);}
+.home-logo{font-family:'Bebas Neue',sans-serif;font-size:38px;color:var(--accent);letter-spacing:4px;line-height:1;}
+.home-tagline{font-size:11px;color:var(--text2);letter-spacing:2px;margin-top:6px;}
+.home-lead{font-size:15px;font-weight:900;color:var(--text);margin-top:20px;margin-bottom:6px;}
+.home-desc{font-size:12px;color:var(--text2);line-height:1.8;}
 
-.back-btn{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--text2);cursor:pointer;padding:8px 0;margin-bottom:16px;background:none;border:none;font-family:'Noto Sans JP',sans-serif;}
+.home-body{padding:24px 16px;display:flex;flex-direction:column;gap:16px;}
+.setup-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;}
+.setup-title{font-size:13px;font-weight:900;color:var(--text);margin-bottom:4px;display:flex;align-items:center;gap:8px;}
+.setup-sub{font-size:11px;color:var(--text2);margin-bottom:14px;}
+.setup-label{font-size:10px;color:var(--text2);margin-bottom:4px;font-weight:700;}
+.home-input{width:100%;background:#111;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--text);font-family:inherit;outline:none;transition:border-color .2s;}
+.home-input:focus{border-color:rgba(232,160,32,.5);}
+.home-input::placeholder{color:#444;}
+.home-select{width:100%;background:#111;border:1.5px solid var(--border);border-radius:10px;padding:12px 14px;font-size:14px;color:var(--text);font-family:inherit;outline:none;appearance:none;cursor:pointer;}
+.home-select:focus{border-color:rgba(232,160,32,.5);}
+.select-wrap{position:relative;}
+.select-wrap::after{content:'▾';position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text2);pointer-events:none;}
 
-/* FORM */
-.form-group{margin-bottom:22px;}
-.form-label{display:block;font-size:12px;font-weight:700;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;border-left:3px solid var(--accent);padding-left:8px;}
-.form-label .opt{color:var(--text2);font-size:10px;font-weight:400;text-transform:none;letter-spacing:0;}
-.form-input{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:16px;color:var(--text);font-family:'Noto Sans JP',sans-serif;outline:none;transition:border-color .15s;min-height:56px;}
-.form-input:focus{border-color:var(--accent);}
-.form-input::placeholder{color:var(--text2);}
-textarea.form-input{min-height:90px;resize:none;line-height:1.6;}
-.input-row{display:flex;gap:10px;}
-.unit-wrap{position:relative;}
-.unit-wrap .form-input{padding-right:44px;}
-.unit-wrap .unit{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--text2);font-size:14px;pointer-events:none;}
+.start-btn{width:100%;padding:18px;background:var(--accent);color:#000;border:none;border-radius:14px;font-size:18px;font-weight:900;font-family:inherit;cursor:pointer;transition:opacity .15s;}
+.start-btn:active{opacity:.85;}
 
-/* CHIPS */
-.chips{display:flex;flex-wrap:wrap;gap:8px;}
-.chip{padding:10px 16px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:14px;font-weight:500;cursor:pointer;transition:all .15s;font-family:'Noto Sans JP',sans-serif;min-height:44px;display:flex;align-items:center;gap:6px;}
-.chip.active{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);font-weight:700;}
-.hint{font-size:12px;color:var(--text2);margin-top:6px;line-height:1.5;}
-.hint em{color:var(--accent);font-style:normal;}
-.sec-title{font-size:11px;color:var(--text2);letter-spacing:2px;text-transform:uppercase;margin-bottom:12px;border-left:3px solid var(--accent);padding-left:8px;}
-.divider{height:1px;background:var(--border);margin:20px 0;}
+.guide-btn{width:100%;padding:14px;background:transparent;color:var(--accent);border:1.5px solid rgba(232,160,32,.3);border-radius:14px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;}
 
-/* HOME */
-.hero{background:linear-gradient(135deg,var(--surface),#1e1a0e);border:1px solid var(--accent);border-radius:16px;padding:24px;margin-bottom:24px;position:relative;overflow:hidden;}
-.hero::before{content:'RS';font-family:'Bebas Neue',sans-serif;font-size:130px;color:rgba(232,160,32,.05);position:absolute;right:-10px;top:-20px;line-height:1;}
-.hero-tag{font-size:11px;color:var(--accent);letter-spacing:2px;margin-bottom:8px;}
-.hero-title{font-size:20px;font-weight:900;line-height:1.4;margin-bottom:20px;}
-.hero-title span{color:var(--accent);}
-.site-list{display:flex;flex-direction:column;gap:10px;}
-.site-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:16px;cursor:pointer;transition:all .15s;display:flex;align-items:center;justify-content:space-between;}
-.site-card:active{border-color:var(--accent);}
-.site-name{font-size:16px;font-weight:700;margin-bottom:4px;}
-.site-meta{font-size:12px;color:var(--text2);}
-.badges{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;max-width:150px;}
-.badge{font-size:10px;padding:3px 8px;border-radius:20px;font-weight:700;white-space:nowrap;}
-.b-before{background:rgba(74,158,255,.2);color:var(--before);}
-.b-during{background:rgba(168,85,247,.2);color:var(--during);}
-.b-after{background:rgba(34,197,94,.2);color:var(--after);}
-.b-pickup{background:rgba(245,158,11,.2);color:var(--pickup);}
-.b-gray{background:var(--surface2);color:var(--text2);}
-.empty{text-align:center;padding:40px 20px;color:var(--text2);}
-.empty-icon{font-size:48px;margin-bottom:12px;}
+/* ─── ステップバー ─── */
+.step-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:4px;}
+.sbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.sbar-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
+.sbar-dot.done{background:var(--ok);}
+.sbar-dot.active{background:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.2);}
+.sbar-label{font-size:9px;color:var(--text2);font-weight:700;}
+.sbar-label.active{color:var(--accent);}
+.sbar-line{width:100%;height:1px;background:var(--border);flex:none;}
+.sbar-line.done{background:var(--ok);}
 
-/* TAG BUTTONS */
-.tag-bar{display:flex;gap:8px;margin-bottom:14px;}
-.tag-btn{
-  flex:1;padding:10px 4px;border-radius:12px;
-  font-size:11px;font-weight:700;cursor:pointer;transition:all .25s;
-  font-family:'Noto Sans JP',sans-serif;text-align:center;min-height:62px;
-  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-  /* 未選択：グレースケール・暗い */
-  border:2px solid #2a2a2a;background:#141414;color:#3a3a3a;
-  filter:grayscale(1);
-}
-.tag-btn .ti{font-size:20px;display:block;}
-.tag-btn.active{
-  filter:none;transform:scale(1.06);
-  box-shadow:0 4px 18px rgba(0,0,0,.5);
-}
-.tag-btn.active.t-before{border-color:var(--before);background:rgba(74,158,255,.15);color:var(--before);}
-.tag-btn.active.t-during{border-color:var(--during);background:rgba(168,85,247,.15);color:var(--during);}
-.tag-btn.active.t-after{border-color:var(--after);background:rgba(34,197,94,.15);color:var(--after);}
-.tag-btn.active.t-pickup{border-color:var(--pickup);background:rgba(245,158,11,.15);color:var(--pickup);}
+/* ── STEP2: 写真アップ ── */
+.s2-body{padding:16px;display:flex;flex-direction:column;gap:16px;padding-bottom:100px;}
+.section-label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;display:flex;align-items:center;gap:6px;}
+.section-label::before{content:'';width:3px;height:11px;background:var(--accent);border-radius:2px;}
+.tag-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
+.tag-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:14px 4px;border-radius:16px;border:2px solid #1e1e1e;background:#111;color:#444;cursor:pointer;font-family:inherit;transition:all .2s;min-height:80px;}
+.tag-btn .ti{font-size:24px;line-height:1;}
+.tag-btn .tc{font-size:11px;font-weight:700;line-height:1.2;text-align:center;}
+.tag-btn .tn{font-size:10px;font-weight:900;padding:2px 7px;border-radius:100px;background:rgba(255,255,255,.06);margin-top:2px;}
+.tag-btn.active.t-b{border-color:var(--before);background:rgba(74,158,255,.12);color:var(--before);box-shadow:0 0 0 3px rgba(74,158,255,.15);}
+.tag-btn.active.t-d{border-color:var(--during);background:rgba(168,85,247,.12);color:var(--during);box-shadow:0 0 0 3px rgba(168,85,247,.15);}
+.tag-btn.active.t-a{border-color:var(--after);background:rgba(34,197,94,.12);color:var(--after);box-shadow:0 0 0 3px rgba(34,197,94,.15);}
+.tag-btn.active.t-p{border-color:var(--pickup);background:rgba(245,158,11,.12);color:var(--pickup);box-shadow:0 0 0 3px rgba(245,158,11,.15);}
+.tag-btn.active.t-o{border-color:var(--other);background:rgba(148,163,184,.10);color:var(--other);box-shadow:0 0 0 3px rgba(148,163,184,.12);}
+.upload-zone{border-radius:20px;padding:32px 20px;text-align:center;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:10px;transition:all .2s;border:3px dashed var(--border);background:var(--surface);}
+.upload-zone:active{transform:scale(.98);}
+.uz-icon{font-size:44px;line-height:1;}
+.uz-main{font-size:20px;font-weight:900;}
+.uz-tag-pill{font-size:13px;font-weight:700;padding:5px 16px;border-radius:100px;}
+.uz-hint{font-size:11px;color:var(--text2);}
+.uz-b{border-color:var(--before)!important;background:rgba(74,158,255,.06)!important;}
+.uz-d{border-color:var(--during)!important;background:rgba(168,85,247,.06)!important;}
+.uz-a{border-color:var(--after)!important;background:rgba(34,197,94,.06)!important;}
+.uz-p{border-color:var(--pickup)!important;background:rgba(245,158,11,.06)!important;}
+.uz-o{border-color:var(--other)!important;background:rgba(148,163,184,.06)!important;}
+.pill-b{background:rgba(74,158,255,.2);color:var(--before);}
+.pill-d{background:rgba(168,85,247,.2);color:var(--during);}
+.pill-a{background:rgba(34,197,94,.2);color:var(--after);}
+.pill-p{background:rgba(245,158,11,.2);color:var(--pickup);}
+.pill-o{background:rgba(148,163,184,.15);color:var(--other);}
+.uploaded-section{display:flex;flex-direction:column;gap:10px;}
+.thumb-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.thumb-scroll::-webkit-scrollbar{display:none;}
+.thumb-item{position:relative;flex-shrink:0;width:64px;height:64px;border-radius:8px;overflow:hidden;cursor:pointer;}
+.thumb-item img{width:100%;height:100%;object-fit:cover;display:block;}
+.thumb-tag{position:absolute;bottom:0;left:0;right:0;font-size:8px;font-weight:700;text-align:center;padding:2px 0;}
+.tb-b{background:rgba(74,158,255,.85);}
+.tb-d{background:rgba(168,85,247,.85);}
+.tb-a{background:rgba(34,197,94,.85);color:#000;}
+.tb-p{background:rgba(245,158,11,.85);color:#000;}
+.tb-o{background:rgba(148,163,184,.8);color:#000;}
+.thumb-del{position:absolute;top:2px;right:2px;width:18px;height:18px;border-radius:50%;background:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center;font-size:9px;color:#fff;border:none;cursor:pointer;}
+.orient-badge{position:absolute;top:3px;left:3px;font-size:8px;font-weight:700;padding:1px 4px;border-radius:3px;background:rgba(0,0,0,.7);color:#ccc;line-height:1.4;}
+.orient-filter{display:flex;gap:5px;align-items:center;}
+.of-btn{padding:5px 11px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.of-btn.on{background:#222;border-color:#555;color:var(--text);}
+.of-btn.on.of-port,.of-btn.on.of-land{border-color:var(--accent);color:var(--accent);background:rgba(232,160,32,.1);}
+.tag-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
+.tag-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.tag-name{font-size:12px;font-weight:700;}
+.tag-cnt{font-size:11px;color:var(--text2);}
 
-/* UPLOAD */
-.upload-zone{border:2px dashed var(--border);border-radius:16px;padding:28px 20px;text-align:center;margin-bottom:16px;cursor:pointer;background:var(--surface);transition:all .15s;}
-.upload-zone:active{border-color:var(--accent);}
-.upload-zone .ui{font-size:36px;margin-bottom:8px;}
-.upload-zone .ut{font-size:16px;font-weight:700;}
-.upload-zone .us{font-size:12px;color:var(--text2);margin-top:4px;}
-.upload-zone .tag-hint{font-size:12px;color:var(--accent);margin-top:4px;font-weight:700;}
+/* ── STEP3: 写真整理 ── */
+.s3-body{padding:16px;display:flex;flex-direction:column;gap:16px;padding-bottom:100px;}
+.prog-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:13px 14px;display:flex;flex-direction:column;gap:8px;}
+.prog-top{display:flex;align-items:center;justify-content:space-between;}
+.prog-label{font-size:12px;font-weight:700;color:var(--text2);}
+.prog-nums{display:flex;gap:14px;}
+.pn{text-align:center;}
+.pn-v{font-size:20px;font-weight:900;line-height:1;}
+.pn-l{font-size:10px;color:var(--text2);margin-top:2px;}
+.prog-bar-wrap{background:#111;border-radius:100px;height:5px;overflow:hidden;}
+.prog-bar{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--before),var(--after));transition:width .4s;}
+.prog-msg{font-size:11px;line-height:1.6;}
+.ok{color:var(--after);}
+.warn{color:var(--danger);}
+.dim{color:var(--text2);}
+.frow{display:flex;gap:5px;overflow-x:auto;scrollbar-width:none;padding-right:4px;}
+.frow::-webkit-scrollbar{display:none;}
+.fbtn{flex-shrink:0;padding:7px 12px;border-radius:100px;font-size:11px;font-weight:700;border:1.5px solid var(--border);background:transparent;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.fbtn.on.f-all{background:var(--accent);border-color:var(--accent);color:#000;}
+.fbtn.on.f-b{background:var(--before);border-color:var(--before);color:#fff;}
+.fbtn.on.f-a{background:var(--after);border-color:var(--after);color:#000;}
+.fbtn.on.f-pair{background:linear-gradient(90deg,var(--before),var(--after));border:none;color:#fff;}
+.fbtn.on.f-none{background:var(--danger);border-color:var(--danger);color:#fff;}
+.fbtn.on.f-solo{background:var(--pickup);border-color:var(--pickup);color:#000;}
+.pair-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;}
+.pair-card.ok{border-color:rgba(34,197,94,.3);}
+.pair-card.warn{border-color:rgba(239,68,68,.25);}
+.pair-header{padding:10px 14px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border);}
+.pair-num{font-family:'Bebas Neue',sans-serif;font-size:22px;color:var(--accent);letter-spacing:1px;}
+.pair-badge{font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px;margin-left:auto;}
+.pb-ok{background:rgba(34,197,94,.12);color:var(--after);}
+.pb-warn{background:rgba(239,68,68,.1);color:var(--danger);}
+.pair-images{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.pair-slot{position:relative;}
+.pair-slot img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.pair-slot-empty{aspect-ratio:4/3;background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:11px;color:var(--text2);}
+.slot-lbl{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px;}
+.sl-b{background:rgba(74,158,255,.85);}
+.sl-a{background:rgba(34,197,94,.85);color:#000;}
+.assign-btn{position:absolute;bottom:22px;right:5px;min-width:28px;height:28px;padding:0 7px;border-radius:8px;background:rgba(0,0,0,.85);border:1.5px solid rgba(232,160,32,.6);color:var(--accent);font-size:12px;font-weight:900;cursor:pointer;font-family:inherit;}
+.assign-btn.unset{border-color:rgba(255,255,255,.2);color:var(--text2);}
+.del-btn{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.9);border:none;color:#fff;font-size:10px;cursor:pointer;}
+.solo-section{display:flex;flex-direction:column;gap:10px;}
+.solo-header{display:flex;align-items:center;justify-content:space-between;padding:0 2px;}
+.solo-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
+.solo-dot{width:9px;height:9px;border-radius:50%;}
+.solo-count{font-size:11px;color:var(--text2);}
+.solo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.solo-item{position:relative;border-radius:10px;overflow:hidden;}
+.solo-item img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.solo-tag{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;}
+.st-d{background:rgba(168,85,247,.85);}
+.st-p{background:rgba(245,158,11,.85);color:#000;}
+.st-o{background:rgba(148,163,184,.8);color:#000;}
+.st-b{background:rgba(74,158,255,.85);}
+.st-a{background:rgba(34,197,94,.85);color:#000;}
+.include-toggle{position:absolute;top:5px;left:5px;display:flex;align-items:center;gap:0;background:rgba(0,0,0,.8);border-radius:100px;padding:3px 8px 3px 4px;cursor:pointer;border:none;font-family:inherit;}
+.toggle-dot{width:14px;height:14px;border-radius:50%;background:#333;transition:background .2s;flex-shrink:0;}
+.toggle-dot.on{background:var(--after);}
+.toggle-lbl{font-size:9px;font-weight:700;color:var(--text2);margin-left:4px;transition:color .2s;white-space:nowrap;}
+.toggle-lbl.on{color:var(--after);}
+.nopair-section{background:rgba(239,68,68,.05);border:1px solid rgba(239,68,68,.18);border-radius:14px;padding:12px;}
+.nopair-header{font-size:12px;font-weight:700;color:var(--danger);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.nopair-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
+.nopair-item{position:relative;border-radius:8px;overflow:hidden;}
+.nopair-item img{width:100%;display:block;object-fit:cover;aspect-ratio:1;}
+.nopair-assign{position:absolute;inset:0;display:flex;align-items:flex-end;justify-content:flex-end;padding:4px;}
+.empty-sec{border:1px dashed var(--border);border-radius:12px;padding:24px;text-align:center;font-size:12px;color:var(--text2);line-height:2;}
+.empty-sec .ei{font-size:36px;margin-bottom:8px;}
+.sheet{position:fixed;inset:0;max-width:480px;margin:0 auto;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:flex-end;padding-bottom:28px;}
+.sheet.show{display:flex;}
+.sheet-card{width:calc(100% - 28px);background:var(--surface);border:1px solid var(--border);border-radius:22px;padding:20px 16px;}
+.sheet-thumb{width:100%;aspect-ratio:16/9;border-radius:12px;overflow:hidden;margin-bottom:14px;}
+.sheet-thumb img{width:100%;height:100%;object-fit:cover;}
+.sheet-label{font-size:12px;font-weight:700;color:var(--text2);text-align:center;margin-bottom:12px;}
+.sheet-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:12px;}
+.sn-btn{aspect-ratio:1;border-radius:12px;border:2px solid var(--border);background:#111;color:var(--text2);font-size:24px;font-weight:900;cursor:pointer;font-family:inherit;transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.sn-btn.sel{border-color:var(--accent);background:var(--accent);color:#000;transform:scale(1.05);}
+.sn-btn.paired{border-color:rgba(34,197,94,.4);color:var(--after);}
+.sn-add{font-size:16px;border-style:dashed;border-color:rgba(232,160,32,.35);color:var(--accent);}
+.sn-none{grid-column:span 4;border-radius:12px;border:2px solid var(--border);background:#111;color:var(--text2);font-size:12px;font-weight:700;padding:12px;cursor:pointer;font-family:inherit;transition:all .15s;text-align:center;}
+.sn-none.sel{border-color:var(--other);background:rgba(148,163,184,.1);color:var(--other);}
+.sheet-actions{display:flex;gap:8px;margin-top:4px;}
+.sh-cancel{flex:1;padding:14px;background:transparent;border:1px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;color:var(--text2);cursor:pointer;font-family:inherit;}
+.sh-apply{flex:2;padding:14px;background:var(--accent);border:none;border-radius:12px;font-size:14px;font-weight:700;color:#000;cursor:pointer;font-family:inherit;}
 
-/* PHOTO GRID */
-.photo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:16px;}
-.photo-item{
-  position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;
-  border:3px solid transparent;transition:all .2s;cursor:pointer;
-}
-.photo-item img{width:100%;height:100%;object-fit:cover;display:block;filter:grayscale(100%) brightness(.55);transition:filter .2s;}
-.photo-item.selected{border-color:var(--accent);box-shadow:0 0 0 2px rgba(232,160,32,.35);}
-.photo-item.selected img{filter:none;}
-.photo-item .chk{position:absolute;top:5px;right:5px;width:24px;height:24px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;font-size:13px;color:#000;font-weight:900;z-index:8;}
-.photo-item.selected .chk{display:flex;}
-.photo-item .ori{position:absolute;bottom:3px;left:3px;font-size:9px;padding:2px 5px;border-radius:3px;background:rgba(0,0,0,.75);color:#fff;z-index:8;}
-.photo-item .del{position:absolute;top:5px;left:5px;width:24px;height:24px;border-radius:50%;background:rgba(239,68,68,.9);display:flex;align-items:center;justify-content:center;font-size:11px;color:#fff;z-index:10;cursor:pointer;}
-.photo-item .tap{position:absolute;inset:0;z-index:5;cursor:pointer;}
-.photo-item .tag-badge{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;z-index:8;}
-.tb-before{background:rgba(74,158,255,.85);}
-.tb-during{background:rgba(168,85,247,.85);}
-.tb-after{background:rgba(34,197,94,.85);color:#000;}
-.tb-pickup{background:rgba(245,158,11,.85);color:#000;}
+/* ── STEP4: 報告書入力 ── */
+.s4-body{padding:16px;display:flex;flex-direction:column;gap:0;padding-bottom:100px;}
+.field{border-left:3px solid var(--accent);padding:14px 14px 14px 12px;margin-bottom:1px;background:var(--surface);}
+.field:first-child{border-radius:12px 12px 0 0;}
+.field:last-child{border-radius:0 0 12px 12px;margin-bottom:16px;}
+.field-label{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.field-label .opt{font-size:9px;color:var(--text2);font-weight:400;}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:6px;}
+.chip{padding:7px 14px;border-radius:100px;font-size:13px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.chip.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+.color-chip{display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:100px;font-size:12px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;white-space:nowrap;}
+.color-chip.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+.cdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.finput{width:100%;background:#111;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:border-color .2s;}
+.finput:focus{border-color:rgba(232,160,32,.5);}
+.finput::placeholder{color:#444;}
+textarea.finput{resize:none;line-height:1.7;}
+.num-row{display:flex;gap:10px;align-items:center;}
+.num-wrap{display:flex;align-items:center;gap:6px;flex:1;}
+.num-wrap .finput{text-align:right;}
+.num-unit{font-size:12px;color:var(--text2);white-space:nowrap;}
+.yn-btn{padding:7px 20px;border-radius:100px;font-size:13px;font-weight:700;border:2px solid var(--border);background:#111;color:var(--text2);cursor:pointer;font-family:inherit;transition:all .15s;}
+.yn-btn.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+.ex-btn{font-size:11px;color:var(--accent);background:transparent;border:none;cursor:pointer;font-family:inherit;padding:4px 0;text-decoration:underline;display:block;margin-top:4px;}
+.photo-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.9;margin-top:16px;}
 
-/* SORT BAR */
-.sort-bar{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
-.sort-chip{padding:8px 14px;border-radius:100px;border:1px solid var(--border);background:var(--surface);color:var(--text2);font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans JP',sans-serif;min-height:40px;display:flex;align-items:center;gap:5px;transition:all .15s;}
-.sort-chip.active{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
+/* ── プレビュー画面 ── */
+.preview-body{padding:16px;display:flex;flex-direction:column;gap:12px;padding-bottom:230px;}
+.send-section-title{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;padding:0 2px;display:flex;align-items:center;gap:6px;}
+.send-section-title::before{content:'';width:3px;height:10px;background:var(--accent);border-radius:2px;}
+.send-text-box{background:#111;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-all;}
+.steps-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;}
+.steps-title{font-size:12px;font-weight:900;color:var(--accent);margin-bottom:8px;}
+.step-row{font-size:12px;color:var(--text2);margin-bottom:4px;display:flex;align-items:flex-start;gap:6px;}
+.step-num{color:var(--accent);font-weight:700;flex-shrink:0;}
+.fb-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;}
 
-/* PAIR VIEW */
-.pair-row{display:flex;gap:5px;margin-bottom:8px;}
-.pair-row .photo-item{flex:1;aspect-ratio:unset;}
-.pair-row .photo-item.portrait{height:200px;}
-.pair-row .photo-item.landscape{height:128px;}
+/* ── 固定ボタン共通 ── */
+.fixed-footer{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;padding:10px 16px;background:rgba(15,15,15,.96);backdrop-filter:blur(10px);border-top:1px solid var(--border);z-index:100;display:flex;flex-direction:column;gap:8px;}
+.primary-btn{width:100%;padding:16px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:900;font-family:inherit;cursor:pointer;transition:opacity .15s;}
+.primary-btn:active{opacity:.85;}
+.primary-btn:disabled{opacity:.3;cursor:not-allowed;}
+.secondary-btn{width:100%;padding:13px;background:transparent;border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;color:var(--text2);}
+.danger-btn{background:transparent;color:var(--danger);border:1.5px solid rgba(239,68,68,.3);border-radius:12px;padding:11px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;flex:1;}
+.action-row{display:flex;gap:8px;}
+.btn-copy{background:var(--accent);color:#000;border:none;}
+.btn-zip{background:#222;color:var(--text);border:1.5px solid var(--border);}
+.copied-flash{background:var(--ok)!important;color:#000!important;border-color:var(--ok)!important;}
 
-/* INSTAGRAM SECTION */
-.ig-section{background:linear-gradient(135deg,#1a1020,#0f1a15);border:1px solid rgba(245,158,11,.3);border-radius:16px;padding:18px;margin-bottom:20px;}
-.ig-header{display:flex;align-items:center;gap:8px;margin-bottom:14px;}
-.ig-icon{font-size:20px;}
-.ig-title{font-size:13px;font-weight:900;color:var(--pickup);}
-.ig-sub{font-size:11px;color:var(--text2);margin-top:1px;}
-.ig-badge{font-size:10px;background:rgba(245,158,11,.15);color:var(--pickup);border:1px solid rgba(245,158,11,.3);padding:2px 8px;border-radius:20px;margin-left:auto;}
-
-/* MAIN VISUAL */
-.main-visual-slot{border:2px dashed rgba(245,158,11,.4);border-radius:12px;min-height:100px;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;margin-bottom:12px;}
-.main-visual-slot.filled{border-style:solid;border-color:var(--pickup);}
-.main-visual-slot img{width:100%;height:140px;object-fit:cover;}
-.main-visual-slot .mv-label{position:absolute;bottom:0;left:0;right:0;background:rgba(245,158,11,.85);color:#000;font-size:11px;font-weight:900;text-align:center;padding:4px;z-index:5;}
-.main-visual-slot .mv-del{position:absolute;top:6px;right:6px;background:rgba(239,68,68,.9);color:#fff;border:none;border-radius:50%;width:26px;height:26px;font-size:13px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;}
-.main-visual-slot .mv-empty{text-align:center;padding:20px;color:var(--text2);}
-.main-visual-slot .mv-empty .mvi{font-size:28px;margin-bottom:6px;}
-.main-visual-slot .mv-empty .mvt{font-size:13px;font-weight:700;}
-.main-visual-slot .mv-empty .mvs{font-size:11px;color:var(--text2);margin-top:3px;}
-
-/* PAIR CARD */
-.pair-card{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:12px;margin-bottom:10px;}
-.pair-card-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
-.pair-card-num{font-size:12px;font-weight:900;color:var(--text2);}
-.pair-card-del{background:none;border:none;color:var(--danger);font-size:20px;cursor:pointer;padding:0;line-height:1;}
-.pair-slots{display:flex;gap:6px;}
-.pair-slot{flex:1;border:2px dashed var(--border);border-radius:10px;min-height:90px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center;}
-.pair-slot.filled{border-style:solid;}
-.pair-slot.filled.before{border-color:var(--before);}
-.pair-slot.filled.after{border-color:var(--after);}
-.pair-slot img{width:100%;height:100px;object-fit:cover;}
-.pair-slot .ps-label{position:absolute;bottom:0;left:0;right:0;font-size:10px;font-weight:700;text-align:center;padding:3px 0;}
-.ps-before{background:rgba(74,158,255,.85);}
-.ps-after{background:rgba(34,197,94,.85);color:#000;}
-.pair-slot .ps-empty{text-align:center;padding:16px 8px;color:var(--text2);font-size:11px;}
-.pair-slot .ps-del{position:absolute;top:4px;right:4px;background:rgba(239,68,68,.9);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;}
-
-/* PICKUP GRID */
-.pickup-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;}
-.pickup-item{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:3px solid var(--pickup);}
-.pickup-item img{width:100%;height:100%;object-fit:cover;}
-.pickup-item .pk-del{position:absolute;top:4px;right:4px;background:rgba(239,68,68,.9);color:#fff;border:none;border-radius:50%;width:22px;height:22px;font-size:11px;cursor:pointer;z-index:10;display:flex;align-items:center;justify-content:center;}
-.pickup-count{font-size:12px;color:var(--pickup);font-weight:700;margin-bottom:8px;}
-.pickup-max{font-size:11px;color:var(--text2);}
-
-/* MODAL */
-.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:200;align-items:flex-end;padding:12px;}
-.modal-overlay.active{display:flex;}
-.modal{background:var(--surface);border-radius:20px;padding:20px;width:100%;max-height:85vh;overflow-y:auto;}
-.modal-title{font-size:17px;font-weight:900;margin-bottom:4px;}
-.modal-sub{font-size:12px;color:var(--text2);margin-bottom:16px;}
-.modal-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:16px;}
-.modal-photo{position:relative;aspect-ratio:1;border-radius:8px;overflow:hidden;border:3px solid transparent;cursor:pointer;}
-.modal-photo img{width:100%;height:100%;object-fit:cover;}
-.modal-photo.selected{border-color:var(--accent);}
-.modal-photo .mp-chk{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:var(--accent);display:none;align-items:center;justify-content:center;font-size:12px;color:#000;font-weight:900;}
-.modal-photo.selected .mp-chk{display:flex;}
-.modal-photo .mp-badge{position:absolute;bottom:0;left:0;right:0;font-size:9px;text-align:center;padding:2px;font-weight:700;}
-
-/* INFO BOX */
-.info-box{background:rgba(232,160,32,.08);border:1px solid rgba(232,160,32,.25);border-radius:10px;padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:16px;color:var(--text2);}
-.info-box strong{color:var(--accent);}
-
-/* PREVIEW */
-.preview-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden;margin-bottom:16px;}
-.preview-card-hd{background:var(--accent);color:#000;padding:10px 16px;font-size:12px;font-weight:900;letter-spacing:1px;}
-.preview-row{display:flex;padding:10px 16px;border-bottom:1px solid var(--border);gap:12px;}
-.preview-row:last-child{border-bottom:none;}
-.pk{font-size:12px;color:var(--text2);font-weight:700;width:88px;flex-shrink:0;}
-.pv{font-size:14px;line-height:1.5;flex:1;}
-.report-box{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:16px;font-size:13px;line-height:1.9;white-space:pre-wrap;margin-bottom:12px;}
-
-.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:var(--accent);color:#000;padding:12px 24px;border-radius:100px;font-size:14px;font-weight:700;z-index:999;transition:transform .3s;white-space:nowrap;}
-.toast.show{transform:translateX(-50%) translateY(0);}
-
-.gap10{display:flex;flex-direction:column;gap:10px;}
-input[type="file"]{display:none;}
+/* ── トースト ── */
+.toast{position:fixed;bottom:220px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(232,160,32,.97);color:#000;padding:12px 28px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
 </style>
 </head>
 <body>
 
-<div class="header">
+<!-- ═══════════════════════════════════
+     共通ヘッダー
+═══════════════════════════════════ -->
+<div class="app-header" id="app-header">
   <div>
-    <div class="logo">RS-Reporter Pro</div>
-    <div class="logo-sub">職人の3秒を、会社の資産に変える</div>
+    <div class="app-logo">RS-Reporter Pro</div>
+    <div class="app-sub">職人の3秒を、会社の資産に変える</div>
   </div>
-  <button class="btn btn-ghost btn-sm" style="width:auto;padding:10px 14px;" onclick="openModal('modal-history')">📋 現場一覧</button>
-</div>
-<div class="toast" id="toast"></div>
-
-<!-- HOME -->
-<div id="s-home" class="screen active">
-  <div class="hero">
-    <div class="hero-tag">RollerStone 施工報告</div>
-    <div class="hero-title">現場をはじめる<br><span>3タップで報告完了</span></div>
-    <button class="btn btn-primary" onclick="newSite()">＋ 新しい現場を作成</button>
-  </div>
-  <div class="sec-title">保存済みの現場</div>
-  <div class="site-list" id="site-list"></div>
+  <div class="header-step" id="header-step"></div>
 </div>
 
-<!-- STEP1 -->
-<div id="s-step1" class="screen">
-  <button class="back-btn" onclick="goHome()">← ホームに戻る</button>
-  <div class="sec-title" style="margin-bottom:20px;">STEP 1 ／ 現場情報</div>
-  <div class="form-group">
-    <label class="form-label">現場名 <span class="opt">※任意</span></label>
-    <input type="text" class="form-input" id="f-name" placeholder="例：田中様邸 駐車場">
+<!-- ═══════════════════════════════════
+     SCREEN 0: ホーム
+═══════════════════════════════════ -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero">
+    <div class="home-logo">RS-REPORTER PRO</div>
+    <div class="home-tagline">ROLLERSTONE 認定施工店向け 施工報告アプリ</div>
+    <div class="home-lead">店舗情報を登録してください</div>
+    <div class="home-desc">一度登録すれば次回から自動で表示されます</div>
   </div>
-  <div class="form-group">
-    <label class="form-label">担当者名</label>
-    <input type="text" class="form-input" id="f-worker" placeholder="例：山田">
-  </div>
-  <button class="btn btn-primary" onclick="saveStep1()">写真を追加する →</button>
-</div>
-
-<!-- STEP2: 写真 -->
-<div id="s-step2" class="screen">
-  <button class="back-btn" onclick="showScreen('s-step1')">← 現場情報に戻る</button>
-  <div class="sec-title" style="margin-bottom:10px;">STEP 2 ／ 写真を追加</div>
-
-  <div style="background:rgba(232,160,32,.08);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:14px 16px;margin-bottom:16px;">
-    <p style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:4px;">① タグを選ぶ　② 写真をアップ　を繰り返す</p>
-    <p style="font-size:13px;color:var(--text2);line-height:1.7;">タグを選んでから写真を追加。何度でも追加できます。</p>
-  </div>
-
-  <div class="tag-bar">
-    <button class="tag-btn t-before active" id="tagbtn-before" onclick="selectTag('before',this)"><span class="ti">📷</span>Before</button>
-    <button class="tag-btn t-during" id="tagbtn-during" onclick="selectTag('during',this)"><span class="ti">🔨</span>造形後</button>
-    <button class="tag-btn t-after" id="tagbtn-after" onclick="selectTag('after',this)"><span class="ti">✨</span>After</button>
-    <button class="tag-btn t-pickup" id="tagbtn-pickup" onclick="selectTag('pickup',this)"><span class="ti">⭐</span>こだわり</button>
-  </div>
-
-  <label class="upload-zone" style="display:block;cursor:pointer;">
-    <div class="ui">📁</div>
-    <div class="ut">写真を追加</div>
-    <div class="us">タップして選択（複数可）</div>
-    <div class="tag-hint" id="upload-tag-hint">選択中：Before</div>
-    <input type="file" accept="image/*" multiple onchange="handleFiles(this.files)" style="display:none;">
-  </label>
-
-  <!-- フィルター -->
-  <div id="sort-area" style="display:none;">
-    <div class="sort-bar" id="sort-bar"></div>
-    <div id="sorted-photos"></div>
-  </div>
-
-  <div class="gap10" style="margin-top:24px;">
-    <button class="btn btn-primary" onclick="goStep3()">報告書を作成する →</button>
-  </div>
-</div>
-
-<!-- STEP3 -->
-<div id="s-step3" class="screen">
-  <button class="back-btn" onclick="showScreen('s-step2')">← 写真画面に戻る</button>
-  <div class="sec-title" style="margin-bottom:20px;">STEP 3 ／ 報告書</div>
-
-  <!-- Instagram用セット（データ保持用・将来的に表示） -->
-  <div class="ig-section" id="ig-section">
-    <div class="ig-header">
-      <span class="ig-icon">📸</span>
-      <div><div class="ig-title">Before / After</div><div class="ig-sub">画角を揃えて自動表示</div></div>
-    </div>
-
-    <!-- Before/After 自動ペア -->
-    <div id="pair-list"></div>
-
-    <!-- こだわりショット -->
-    <div style="font-size:12px;font-weight:700;color:var(--pickup);margin:14px 0 6px;">⭐ こだわりショット</div>
-    <div class="pickup-count" id="pickup-count">0 / 20枚</div>
-    <div class="pickup-grid" id="pickup-grid"></div>
-    <button class="btn btn-add" style="margin-top:8px;" onclick="openModal('modal-pickup')">＋ こだわり写真を追加</button>
-  </div>
-
-  <div class="divider"></div>
-
-  <div class="form-group">
-    <label class="form-label">タイトル <span class="opt">SNS用・任意</span></label>
-    <div class="chips" id="title-chips">
-      <button class="chip" onclick="titleChip(this,'玄関アプローチ施工')">玄関アプローチ施工</button>
-      <button class="chip" onclick="titleChip(this,'駐車場施工')">駐車場施工</button>
-      <button class="chip" onclick="titleChip(this,'タイルデッキ施工')">タイルデッキ施工</button>
-      <button class="chip" onclick="titleChip(this,'外構施工')">外構施工</button>
-    </div>
-    <input type="text" class="form-input" id="f-title" placeholder="その他のタイトル（任意）" style="margin-top:8px;" oninput="clearTitleChips()">
-  </div>
-  <div class="input-row">
-    <div class="form-group" style="flex:1;">
-      <label class="form-label">規模</label>
-      <div class="unit-wrap"><input type="number" class="form-input" id="f-area" placeholder="25"><span class="unit">㎡</span></div>
-    </div>
-    <div class="form-group" style="flex:1;">
-      <label class="form-label">施工日数</label>
-      <div class="unit-wrap"><input type="number" class="form-input" id="f-days" placeholder="3"><span class="unit">日</span></div>
-    </div>
-  </div>
-  <div class="form-group">
-    <label class="form-label">下地処理</label>
-    <div class="chips">
-      <button class="chip" id="chip-base-y" onclick="singleChip('f-base','あり',['chip-base-y','chip-base-n'])">あり</button>
-      <button class="chip" id="chip-base-n" onclick="singleChip('f-base','なし',['chip-base-y','chip-base-n'])">なし</button>
-    </div>
-    <input type="hidden" id="f-base">
-    <input type="text" class="form-input" id="f-base-detail" placeholder="詳細（例：ケレン処理）" style="margin-top:8px;">
-  </div>
-  <div class="form-group">
-    <label class="form-label">パターン <span class="opt">複数可</span></label>
-    <div class="chips" id="chips-pat">
-      <button class="chip" onclick="multiChip(this,'pat')">乱形石調</button>
-      <button class="chip" onclick="multiChip(this,'pat')">タイル調</button>
-      <button class="chip" onclick="multiChip(this,'pat')">特殊・ロゴ</button>
-      <button class="chip" onclick="multiChip(this,'pat')">その他</button>
-    </div>
-    <input type="text" class="form-input" id="f-pat-custom" placeholder="その他（任意）" style="margin-top:8px;">
-  </div>
-  <div class="form-group">
-    <label class="form-label">仕上げカラー <span class="opt">複数可</span></label>
-    <div class="chips" id="chips-col">
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#6b7280;display:inline-block;flex-shrink:0;"></span>グレー</button>
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#111827;display:inline-block;flex-shrink:0;"></span>ブラック</button>
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#d4b896;display:inline-block;flex-shrink:0;"></span>イエローベージュ</button>
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#c8a882;display:inline-block;flex-shrink:0;"></span>ミルクティー</button>
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#f97316;display:inline-block;flex-shrink:0;"></span>オレンジ</button>
-      <button class="chip" onclick="multiChip(this,'col')"><span style="width:10px;height:10px;border-radius:50%;background:#4d7c5f;display:inline-block;flex-shrink:0;"></span>モスグリーン</button>
-    </div>
-    <input type="text" class="form-input" id="f-col-custom" placeholder="その他のカラー（任意）" style="margin-top:8px;">
-  </div>
-  <div class="form-group">
-    <label class="form-label">目地カラー</label>
-    <input type="text" class="form-input" id="f-grout" placeholder="例：ホワイト、グレー">
-  </div>
-  <div class="form-group">
-    <label class="form-label">こだわりポイント <span class="opt">SNS用</span></label>
-    <textarea class="form-input" id="f-kodawari" placeholder="例：目地を細くして高級感を出した。石の向きを揃えて整然とした印象に。"></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">お客様の声 <span class="opt">SNS用</span></label>
-    <textarea class="form-input" id="f-voice" placeholder="例：「想像以上の仕上がりで大満足です」"></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">お客様のお悩み <span class="opt">SNS用・任意</span></label>
-    <textarea class="form-input" id="f-pain" placeholder="例：コンクリートが味気なくておしゃれにしたかった"></textarea>
-  </div>
-  <div class="form-group">
-    <label class="form-label">その他</label>
-    <textarea class="form-input" id="f-memo" placeholder="自由記入"></textarea>
-  </div>
-  <button class="btn btn-primary" onclick="saveStep3()">プレビューを確認する →</button>
-</div>
-
-<!-- PREVIEW -->
-<div id="s-preview" class="screen">
-  <button class="back-btn" onclick="showScreen('s-step3')">← 報告書に戻る</button>
-  <div class="sec-title" style="margin-bottom:16px;">報告書プレビュー</div>
-  <div id="preview-content"></div>
-  <div class="info-box"><strong>2ステップで送付</strong><br>① テキストをコピー → LINEに貼り付け<br>② ZIPをダウンロード → LINEに添付</div>
-  <div class="gap10" style="margin-bottom:12px;">
-    <button class="btn btn-primary" onclick="copyText()">📋 テキストをコピー</button>
-    <button class="btn btn-secondary" onclick="downloadZip()">📦 ZIPをダウンロード</button>
-  </div>
-  <div class="gap10">
-    <button class="btn btn-ghost btn-sm" onclick="showScreen('s-step2')">← 写真を追加・修正</button>
-    <button class="btn btn-danger btn-sm" onclick="deleteSite()">🗑 この現場を削除</button>
-  </div>
-</div>
-
-<!-- MODAL: 現場一覧 -->
-<div class="modal-overlay" id="modal-history">
-  <div class="modal">
-    <div class="modal-title">📋 現場一覧</div>
-    <div id="modal-site-list" class="gap10"></div>
-    <div style="margin-top:16px;"><button class="btn btn-ghost" onclick="closeModal('modal-history')">閉じる</button></div>
-  </div>
-</div>
-
-<!-- MODAL: メインビジュアル選択 -->
-<div class="modal-overlay" id="modal-mv">
-  <div class="modal">
-    <div class="modal-title">🌟 メインビジュアル</div>
-    <div class="modal-sub">全写真から1枚選んでください</div>
-    <div class="modal-grid" id="modal-mv-grid"></div>
-    <button class="btn btn-ghost" onclick="closeModal('modal-mv')">キャンセル</button>
-  </div>
-</div>
-
-<!-- MODAL: ペア写真選択 -->
-<div class="modal-overlay" id="modal-pair">
-  <div class="modal">
-    <div class="modal-title" id="modal-pair-title">写真を選択</div>
-    <div class="modal-sub" id="modal-pair-sub"></div>
-    <div class="modal-grid" id="modal-pair-grid"></div>
-    <button class="btn btn-ghost" onclick="closeModal('modal-pair')">キャンセル</button>
-  </div>
-</div>
-
-<!-- MODAL: こだわり追加 -->
-<div class="modal-overlay" id="modal-pickup">
-  <div class="modal">
-    <div class="modal-title">⭐ こだわりショット</div>
-    <div class="modal-sub" id="modal-pickup-sub">タップして追加（複数可）</div>
-    <div class="modal-grid" id="modal-pickup-grid"></div>
-    <button class="btn btn-primary" style="margin-bottom:8px;" onclick="confirmPickup()">追加する</button>
-    <button class="btn btn-ghost" onclick="closeModal('modal-pickup')">キャンセル</button>
-  </div>
-</div>
-
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script>
-// ========== STATE ==========
-const PICKUP_MAX = 20;
-let siteId = null;
-let currentTag = 'before';
-let sites = {};
-let patSel = new Set();
-let colSel = new Set();
-let activeSorts = new Set(['all']);
-// モーダル用一時変数
-let modalPairIndex = null;
-let modalPairSlot = null; // 'before'|'after'
-let modalPickupTmp = new Set();
-
-// ========== INIT ==========
-function init() {
-  const s = localStorage.getItem('rs-pro-v3');
-  if (s) try { sites = JSON.parse(s); } catch(e){}
-  renderHome();
-  injectDemoIfFirstTime();
-}
-function persist() { localStorage.setItem('rs-pro-v3', JSON.stringify(sites)); }
-
-// ========== DEMO ==========
-function mkImg(color, label, w, h) {
-  const c = document.createElement('canvas'); c.width=w; c.height=h;
-  const ctx = c.getContext('2d');
-  ctx.fillStyle=color; ctx.fillRect(0,0,w,h);
-  ctx.strokeStyle='rgba(255,255,255,0.07)'; ctx.lineWidth=1;
-  for(let x=0;x<w;x+=22){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,h);ctx.stroke();}
-  for(let y=0;y<h;y+=22){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(w,y);ctx.stroke();}
-  ctx.fillStyle='rgba(255,255,255,0.8)';
-  ctx.font=`bold ${Math.min(w,h)*0.1}px sans-serif`;
-  ctx.textAlign='center'; ctx.textBaseline='middle';
-  ctx.fillText(label,w/2,h/2);
-  return c.toDataURL('image/jpeg',0.7);
-}
-function injectDemoIfFirstTime() {
-  if (localStorage.getItem('rs-demo-v3')) return;
-  const id = 'demo_'+Date.now();
-  const photos = [
-    {tag:'before',dataUrl:mkImg('#243040','Before①',600,900),orientation:'portrait',selected:true},
-    {tag:'before',dataUrl:mkImg('#243040','Before②',900,600),orientation:'landscape',selected:true},
-    {tag:'before',dataUrl:mkImg('#243040','Before③',600,900),orientation:'portrait',selected:false},
-    {tag:'during',dataUrl:mkImg('#2d1a40','造形後①',600,900),orientation:'portrait',selected:true},
-    {tag:'during',dataUrl:mkImg('#2d1a40','造形後②',900,600),orientation:'landscape',selected:true},
-    {tag:'after', dataUrl:mkImg('#0e3020','After①',600,900),orientation:'portrait',selected:true},
-    {tag:'after', dataUrl:mkImg('#0e3020','After②',600,900),orientation:'portrait',selected:true},
-    {tag:'after', dataUrl:mkImg('#0e3020','After③',900,600),orientation:'landscape',selected:true},
-    {tag:'after', dataUrl:mkImg('#0e3020','After④',600,900),orientation:'portrait',selected:false},
-    {tag:'pickup',dataUrl:mkImg('#402800','こだわり①',900,600),orientation:'landscape',selected:true},
-    {tag:'pickup',dataUrl:mkImg('#402800','こだわり②',600,900),orientation:'portrait',selected:true},
-    {tag:'pickup',dataUrl:mkImg('#402800','こだわり③',600,900),orientation:'portrait',selected:true},
-  ].map((p,i)=>({...p,id:'dp_'+i}));
-
-  sites[id] = {
-    info:{name:'田中様邸 駐車場',worker:'山田',date:new Date().toLocaleDateString('ja-JP'),
-      title:'玄関アプローチ施工',area:'25',days:'3',base:'あり',baseDetail:'ケレン処理',
-      patterns:['乱形石調'],patCustom:'',colors:['グレー','ミルクティー'],colCustom:'',
-      grout:'ホワイト',
-      kodawari:'目地幅を3mmに統一し、上質な仕上がりを実現。石の向きを揃えて整然とした印象に。',
-      voice:'「想像以上の仕上がりで大満足です！近所の方にも褒められました」',
-      pain:'コンクリートが味気なくておしゃれにしたかった',memo:''},
-    photos,
-    ig:{ mainVisual:null, pairs:[], pickup:[] },
-  };
-  persist();
-  localStorage.setItem('rs-demo-v3','1');
-  renderHome();
-}
-
-// ========== NAV ==========
-function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById(id).classList.add('active');
-  window.scrollTo(0,0);
-}
-function goHome(){ siteId=null; renderHome(); showScreen('s-home'); }
-
-// ========== HOME ==========
-function renderHome(){
-  const el=document.getElementById('site-list');
-  const ids=Object.keys(sites).reverse();
-  if(!ids.length){
-    el.innerHTML='<div class="empty"><div class="empty-icon">🏗️</div><div>まだ現場がありません</div></div>';return;
-  }
-  el.innerHTML=ids.map(id=>{
-    const info=sites[id].info||{};
-    const photos=sites[id].photos||[];
-    const bc=photos.filter(p=>p.tag==='before').length;
-    const dc=photos.filter(p=>p.tag==='during').length;
-    const ac=photos.filter(p=>p.tag==='after').length;
-    const pc=photos.filter(p=>p.tag==='pickup').length;
-    return `<div class="site-card">
-      <div style="flex:1;min-width:0;cursor:pointer;" onclick="openSite('${id}')">
-        <div class="site-name">${info.name||'（名前なし）'}</div>
-        <div class="site-meta">${[info.worker,info.date].filter(Boolean).join(' · ')}</div>
-        <div class="badges" style="justify-content:flex-start;margin-top:6px;">
-          ${bc?`<span class="badge b-before">前${bc}</span>`:''}
-          ${dc?`<span class="badge b-during">中${dc}</span>`:''}
-          ${ac?`<span class="badge b-after">後${ac}</span>`:''}
-          ${pc?`<span class="badge b-pickup">⭐${pc}</span>`:''}
-          <span class="badge b-gray">${photos.length}枚</span>
+  <div class="home-body">
+    <div class="setup-card">
+      <div class="setup-title">🏢 店舗・担当者情報</div>
+      <div class="setup-sub">入力後「登録してはじめる」を押してください</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div>
+          <div class="setup-label">都道府県</div>
+          <div class="select-wrap">
+            <select class="home-select" id="home-pref">
+              <option value="">選択してください</option>
+              <option>北海道</option><option>青森県</option><option>岩手県</option><option>宮城県</option><option>秋田県</option>
+              <option>山形県</option><option>福島県</option><option>茨城県</option><option>栃木県</option><option>群馬県</option>
+              <option>埼玉県</option><option>千葉県</option><option>東京都</option><option>神奈川県</option><option>新潟県</option>
+              <option>富山県</option><option>石川県</option><option>福井県</option><option>山梨県</option><option>長野県</option>
+              <option>岐阜県</option><option>静岡県</option><option>愛知県</option><option>三重県</option><option>滋賀県</option>
+              <option>京都府</option><option>大阪府</option><option>兵庫県</option><option>奈良県</option><option>和歌山県</option>
+              <option>鳥取県</option><option>島根県</option><option>岡山県</option><option>広島県</option><option>山口県</option>
+              <option>徳島県</option><option>香川県</option><option>愛媛県</option><option>高知県</option><option>福岡県</option>
+              <option>佐賀県</option><option>長崎県</option><option>熊本県</option><option>大分県</option><option>宮崎県</option>
+              <option>鹿児島県</option><option>沖縄県</option>
+            </select>
+          </div>
+        </div>
+        <div>
+          <div class="setup-label">会社名</div>
+          <input class="home-input" id="home-company" placeholder="例：ぬーまん工務店">
+        </div>
+        <div>
+          <div class="setup-label">担当者名</div>
+          <input class="home-input" id="home-staff" placeholder="例：ぬーまん">
         </div>
       </div>
-      <button onclick="deleteSiteFromHome('${id}',event)" style="background:none;border:none;color:var(--danger);font-size:22px;cursor:pointer;padding:8px;flex-shrink:0;line-height:1;">🗑</button>
-    </div>`;
-  }).join('');
+    </div>
+    <a class="guide-btn" href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-app-overview.html" target="_blank" style="display:block;text-align:center;text-decoration:none;">使い方・アップデート予定を見る →</a>
+    <button class="start-btn" onclick="startApp()">登録してはじめる</button>
+  </div>
+</div>
+
+<!-- ステップバー（STEP2〜4で表示） -->
+<div id="step-bar-wrap" style="display:none;">
+  <div class="step-bar">
+    <div class="sbar-item">
+      <div class="sbar-dot" id="sd-2"></div>
+      <div class="sbar-label" id="sl-2">写真アップ</div>
+    </div>
+    <div class="sbar-line" id="sl-line-1"></div>
+    <div class="sbar-item">
+      <div class="sbar-dot" id="sd-3"></div>
+      <div class="sbar-label" id="sl-3">写真整理</div>
+    </div>
+    <div class="sbar-line" id="sl-line-2"></div>
+    <div class="sbar-item">
+      <div class="sbar-dot" id="sd-4"></div>
+      <div class="sbar-label" id="sl-4">報告書</div>
+    </div>
+    <div class="sbar-line" id="sl-line-3"></div>
+    <div class="sbar-item">
+      <div class="sbar-dot" id="sd-5"></div>
+      <div class="sbar-label" id="sl-5">送付</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════
+     SCREEN 2: 写真アップロード
+═══════════════════════════════════ -->
+<div class="screen" id="screen-s2">
+<div class="s2-body">
+  <!-- タグ選択 -->
+  <div>
+    <div class="section-label" style="margin-bottom:12px;">① タグを選ぶ</div>
+    <div class="tag-grid">
+      <button class="tag-btn t-b active" id="tb-b" onclick="s2SelectTag('b',this)">
+        <span class="ti">📷</span><span class="tc">Before</span><span class="tn" id="cn-b">0</span>
+      </button>
+      <button class="tag-btn t-d" id="tb-d" onclick="s2SelectTag('d',this)">
+        <span class="ti">🔨</span><span class="tc">造形後</span><span class="tn" id="cn-d">0</span>
+      </button>
+      <button class="tag-btn t-a" id="tb-a" onclick="s2SelectTag('a',this)">
+        <span class="ti">✨</span><span class="tc">After</span><span class="tn" id="cn-a">0</span>
+      </button>
+      <button class="tag-btn t-p" id="tb-p" onclick="s2SelectTag('p',this)">
+        <span class="ti">⭐</span><span class="tc">こだ<br>わり</span><span class="tn" id="cn-p">0</span>
+      </button>
+      <button class="tag-btn t-o" id="tb-o" onclick="s2SelectTag('o',this)">
+        <span class="ti">📌</span><span class="tc">その他</span><span class="tn" id="cn-o">0</span>
+      </button>
+    </div>
+  </div>
+  <!-- アップロードゾーン -->
+  <div>
+    <div class="section-label" style="margin-bottom:12px;">② 写真をアップ</div>
+    <label class="upload-zone uz-b" id="s2-uz">
+      <input type="file" accept="image/*" multiple style="display:none;" id="s2-file-input" onchange="s2HandleFiles(this.files)">
+      <div class="uz-icon">📁</div>
+      <div class="uz-main">タップして追加</div>
+      <div class="uz-tag-pill pill-b" id="uz-pill">📷 Before として追加</div>
+      <div class="uz-hint">複数選択OK</div>
+    </label>
+  </div>
+  <!-- アップ済み写真 -->
+  <div class="uploaded-section" id="s2-uploaded" style="display:none;">
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+      <div class="section-label">アップ済み写真</div>
+      <div class="orient-filter">
+        <button class="of-btn on" onclick="s2SetOrient('all',this)">すべて</button>
+        <button class="of-btn of-port" onclick="s2SetOrient('port',this)">▯ 縦</button>
+        <button class="of-btn of-land" onclick="s2SetOrient('land',this)">▭ 横</button>
+      </div>
+    </div>
+    <div id="s2-thumb-area"></div>
+  </div>
+</div>
+<div class="fixed-footer">
+  <button class="primary-btn" id="s2-next-btn" disabled onclick="goTo('s3')">写真を整理する →</button>
+  <button class="secondary-btn" onclick="goTo('home')">← ホームに戻る</button>
+</div>
+</div><!-- screen-s2 -->
+
+<!-- ═══════════════════════════════════
+     SCREEN 3: 写真整理・ペアリング
+═══════════════════════════════════ -->
+<div class="screen" id="screen-s3">
+<div class="s3-body">
+  <div class="prog-card">
+    <div class="prog-top">
+      <div class="prog-label">ペアリング進捗</div>
+      <div class="prog-nums">
+        <div class="pn"><div class="pn-v" id="s3-paired">0</div><div class="pn-l">ペア完成</div></div>
+        <div class="pn"><div class="pn-v" style="color:var(--danger)" id="s3-unpaired">0</div><div class="pn-l">未割当て</div></div>
+        <div class="pn"><div class="pn-v" style="color:var(--text2)" id="s3-total">0</div><div class="pn-l">合計</div></div>
+      </div>
+    </div>
+    <div class="prog-bar-wrap"><div class="prog-bar" id="s3-prog-bar" style="width:0%"></div></div>
+    <div class="prog-msg" id="s3-prog-msg"><span class="dim">BeforeとAfterにペア番号を割り当ててください</span></div>
+  </div>
+  <div class="frow">
+    <button class="fbtn f-all on" onclick="s3SetF('all',this)">すべて</button>
+    <button class="fbtn f-pair"   onclick="s3SetF('pair',this)">⇔ ペア確認</button>
+    <button class="fbtn f-b"      onclick="s3SetF('b',this)">📷 Before</button>
+    <button class="fbtn f-a"      onclick="s3SetF('a',this)">✨ After</button>
+    <button class="fbtn f-none"   onclick="s3SetF('none',this)">⚠️ 未割当て</button>
+    <button class="fbtn f-solo"   onclick="s3SetF('solo',this)">⭐ 単体写真</button>
+  </div>
+  <div id="s3-main-area"></div>
+  <div class="footer-note" id="s3-footer-note" style="font-size:11px;color:var(--text2);text-align:center;"></div>
+</div>
+<div class="fixed-footer">
+  <button class="primary-btn" id="s3-next-btn" onclick="goTo('s4')">報告書を作成する →</button>
+  <button class="secondary-btn" onclick="goTo('s2')">← 写真アップに戻る</button>
+</div>
+<!-- ペア番号割当シート -->
+<div class="sheet" id="s3-sheet">
+  <div class="sheet-card">
+    <div class="sheet-thumb"><img id="s3-sheet-img" src="" alt=""></div>
+    <div class="sheet-label">この写真の画角番号を選んでください</div>
+    <div class="sheet-grid" id="s3-sheet-grid"></div>
+    <div class="sheet-actions">
+      <button class="sh-cancel" onclick="s3CloseSheet()">キャンセル</button>
+      <button class="sh-apply"  onclick="s3ApplySheet()">決定する</button>
+    </div>
+  </div>
+</div>
+</div><!-- screen-s3 -->
+
+<!-- ═══════════════════════════════════
+     SCREEN 4: 報告書入力
+═══════════════════════════════════ -->
+<div class="screen" id="screen-s4">
+<div class="s4-body">
+  <!-- ガイド -->
+  <div style="background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:13px 14px;margin-bottom:14px;">
+    <div style="font-size:12px;font-weight:900;color:var(--accent);margin-bottom:8px;">📋 操作方法</div>
+    <div style="font-size:11px;color:var(--text2);line-height:2;">
+      <div>① 施工種別を選ぶ</div>
+      <div>② 各項目を入力・選択（例文ボタンも活用）</div>
+      <div>③「プレビューを確認する」を押す</div>
+      <div>④ テキストをコピー → LINEに貼り付け</div>
+      <div>⑤ ZIPをダウンロード → LINEに添付して完了</div>
+    </div>
+  </div>
+  <!-- 担当者名 -->
+  <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;margin-bottom:14px;display:flex;align-items:center;gap:10px;">
+    <div style="font-size:13px;">👤</div>
+    <div style="flex:1;">
+      <div style="font-size:10px;color:var(--text2);margin-bottom:4px;">担当者名</div>
+      <input class="finput" id="f-staff" placeholder="ぬーまん" style="padding:8px 10px;">
+    </div>
+  </div>
+  <!-- 施工種別 -->
+  <div class="field" style="border-radius:12px 12px 0 0;">
+    <div class="field-label">施工種別</div>
+    <div style="display:flex;gap:10px;">
+      <button class="yn-btn on" id="type-rs" style="flex:1;padding:12px 8px;font-size:13px;" onclick="setType('rs')">🏗 ローラーストーン</button>
+      <button class="yn-btn"    id="type-rw" style="flex:1;padding:12px 8px;font-size:13px;" onclick="setType('rw')">🧱 ローラーウォール</button>
+    </div>
+  </div>
+  <!-- タイトル -->
+  <div class="field">
+    <div class="field-label">タイトル</div>
+    <div class="chips" id="chips-title">
+      <button class="chip" onclick="chipToggle(this,'title',false)">玄関アプローチ施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">駐車場施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">タイルデッキ施工</button>
+      <button class="chip" onclick="chipToggle(this,'title',false)">外構施工</button>
+    </div>
+    <input class="finput" id="title-custom" placeholder="その他（自由記述）">
+  </div>
+  <!-- 規模・日数 -->
+  <div class="field">
+    <div class="field-label">規模</div>
+    <div class="num-row">
+      <div class="num-wrap" style="flex:3;"><input class="finput" id="f-size" type="number" placeholder="25" inputmode="numeric"><span class="num-unit">㎡</span></div>
+      <div style="flex:1.5;">
+        <div class="field-label" style="margin-bottom:4px;">施工日数</div>
+        <div class="num-wrap"><input class="finput" id="f-days" type="number" placeholder="3" inputmode="numeric"><span class="num-unit">日</span></div>
+      </div>
+    </div>
+  </div>
+  <!-- 下地処理 -->
+  <div class="field">
+    <div class="field-label">下地処理</div>
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <button class="yn-btn on" id="yn-yes" onclick="setYN('yes')">あり</button>
+      <button class="yn-btn"    id="yn-no"  onclick="setYN('no')">なし</button>
+    </div>
+    <input class="finput" id="f-base" placeholder="ケレン処理、下地調整など（任意）">
+  </div>
+  <!-- パターン -->
+  <div class="field">
+    <div class="field-label">パターン <span class="opt">複数可</span></div>
+    <div class="chips" id="chips-pattern">
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">乱形石調</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">タイル調</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">特殊・ロゴ</button>
+      <button class="chip" onclick="chipToggle(this,'pattern',true)">その他</button>
+    </div>
+    <input class="finput" id="pattern-custom" placeholder="自由記述">
+  </div>
+  <!-- カラーメイン -->
+  <div class="field">
+    <div class="field-label">仕上げカラー（メイン） <span class="opt">複数可</span></div>
+    <div class="chips" id="chips-color-main">
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#999"></span>グレー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#222;border:1px solid #555"></span>ブラック</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#e8d5a0"></span>イエローベージュ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#c9a882"></span>ミルクティー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#e87030"></span>オレンジ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-main',true)"><span class="cdot" style="background:#5a7a50"></span>モスグリーン</button>
+    </div>
+    <input class="finput" id="color-main-custom" placeholder="その他のカラー（任意）">
+  </div>
+  <!-- カラーサブ -->
+  <div class="field">
+    <div class="field-label">仕上げカラー（サブ） <span class="opt">任意・複数可</span></div>
+    <div class="chips" id="chips-color-sub">
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#999"></span>グレー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#222;border:1px solid #555"></span>ブラック</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#e8d5a0"></span>イエローベージュ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#c9a882"></span>ミルクティー</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#e87030"></span>オレンジ</button>
+      <button class="color-chip" onclick="chipToggle(this,'color-sub',true)"><span class="cdot" style="background:#5a7a50"></span>モスグリーン</button>
+    </div>
+    <input class="finput" id="color-sub-custom" placeholder="その他のサブカラー（任意）">
+  </div>
+  <!-- 目地カラー -->
+  <div class="field">
+    <div class="field-label">目地カラー</div>
+    <input class="finput" id="f-grout" placeholder="ホワイト、グレー、ブラックなど">
+  </div>
+  <!-- こだわりポイント -->
+  <div class="field">
+    <div class="field-label">こだわりポイント</div>
+    <textarea class="finput" id="f-point" rows="3" placeholder="施工のこだわりや特徴を入力…"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-point','目地幅を3mmに統一し、上質な仕上がりを実現。石の向きを揃えて整然とした印象に。')">例文を使う</button>
+  </div>
+  <!-- お客様の声 -->
+  <div class="field">
+    <div class="field-label">お客様の声</div>
+    <textarea class="finput" id="f-voice" rows="2" placeholder="「想像以上の仕上がりで大満足です！」など"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-voice','「想像以上の仕上がりで大満足です！近所の方にも褒められました」')">例文を使う</button>
+  </div>
+  <!-- お客様のお悩み -->
+  <div class="field">
+    <div class="field-label">お客様のお悩み <span class="opt">任意</span></div>
+    <textarea class="finput" id="f-problem" rows="2" placeholder="「コンクリートが味気なくておしゃれにしたかった」など"></textarea>
+    <button class="ex-btn" onclick="fillEx('f-problem','コンクリートが味気なくておしゃれにしたかった')">例文を使う</button>
+  </div>
+  <!-- 自由記述 -->
+  <div class="field" style="border-radius:0 0 12px 12px;">
+    <div class="field-label">その他・自由記述 <span class="opt">任意</span></div>
+    <textarea class="finput" id="f-free" rows="2" placeholder="自由記入"></textarea>
+  </div>
+  <!-- 写真サマリー（STEP2から引継ぎ） -->
+  <div class="photo-summary-card" id="photo-summary">📸 写真なし（STEP2で追加してください）</div>
+</div>
+<div class="fixed-footer">
+  <button class="primary-btn" onclick="goPreview()">プレビューを確認する →</button>
+  <button class="secondary-btn" onclick="goTo('s3')">← 写真整理に戻る</button>
+</div>
+</div><!-- screen-s4 -->
+
+<!-- ═══════════════════════════════════
+     SCREEN 5: プレビュー・送付
+═══════════════════════════════════ -->
+<div class="screen" id="screen-preview">
+<div class="preview-body">
+  <div class="send-section-title">送付テキスト</div>
+  <div class="send-text-box" id="send-text-box"></div>
+  <div class="steps-card">
+    <div class="steps-title">2ステップで送付</div>
+    <div class="step-row"><span class="step-num">①</span>テキストをコピー → LINEに貼り付け</div>
+    <div class="step-row"><span class="step-num">②</span>ZIPをダウンロード → LINEに添付</div>
+  </div>
+  <!-- フィードバック -->
+  <div class="fb-card">
+    <div style="font-size:13px;font-weight:900;color:var(--text);margin-bottom:4px;">お疲れ様でした！🎉</div>
+    <div style="font-size:12px;color:var(--text2);line-height:1.8;margin-bottom:12px;">使い心地はいかがでしたか？<br>よかったら簡単なフィードバックをいただけると嬉しいです。</div>
+    <textarea class="finput" id="fb-text" rows="3" placeholder="例）入力がスムーズだった・ここが使いにくかった など"></textarea>
+    <div style="display:flex;gap:8px;margin-top:10px;" id="fb-actions">
+      <button onclick="sendFeedback()" style="flex:1;padding:12px;background:var(--accent);color:#000;border:none;border-radius:10px;font-size:13px;font-weight:900;font-family:inherit;cursor:pointer;">📨 送信する</button>
+      <button onclick="skipFeedback()" style="flex:1;padding:12px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:10px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;">スキップ</button>
+    </div>
+    <div id="fb-sent" style="display:none;text-align:center;padding:10px;font-size:12px;color:var(--ok);font-weight:700;">✅ フィードバックを受け取りました！ありがとうございます</div>
+  </div>
+</div>
+<div class="fixed-footer">
+  <button class="primary-btn btn-copy" id="btn-copy" onclick="copyText()">📋 テキストをコピー</button>
+  <button class="primary-btn btn-zip"  style="background:#222;color:var(--text);margin-top:-4px;" onclick="downloadZip()">📦 ZIPをダウンロード</button>
+  <div class="action-row">
+    <button class="secondary-btn" style="flex:1;" onclick="goTo('s4')">← 修正する</button>
+    <button class="danger-btn" onclick="confirmDelete()">🗑 削除</button>
+  </div>
+</div>
+</div><!-- screen-preview -->
+
+<div class="toast" id="toast-el"></div>
+
+<!-- ═══════════════════════════════════
+     JavaScript
+═══════════════════════════════════ -->
+<script>
+// ══════════════════════════════
+//  グローバル状態
+// ══════════════════════════════
+const APP = {
+  pref: '', company: '', staff: '',
+  curScreen: 'home',
+};
+
+// ── 写真データ（S2/S3共有） ──
+const TM2 = {
+  b:{uz:'uz-b',pill:'pill-b',label:'📷 Before として追加',badge:'tb-b',name:'Before',dot:'var(--before)'},
+  d:{uz:'uz-d',pill:'pill-d',label:'🔨 造形後 として追加', badge:'tb-d',name:'造形後',dot:'var(--during)'},
+  a:{uz:'uz-a',pill:'pill-a',label:'✨ After として追加',  badge:'tb-a',name:'After', dot:'var(--after)'},
+  p:{uz:'uz-p',pill:'pill-p',label:'⭐ こだわり として追加',badge:'tb-p',name:'こだわり',dot:'var(--pickup)'},
+  o:{uz:'uz-o',pill:'pill-o',label:'📌 その他 として追加', badge:'tb-o',name:'その他',dot:'var(--other)'},
+};
+let s2Photos = {b:[],d:[],a:[],p:[],o:[]};
+let s2Pid = 0, s2CurTag = 'b', s2CurOrient = 'all';
+
+// S3用写真リスト（S2から変換）
+let s3Photos = [], s3CurF = 'all', s3MaxPair = 0;
+let s3SheetId = null, s3SheetNewPair = null;
+const NC = ['①','②','③','④','⑤','⑥','⑦','⑧','⑨'];
+const fn = n => NC[n-1] || n+'';
+const TM3 = {
+  b:{name:'Before',dot:'var(--before)',badge:'sl-b'},
+  d:{name:'造形後', dot:'var(--during)',badge:'st-d'},
+  a:{name:'After', dot:'var(--after)', badge:'sl-a'},
+  p:{name:'こだわり',dot:'var(--pickup)',badge:'st-p'},
+  o:{name:'その他', dot:'var(--other)', badge:'st-o'},
+};
+
+// ══════════════════════════════
+//  画面遷移
+// ══════════════════════════════
+function goTo(name) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + (name === 'home' ? 'home' : name === 's2' ? 's2' : name === 's3' ? 's3' : name === 's4' ? 's4' : 'preview')).classList.add('active');
+  document.getElementById('step-bar-wrap').style.display = (name === 'home') ? 'none' : 'block';
+  updateStepBar(name);
+  document.getElementById('header-step').textContent =
+    name === 'home'    ? '' :
+    name === 's2'      ? 'STEP 2' :
+    name === 's3'      ? 'STEP 3' :
+    name === 's4'      ? 'STEP 4' : '送付';
+  window.scrollTo(0, 0);
+  if (name === 's3') { s3SyncFromS2(); s3UpdateStats(); s3Render(); }
+  if (name === 's4') { updatePhotoSummary(); syncStaffToS4(); }
+  APP.curScreen = name;
 }
 
-// ========== SITE ==========
-function newSite(){
-  siteId='site_'+Date.now();
-  sites[siteId]={info:{date:new Date().toLocaleDateString('ja-JP')},photos:[],ig:{mainVisual:null,pairs:[],pickup:[]}};
-  document.getElementById('f-name').value='';
-  document.getElementById('f-worker').value='';
-  showScreen('s-step1');
-}
-function openSite(id){
-  siteId=id;
-  if(!sites[id].ig) sites[id].ig={mainVisual:null,pairs:[],pickup:[]};
-  const info=sites[id].info||{};
-  document.getElementById('f-name').value=info.name||'';
-  document.getElementById('f-worker').value=info.worker||'';
-  loadStep3Fields(info);
-  closeModal('modal-history');
-  renderPhotoSections();
-  showScreen('s-step2');
-}
-function saveStep1(){
-  if(!sites[siteId]) return;
-  sites[siteId].info.name=document.getElementById('f-name').value;
-  sites[siteId].info.worker=document.getElementById('f-worker').value;
-  persist(); renderPhotoSections(); showScreen('s-step2');
+function updateStepBar(name) {
+  const steps = ['2','3','4','5'];
+  const nameMap = {s2:'2', s3:'3', s4:'4', preview:'5'};
+  const cur = nameMap[name] || '0';
+  const curIdx = steps.indexOf(cur);
+  steps.forEach((s, i) => {
+    const dot = document.getElementById('sd-' + s);
+    const lbl = document.getElementById('sl-' + s);
+    if (!dot) return;
+    dot.className = 'sbar-dot' + (i < curIdx ? ' done' : i === curIdx ? ' active' : '');
+    lbl.className = 'sbar-label' + (i === curIdx ? ' active' : '');
+  });
+  ['1','2','3'].forEach((n, i) => {
+    const line = document.getElementById('sl-line-' + n);
+    if (line) line.className = 'sbar-line' + (i < curIdx - 1 ? ' done' : '');
+  });
 }
 
-// ========== CHIPS ==========
-function singleChip(hidId,val,chipIds){
-  chipIds.forEach(cid=>document.getElementById(cid).classList.remove('active'));
-  event.currentTarget.classList.add('active');
-  document.getElementById(hidId).value=val;
-}
-function multiChip(el,group){
-  const label=el.innerText.trim();
-  const sel=group==='pat'?patSel:colSel;
-  if(el.classList.contains('active')){el.classList.remove('active');sel.delete(label);}
-  else{el.classList.add('active');sel.add(label);}
-}
-function titleChip(el,val){
-  document.querySelectorAll('#title-chips .chip').forEach(c=>c.classList.remove('active'));
-  el.classList.add('active');
-  document.getElementById('f-title').value=val;
-}
-function clearTitleChips(){ document.querySelectorAll('#title-chips .chip').forEach(c=>c.classList.remove('active')); }
-
-// ========== TAG SELECT ==========
-function selectTag(tag,el){
-  currentTag=tag;
-  document.querySelectorAll('.tag-btn').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-  const labels={before:'Before',during:'造形後',after:'After',pickup:'こだわり'};
-  document.getElementById('upload-tag-hint').textContent='選択中：'+labels[tag];
+// ══════════════════════════════
+//  ホーム画面
+// ══════════════════════════════
+function startApp() {
+  const pref    = document.getElementById('home-pref').value;
+  const company = document.getElementById('home-company').value.trim();
+  const staff   = document.getElementById('home-staff').value.trim();
+  if (!pref)    { toast('都道府県を選択してください'); return; }
+  if (!company) { toast('会社名を入力してください'); return; }
+  if (!staff)   { toast('担当者名を入力してください'); return; }
+  APP.pref = pref; APP.company = company; APP.staff = staff;
+  // localStorage に保存
+  try {
+    localStorage.setItem('rs_pref', pref);
+    localStorage.setItem('rs_company', company);
+    localStorage.setItem('rs_staff', staff);
+  } catch(e) {}
+  goTo('s2');
 }
 
-// ========== PHOTO UPLOAD ==========
-function handleFiles(files){
-  if(!siteId) return;
-  const site=sites[siteId];
-  if(!site.photos) site.photos=[];
-  if(!site.ig) site.ig={mainVisual:null,pairs:[],pickup:[]};
+// showGuide → 外部URLリンクに移行（ボタン側でhref処理）
 
-  const readers=Array.from(files).map(file=>new Promise(resolve=>{
-    const reader=new FileReader();
-    reader.onload=e=>{
-      const img=new Image();
-      img.onload=()=>{
-        const photo={
-          id:'p_'+Date.now()+'_'+Math.random().toString(36).slice(2),
-          tag:currentTag, dataUrl:e.target.result,
-          orientation:img.width>=img.height?'landscape':'portrait',
-          selected:true,
-        };
-        site.photos.push(photo);
-        // Phase2用ギャラリーDBにも自動蓄積
-        addToGalleryDB(photo, site.info);
-        resolve();
+// ページ読込時に保存値を復元
+window.addEventListener('load', () => {
+  try {
+    const p = localStorage.getItem('rs_pref');
+    const c = localStorage.getItem('rs_company');
+    const s = localStorage.getItem('rs_staff');
+    if (p) document.getElementById('home-pref').value = p;
+    if (c) document.getElementById('home-company').value = c;
+    if (s) document.getElementById('home-staff').value = s;
+  } catch(e) {}
+});
+
+// ══════════════════════════════
+//  STEP2: 写真アップロード
+// ══════════════════════════════
+function s2SelectTag(t, btn) {
+  s2CurTag = t;
+  document.querySelectorAll('.tag-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const m = TM2[t];
+  const uz = document.getElementById('s2-uz');
+  uz.className = 'upload-zone ' + m.uz;
+  const pill = document.getElementById('uz-pill');
+  pill.className = 'uz-tag-pill ' + m.pill;
+  pill.textContent = m.label;
+}
+
+function s2HandleFiles(files) {
+  if (!files || !files.length) return;
+  Array.from(files).forEach(file => {
+    const reader = new FileReader();
+    reader.onload = e => {
+      const img = new Image();
+      img.onload = () => {
+        const orient = img.naturalHeight > img.naturalWidth ? 'port' : 'land';
+        s2Photos[s2CurTag].push({
+          id: s2Pid++,
+          src: e.target.result,
+          tag: s2CurTag,
+          orient,
+          pairNum: null,
+          include: true
+        });
+        s2UpdateAll();
       };
-      img.src=e.target.result;
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
-  }));
-  Promise.all(readers).then(()=>{
-    persist(); renderPhotoSections();
   });
+  toast(TM2[s2CurTag].name + ' に追加しました');
+  // ファイル入力リセット（同じファイルを再選択できるよう）
+  document.getElementById('s2-file-input').value = '';
 }
 
-// Phase2ギャラリーDB（現場関係なく蓄積）
-function addToGalleryDB(photo, info){
-  let db=[];
-  try{ db=JSON.parse(localStorage.getItem('rs-gallery-v1')||'[]'); }catch(e){}
-  db.push({
-    id:photo.id, dataUrl:photo.dataUrl, tag:photo.tag,
-    orientation:photo.orientation,
-    patterns:info.patterns||[], colors:info.colors||[],
-    date:info.date||'', site:info.name||'',
-    savedAt:Date.now(),
+function s2SetOrient(o, btn) {
+  s2CurOrient = o;
+  document.querySelectorAll('.of-btn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  s2RenderThumbs();
+}
+
+function s2DelPhoto(id, tag) {
+  s2Photos[tag] = s2Photos[tag].filter(p => p.id !== id);
+  s2UpdateAll();
+  toast('削除しました');
+}
+
+function s2UpdateAll() {
+  const total = Object.values(s2Photos).reduce((s, a) => s + a.length, 0);
+  Object.keys(s2Photos).forEach(t => {
+    document.getElementById('cn-' + t).textContent = s2Photos[t].length;
   });
-  // 最新500枚まで保持
-  if(db.length>500) db=db.slice(-500);
-  try{ localStorage.setItem('rs-gallery-v1',JSON.stringify(db)); }catch(e){}
+  document.getElementById('s2-next-btn').disabled = (total === 0);
+  const sec = document.getElementById('s2-uploaded');
+  if (total === 0) { sec.style.display = 'none'; return; }
+  sec.style.display = 'flex';
+  s2RenderThumbs();
 }
 
-// ========== PHOTO DISPLAY ==========
-function renderPhotoSections(){
-  if(!siteId) return;
-  const photos=sites[siteId].photos||[];
-  const sortArea=document.getElementById('sort-area');
-  if(!photos.length){ sortArea.style.display='none'; return; }
-  sortArea.style.display='block';
-  renderSortBar();
-  renderSortedPhotos();
+function s2RenderThumbs() {
+  const area = document.getElementById('s2-thumb-area');
+  const order = ['b','d','a','p','o'];
+  let html = '';
+  order.forEach(t => {
+    let L = s2Photos[t];
+    if (s2CurOrient !== 'all') L = L.filter(p => p.orient === s2CurOrient);
+    if (!L.length) return;
+    const m = TM2[t];
+    const cntLabel = s2CurOrient === 'all' ? `${s2Photos[t].length}枚` : `${L.length}/${s2Photos[t].length}枚`;
+    html += `<div style="margin-bottom:10px;">
+      <div class="tag-row">
+        <div class="tag-dot" style="background:${m.dot}"></div>
+        <div class="tag-name">${m.name}</div>
+        <div class="tag-cnt">${cntLabel}</div>
+      </div>
+      <div class="thumb-scroll">`;
+    L.forEach(p => {
+      const oLbl = p.orient === 'port' ? '▯縦' : '▭横';
+      html += `<div class="thumb-item">
+        <img src="${p.src}" alt="">
+        <div class="thumb-tag ${m.badge}">${m.name}</div>
+        <div class="orient-badge">${oLbl}</div>
+        <button class="thumb-del" onclick="event.stopPropagation();s2DelPhoto(${p.id},'${t}')">✕</button>
+      </div>`;
+    });
+    html += `</div></div>`;
+  });
+  if (!html) {
+    const lbl = s2CurOrient === 'port' ? '▯縦' : '▭横';
+    html = `<div style="text-align:center;padding:16px;font-size:12px;color:var(--text2);">${lbl}向きの写真はありません</div>`;
+  }
+  area.innerHTML = html;
 }
 
-function renderSortBar(){
-  const defs=[
-    {key:'all',label:'🔀 全て'},
-    {key:'pair',label:'🔗 ペア表示'},
-    {key:'portrait',label:'📱 縦'},
-    {key:'landscape',label:'🖼 横'},
-    {key:'before',label:'📷 Before'},
-    {key:'after',label:'✨ After'},
-    {key:'during',label:'🔨 造形後'},
-    {key:'pickup',label:'⭐ こだわり'},
-  ];
-  document.getElementById('sort-bar').innerHTML=defs.map(d=>
-    `<button class="sort-chip${activeSorts.has(d.key)?' active':''}" data-sort="${d.key}" onclick="toggleSort('${d.key}',this)">${d.label}</button>`
-  ).join('');
+// ══════════════════════════════
+//  STEP3: 写真整理・ペアリング
+// ══════════════════════════════
+// S2のフラットな配列に変換してS3に渡す
+function s3SyncFromS2() {
+  const all = [];
+  ['b','d','a','p','o'].forEach(t => {
+    s2Photos[t].forEach(p => all.push({...p}));
+  });
+  // 既存のS3データを維持しつつ、新規追加分をマージ
+  const existingIds = new Set(s3Photos.map(p => p.id));
+  all.forEach(p => {
+    if (!existingIds.has(p.id)) s3Photos.push({...p, pairNum: null, include: true});
+  });
+  // S2で削除された写真をS3からも削除
+  const s2AllIds = new Set(all.map(p => p.id));
+  s3Photos = s3Photos.filter(p => s2AllIds.has(p.id));
+  s3MaxPair = Math.max(...s3Photos.filter(p => p.pairNum).map(p => p.pairNum), 0);
 }
 
-function toggleSort(key,el){
-  if(key==='all'){
-    activeSorts=new Set(['all']);
-    document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('active'));
-    el.classList.add('active');
+function s3UpdateStats() {
+  const bs = s3Photos.filter(p => p.tag === 'b');
+  const as = s3Photos.filter(p => p.tag === 'a');
+  const pnums = [...new Set([...bs,...as].filter(p => p.pairNum).map(p => p.pairNum))];
+  const paired = pnums.filter(n => bs.find(p => p.pairNum === n) && as.find(p => p.pairNum === n)).length;
+  const unpaired = s3Photos.filter(p => (p.tag === 'b' || p.tag === 'a') && !p.pairNum).length;
+  const total = s3Photos.length;
+  document.getElementById('s3-paired').textContent = paired;
+  document.getElementById('s3-unpaired').textContent = unpaired;
+  document.getElementById('s3-total').textContent = total;
+  const baTotal = bs.length + as.length;
+  const pct = baTotal > 0 ? Math.round(paired * 2 / baTotal * 100) : 0;
+  document.getElementById('s3-prog-bar').style.width = pct + '%';
+  const incl = s3Photos.filter(p => p.include).length;
+  if (unpaired === 0 && baTotal > 0) {
+    document.getElementById('s3-prog-msg').innerHTML = `<span class="ok">✅ ペアリング完了</span>`;
+  } else if (unpaired > 0) {
+    document.getElementById('s3-prog-msg').innerHTML = `<span class="warn">⚠️ ${unpaired}枚が未割当て</span>`;
   } else {
-    activeSorts.delete('all');
-    document.querySelector('[data-sort="all"]')?.classList.remove('active');
-    if(el.classList.contains('active')){
-      el.classList.remove('active'); activeSorts.delete(key);
-      if(activeSorts.size===0){activeSorts.add('all');document.querySelector('[data-sort="all"]')?.classList.add('active');}
-    } else { el.classList.add('active'); activeSorts.add(key); }
+    document.getElementById('s3-prog-msg').innerHTML = `<span class="dim">BeforeとAfterにペア番号を割り当ててください</span>`;
   }
-  renderSortedPhotos();
+  document.getElementById('s3-footer-note').textContent = `報告書に含める写真：${incl}枚`;
 }
 
-function photoCard(p){
-  const tbMap={before:'tb-before',during:'tb-during',after:'tb-after',pickup:'tb-pickup'};
-  const tlMap={before:'Before',during:'造形後',after:'After',pickup:'⭐'};
-  return `<div class="photo-item${p.selected?' selected':''} ${p.orientation}" id="pi-${p.id}">
-    <img src="${p.dataUrl}" loading="lazy">
-    <div class="chk">✓</div>
-    <div class="ori">${p.orientation==='portrait'?'縦':'横'}</div>
-    <div class="del" onclick="delPhoto('${p.id}');event.stopPropagation()">✕</div>
-    <div class="tag-badge ${tbMap[p.tag]}">${tlMap[p.tag]}</div>
-    <div class="tap" onclick="toggleSel('${p.id}')"></div>
-  </div>`;
+function s3SetF(f, btn) {
+  s3CurF = f;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('on'));
+  btn.classList.add('on');
+  s3Render();
 }
 
-function renderSortedPhotos(){
-  if(!siteId) return;
-  const all=sites[siteId].photos||[];
-  const container=document.getElementById('sorted-photos');
-  const selCount=all.filter(p=>p.selected).length;
-
-  let html=`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-    <span style="font-size:13px;color:var(--text2);">計 ${all.length}枚</span>
-    <span style="font-size:12px;color:var(--accent);font-weight:700;">${selCount}枚選択中</span>
-  </div>`;
-
-  if(activeSorts.has('pair')){
-    html+=renderPairSection(all);
-  } else {
-    let photos=[...all];
-    if(!activeSorts.has('all')){
-      photos=photos.filter(p=>{
-        let ok=false;
-        if(activeSorts.has('portrait')&&p.orientation==='portrait') ok=true;
-        if(activeSorts.has('landscape')&&p.orientation==='landscape') ok=true;
-        if(activeSorts.has('before')&&p.tag==='before') ok=true;
-        if(activeSorts.has('after')&&p.tag==='after') ok=true;
-        if(activeSorts.has('during')&&p.tag==='during') ok=true;
-        if(activeSorts.has('pickup')&&p.tag==='pickup') ok=true;
-        return ok;
-      });
-    } else {
-      photos.sort((a,b)=>({before:0,after:1,during:2,pickup:3}[a.tag]||0)-({before:0,after:1,during:2,pickup:3}[b.tag]||0));
-    }
-    html+=photos.length
-      ?`<div class="photo-grid">${photos.map(p=>photoCard(p)).join('')}</div>`
-      :`<div class="empty" style="padding:24px 0;"><div style="font-size:32px;">🔍</div><div style="font-size:13px;">該当する写真がありません</div></div>`;
-  }
-  container.innerHTML=html;
-}
-
-function renderPairSection(all){
-  // 画角ごとに縦/横で自動ペアリング
-  const bPort=all.filter(p=>p.tag==='before'&&p.orientation==='portrait');
-  const bLand=all.filter(p=>p.tag==='before'&&p.orientation==='landscape');
-  const aPort=all.filter(p=>p.tag==='after'&&p.orientation==='portrait');
-  const aLand=all.filter(p=>p.tag==='after'&&p.orientation==='landscape');
-  const during=all.filter(p=>p.tag==='during');
-  const pickup=all.filter(p=>p.tag==='pickup');
-
-  let html='';
-  const maxP=Math.max(bPort.length,aPort.length);
-  const maxL=Math.max(bLand.length,aLand.length);
-
-  if(maxP>0){
-    html+=`<div style="font-size:12px;color:var(--text2);margin-bottom:6px;border-left:3px solid var(--before);padding-left:6px;">縦 Before / After</div>`;
-    for(let i=0;i<maxP;i++){
-      html+=`<div class="pair-row">`;
-      if(bPort[i]) html+=photoCard(bPort[i]);
-      if(aPort[i]) html+=photoCard(aPort[i]);
-      html+=`</div>`;
-    }
-  }
-  if(maxL>0){
-    html+=`<div style="font-size:12px;color:var(--text2);margin:10px 0 6px;border-left:3px solid var(--after);padding-left:6px;">横 Before / After</div>`;
-    for(let i=0;i<maxL;i++){
-      html+=`<div class="pair-row">`;
-      if(bLand[i]) html+=photoCard(bLand[i]);
-      if(aLand[i]) html+=photoCard(aLand[i]);
-      html+=`</div>`;
-    }
-  }
-  if(during.length){
-    html+=`<div style="font-size:12px;color:var(--text2);margin:14px 0 6px;border-left:3px solid var(--during);padding-left:6px;">造形後（${during.length}枚）</div>`;
-    html+=`<div class="photo-grid">${during.map(p=>photoCard(p)).join('')}</div>`;
-  }
-  if(pickup.length){
-    html+=`<div style="font-size:12px;color:var(--text2);margin:14px 0 6px;border-left:3px solid var(--pickup);padding-left:6px;">⭐ こだわりショット（${pickup.length}枚）</div>`;
-    html+=`<div class="photo-grid">${pickup.map(p=>photoCard(p)).join('')}</div>`;
-  }
-  return html||`<div class="empty" style="padding:24px 0;"><div style="font-size:32px;">📷</div><div style="font-size:13px;">写真がありません</div></div>`;
-}
-
-function toggleSel(id){
-  const p=sites[siteId].photos.find(p=>p.id===id);
-  if(p){p.selected=!p.selected;persist();renderSortedPhotos();
-    // カウンター更新のみ再レンダリング
-    const all=sites[siteId].photos||[];
-    const selCount=all.filter(p=>p.selected).length;
-    const el=document.querySelector('#sorted-photos span[style*="accent"]');
-    if(el) el.textContent=selCount+'枚選択中';
-  }
-}
-function delPhoto(id){
-  sites[siteId].photos=sites[siteId].photos.filter(p=>p.id!==id);
-  persist(); renderPhotoSections();
-}
-
-// ========== IG SECTION ==========
-function renderIgSection(){
-  if(!siteId) return;
-  const photos=sites[siteId].photos||[];
-  const ig=sites[siteId].ig||{pickup:[]};
-
-  // Before/After を画角別に自動ペアリング
-  const bPort=photos.filter(p=>p.tag==='before'&&p.orientation==='portrait');
-  const bLand=photos.filter(p=>p.tag==='before'&&p.orientation==='landscape');
-  const aPort=photos.filter(p=>p.tag==='after'&&p.orientation==='portrait');
-  const aLand=photos.filter(p=>p.tag==='after'&&p.orientation==='landscape');
-
-  const maxP=Math.max(bPort.length,aPort.length);
-  const maxL=Math.max(bLand.length,aLand.length);
-
-  let pairHtml='';
-
-  if(maxP===0&&maxL===0){
-    pairHtml=`<div style="text-align:center;padding:20px;color:var(--text2);font-size:13px;">
-      <div style="font-size:28px;margin-bottom:8px;">📷</div>
-      Before・Afterの写真を追加するとここに表示されます
-    </div>`;
-  }
-
-  if(maxP>0){
-    pairHtml+=`<div style="font-size:11px;color:var(--text2);margin-bottom:8px;border-left:3px solid var(--before);padding-left:6px;">縦 Before / After</div>`;
-    for(let i=0;i<maxP;i++){
-      const b=bPort[i], a=aPort[i];
-      pairHtml+=`<div style="display:flex;gap:6px;margin-bottom:10px;">`;
-      if(b) pairHtml+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;">Before</div></div>`;
-      else pairHtml+=`<div style="flex:1;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;aspect-ratio:.6;color:var(--text2);font-size:11px;">なし</div>`;
-      if(a) pairHtml+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;color:#000;">After</div></div>`;
-      else pairHtml+=`<div style="flex:1;border-radius:10px;border:2px dashed var(--border);display:flex;align-items:center;justify-content:center;aspect-ratio:.6;color:var(--text2);font-size:11px;">なし</div>`;
-      pairHtml+=`</div>`;
-    }
-  }
-
-  if(maxL>0){
-    pairHtml+=`<div style="font-size:11px;color:var(--text2);margin:12px 0 8px;border-left:3px solid var(--after);padding-left:6px;">横 Before / After</div>`;
-    for(let i=0;i<maxL;i++){
-      const b=bLand[i], a=aLand[i];
-      pairHtml+=`<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:10px;">`;
-      if(b) pairHtml+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;">Before</div></div>`;
-      if(a) pairHtml+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:4px;color:#000;">After</div></div>`;
-      pairHtml+=`</div>`;
-    }
-  }
-
-  document.getElementById('pair-list').innerHTML=pairHtml;
-
-  // こだわりグリッド
-  const pList=ig.pickup||[];
-  document.getElementById('pickup-count').innerHTML=`<span style="color:var(--pickup);font-weight:900;">${pList.length}</span> / ${PICKUP_MAX}枚`;
-  document.getElementById('pickup-grid').innerHTML=pList.map(pid=>{
-    const p=photos.find(p=>p.id===pid);
-    return p?`<div class="pickup-item"><img src="${p.dataUrl}"><button class="pk-del" onclick="removePickup('${pid}')">✕</button></div>`:'';
-  }).join('');
-}
-
-function clearMV(e){ e.stopPropagation(); sites[siteId].ig.mainVisual=null; persist(); renderIgSection(); }
-
-function addPair(){
-  const ig=sites[siteId].ig;
-  const photos=sites[siteId].photos||[];
-
-  // 既にペアで使われているIDを収集
-  const usedBefore=new Set((ig.pairs||[]).map(p=>p.before).filter(Boolean));
-  const usedAfter=new Set((ig.pairs||[]).map(p=>p.after).filter(Boolean));
-
-  // 未使用のBefore/After を画角別に用意
-  const bPort=photos.filter(p=>p.tag==='before'&&p.orientation==='portrait'&&!usedBefore.has(p.id));
-  const bLand=photos.filter(p=>p.tag==='before'&&p.orientation==='landscape'&&!usedBefore.has(p.id));
-  const aPort=photos.filter(p=>p.tag==='after'&&p.orientation==='portrait'&&!usedAfter.has(p.id));
-  const aLand=photos.filter(p=>p.tag==='after'&&p.orientation==='landscape'&&!usedAfter.has(p.id));
-
-  // 縦ペアを優先、なければ横ペア、なければ片方だけ
-  let newPair={before:null,after:null};
-  if(bPort.length&&aPort.length){
-    newPair={before:bPort[0].id, after:aPort[0].id};
-  } else if(bLand.length&&aLand.length){
-    newPair={before:bLand[0].id, after:aLand[0].id};
-  } else if(bPort.length||aPort.length||bLand.length||aLand.length){
-    // 片方だけ残っている場合
-    newPair={
-      before:(bPort[0]||bLand[0])?.id||null,
-      after:(aPort[0]||aLand[0])?.id||null,
-    };
-    showToast('画角が揃う写真がなかったため片方のみセットしました');
-  } else {
-    showToast('追加できるBefore/After写真がありません');
+function s3Render() {
+  const el = document.getElementById('s3-main-area');
+  if (s3CurF === 'pair') { s3RenderPair(el); return; }
+  let list = s3Photos;
+  if (s3CurF === 'b')    list = s3Photos.filter(p => p.tag === 'b');
+  else if (s3CurF === 'a')    list = s3Photos.filter(p => p.tag === 'a');
+  else if (s3CurF === 'none') list = s3Photos.filter(p => (p.tag === 'b' || p.tag === 'a') && !p.pairNum);
+  else if (s3CurF === 'solo') list = s3Photos.filter(p => p.tag !== 'b' && p.tag !== 'a');
+  if (s3CurF === 'all') { s3RenderAll(el); return; }
+  if (!list.length) {
+    const msg = s3CurF === 'none' ? '✅ 未割当ての写真はありません' : '写真がありません';
+    el.innerHTML = `<div class="empty-sec"><div class="ei">${s3CurF === 'none' ? '✅' : '📷'}</div>${msg}</div>`;
     return;
   }
-
-  if(!ig.pairs) ig.pairs=[];
-  ig.pairs.push(newPair);
-  persist(); renderIgSection();
-}
-
-function removePair(i){ sites[siteId].ig.pairs.splice(i,1); persist(); renderIgSection(); }
-function clearPairSlot(i,slot,e){ e.stopPropagation(); sites[siteId].ig.pairs[i][slot]=null; persist(); renderIgSection(); }
-function removePickup(pid){ sites[siteId].ig.pickup=sites[siteId].ig.pickup.filter(id=>id!==pid); persist(); renderIgSection(); }
-
-// ========== MODALS ==========
-function openModal(id){
-  if(id==='modal-history'){
-    const ids=Object.keys(sites).reverse();
-    const el=document.getElementById('modal-site-list');
-    if(!ids.length){ el.innerHTML='<div style="color:var(--text2);text-align:center;padding:20px;font-size:14px;">現場がありません</div>'; }
-    else { el.innerHTML=ids.map(id=>{
-      const info=sites[id].info||{};
-      return `<button class="btn btn-secondary" onclick="openSite('${id}')" style="justify-content:flex-start;text-align:left;"><div>
-        <div style="font-size:15px;font-weight:700;">${info.name||'（名前なし）'}</div>
-        <div style="font-size:12px;color:var(--text2);">${[info.worker,info.date].filter(Boolean).join(' · ')}</div>
-      </div></button>`;
-    }).join(''); }
-  }
-  if(id==='modal-mv'){
-    const photos=sites[siteId].photos||[];
-    document.getElementById('modal-mv-grid').innerHTML=photos.map(p=>`
-      <div class="modal-photo" onclick="selectMV('${p.id}')">
-        <img src="${p.dataUrl}">
-        <div class="mp-chk">✓</div>
-        <div class="mp-badge ${p.tag==='before'?'tb-before':p.tag==='after'?'tb-after':p.tag==='during'?'tb-during':'tb-pickup'}">${{before:'B',after:'A',during:'造',pickup:'⭐'}[p.tag]}</div>
-      </div>`).join('');
-  }
-  if(id==='modal-pickup'){
-    const ig=sites[siteId].ig||{};
-    const cur=new Set(ig.pickup||[]);
-    const photos=(sites[siteId].photos||[]).filter(p=>p.tag==='pickup'||p.tag==='after');
-    modalPickupTmp=new Set(cur);
-    const rem=PICKUP_MAX-(ig.pickup||[]).length;
-    document.getElementById('modal-pickup-sub').textContent=`残り${rem}枚追加可能（タップで選択）`;
-    document.getElementById('modal-pickup-grid').innerHTML=photos.map(p=>`
-      <div class="modal-photo${cur.has(p.id)?' selected':''}" id="mpk-${p.id}" onclick="togglePickupTmp('${p.id}')">
-        <img src="${p.dataUrl}">
-        <div class="mp-chk">✓</div>
-        <div class="mp-badge ${p.tag==='after'?'tb-after':'tb-pickup'}">${p.tag==='after'?'A':'⭐'}</div>
-      </div>`).join('');
-  }
-  document.getElementById(id).classList.add('active');
-}
-
-function selectMV(pid){ sites[siteId].ig.mainVisual=pid; persist(); renderIgSection(); closeModal('modal-mv'); }
-
-function openPairModal(pairIndex,slot){
-  modalPairIndex=pairIndex; modalPairSlot=slot;
-  const tag=slot==='before'?'before':'after';
-  const photos=(sites[siteId].photos||[]).filter(p=>p.tag===tag);
-  document.getElementById('modal-pair-title').textContent=slot==='before'?'📷 Before写真を選択':'✨ After写真を選択';
-  document.getElementById('modal-pair-sub').textContent=slot==='before'?'Beforeタグの写真':'Afterタグの写真';
-  document.getElementById('modal-pair-grid').innerHTML=photos.map(p=>`
-    <div class="modal-photo" onclick="selectPairPhoto('${p.id}')">
-      <img src="${p.dataUrl}">
-      <div class="mp-chk">✓</div>
-      <div class="mp-badge ${slot==='before'?'tb-before':'tb-after'}">${slot==='before'?'B':'A'}</div>
-    </div>`).join('');
-  document.getElementById('modal-pair').classList.add('active');
-}
-
-function selectPairPhoto(pid){
-  sites[siteId].ig.pairs[modalPairIndex][modalPairSlot]=pid;
-  persist(); renderIgSection(); closeModal('modal-pair');
-}
-
-function togglePickupTmp(pid){
-  const ig=sites[siteId].ig||{pickup:[]};
-  const already=modalPickupTmp.has(pid);
-  if(already){ modalPickupTmp.delete(pid); }
-  else {
-    if(modalPickupTmp.size>=(ig.pickup||[]).length+PICKUP_MAX-(ig.pickup||[]).length){
-      showToast(`最大${PICKUP_MAX}枚です`); return;
-    }
-    modalPickupTmp.add(pid);
-  }
-  document.getElementById('mpk-'+pid)?.classList.toggle('selected',!already);
-}
-
-function confirmPickup(){
-  sites[siteId].ig.pickup=[...modalPickupTmp];
-  persist(); renderIgSection(); closeModal('modal-pickup');
-}
-
-function closeModal(id){ document.getElementById(id).classList.remove('active'); }
-document.querySelectorAll('.modal-overlay').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('active');}));
-
-// ========== STEP3 ==========
-function goStep3(){
-  if(!siteId||!sites[siteId]){ showToast('現場を先に作成してください'); return; }
-  loadStep3Fields(sites[siteId].info||{});
-  renderIgSection();
-  showScreen('s-step3');
-}
-
-function loadStep3Fields(info){
-  document.getElementById('f-title').value=info.title||'';
-  document.getElementById('f-area').value=info.area||'';
-  document.getElementById('f-days').value=info.days||'';
-  document.getElementById('f-base').value=info.base||'';
-  document.getElementById('f-base-detail').value=info.baseDetail||'';
-  document.getElementById('f-pat-custom').value=info.patCustom||'';
-  document.getElementById('f-col-custom').value=info.colCustom||'';
-  document.getElementById('f-grout').value=info.grout||'';
-  document.getElementById('f-kodawari').value=info.kodawari||'';
-  document.getElementById('f-voice').value=info.voice||'';
-  document.getElementById('f-pain').value=info.pain||'';
-  document.getElementById('f-memo').value=info.memo||'';
-  patSel=new Set(info.patterns||[]);
-  colSel=new Set(info.colors||[]);
-  ['chip-base-y','chip-base-n'].forEach(id=>document.getElementById(id).classList.remove('active'));
-  if(info.base==='あり') document.getElementById('chip-base-y').classList.add('active');
-  if(info.base==='なし') document.getElementById('chip-base-n').classList.add('active');
-  document.querySelectorAll('#chips-pat .chip').forEach(el=>el.classList.toggle('active',patSel.has(el.innerText.trim())));
-  document.querySelectorAll('#chips-col .chip').forEach(el=>el.classList.toggle('active',colSel.has(el.innerText.trim())));
-  document.querySelectorAll('#title-chips .chip').forEach(el=>el.classList.toggle('active',el.innerText.trim()===info.title));
-}
-
-function saveStep3(){
-  if(!siteId||!sites[siteId]){ showToast('エラー：現場データがありません'); return; }
-  const info=sites[siteId].info||{};
-  Object.assign(info,{
-    title:document.getElementById('f-title').value,
-    area:document.getElementById('f-area').value,
-    days:document.getElementById('f-days').value,
-    base:document.getElementById('f-base').value,
-    baseDetail:document.getElementById('f-base-detail').value,
-    patterns:[...patSel], patCustom:document.getElementById('f-pat-custom').value,
-    colors:[...colSel], colCustom:document.getElementById('f-col-custom').value,
-    grout:document.getElementById('f-grout').value,
-    kodawari:document.getElementById('f-kodawari').value,
-    voice:document.getElementById('f-voice').value,
-    pain:document.getElementById('f-pain').value,
-    memo:document.getElementById('f-memo').value,
+  let h = '<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:6px;">';
+  list.forEach(p => {
+    const isPairable = p.tag === 'b' || p.tag === 'a';
+    const pnLabel = p.pairNum ? fn(p.pairNum) : '─';
+    const pnClass = p.pairNum ? '' : 'unset';
+    const badge = TM3[p.tag].badge;
+    h += `<div class="solo-item">
+      <img src="${p.src}" alt="">
+      <div class="solo-tag ${badge}">${TM3[p.tag].name}</div>
+      ${isPairable ? `<button class="assign-btn ${pnClass}" onclick="event.stopPropagation();s3OpenSheet(${p.id})">${pnLabel}</button>` : ''}
+      ${!isPairable ? s3IncludeToggleHTML(p) : ''}
+      <button class="del-btn" onclick="event.stopPropagation();s3DelPhoto(${p.id})">✕</button>
+    </div>`;
   });
-  sites[siteId].info=info;
-  persist(); renderPreview(); showScreen('s-preview');
+  h += '</div>';
+  el.innerHTML = h;
 }
 
-// ========== PREVIEW ==========
-function buildText(){
-  const info=sites[siteId].info||{};
-  const photos=(sites[siteId].photos||[]).filter(p=>p.selected);
-  const bc=photos.filter(p=>p.tag==='before').length;
-  const dc=photos.filter(p=>p.tag==='during').length;
-  const ac=photos.filter(p=>p.tag==='after').length;
-  const pc=photos.filter(p=>p.tag==='pickup').length;
-  const pats=[...(info.patterns||[]),info.patCustom].filter(Boolean).join(' / ');
-  const cols=[...(info.colors||[]),info.colCustom].filter(Boolean).join(' / ');
-  const base=info.base?(info.base+(info.baseDetail?`（${info.baseDetail}）`:'')):'';
-  let t=`【施工報告】RollerStone\n`;
-  if(info.title) t+=`◆ ${info.title}\n`;
-  t+=`━━━━━━━━━━━━━\n`;
-  if(info.name) t+=`■ 現場名：${info.name}\n`;
-  if(info.worker) t+=`■ 担当：${info.worker}\n`;
-  if(info.date) t+=`■ 日付：${info.date}\n`;
-  t+=`\n`;
-  if(info.area) t+=`▷ 規模：${info.area}㎡\n`;
-  if(info.days) t+=`▷ 施工日数：${info.days}日\n`;
-  if(base) t+=`▷ 下地処理：${base}\n`;
-  if(pats) t+=`▷ パターン：${pats}\n`;
-  if(cols) t+=`▷ 仕上げカラー：${cols}\n`;
-  if(info.grout) t+=`▷ 目地カラー：${info.grout}\n`;
-  t+=`\n`;
-  if(info.kodawari) t+=`★ こだわりポイント\n${info.kodawari}\n\n`;
-  if(info.voice) t+=`💬 お客様の声\n${info.voice}\n\n`;
-  if(info.memo) t+=`📝 その他\n${info.memo}\n\n`;
-  t+=`━━━━━━━━━━━━━\n`;
-  t+=`📷 添付：${photos.length}枚（Before:${bc} 造形後:${dc} After:${ac}${pc?` ⭐:${pc}`:''}）`;
-  return t;
+function s3RenderAll(el) {
+  const bs = s3Photos.filter(p => p.tag === 'b');
+  const as = s3Photos.filter(p => p.tag === 'a');
+  const pnums = [...new Set([...bs,...as].filter(p => p.pairNum).map(p => p.pairNum))].sort((a,b) => a-b);
+  const unB = bs.filter(p => !p.pairNum);
+  const unA = as.filter(p => !p.pairNum);
+  const solos = s3Photos.filter(p => p.tag !== 'b' && p.tag !== 'a');
+  if (!s3Photos.length) {
+    el.innerHTML = `<div class="empty-sec"><div class="ei">📷</div>STEP2で写真を追加してください</div>`;
+    return;
+  }
+  let h = '<div style="display:flex;flex-direction:column;gap:14px;">';
+  if (pnums.length) {
+    h += '<div style="display:flex;flex-direction:column;gap:10px;">';
+    pnums.forEach(n => {
+      const b = bs.find(p => p.pairNum === n);
+      const a = as.find(p => p.pairNum === n);
+      const ok = b && a;
+      h += `<div class="pair-card ${ok ? 'ok' : 'warn'}">
+        <div class="pair-header">
+          <div class="pair-num">PAIR ${fn(n)}</div>
+          <div class="pair-badge ${ok ? 'pb-ok' : 'pb-warn'}">${ok ? '✅ 完成' : '⚠️ 片方なし'}</div>
+        </div>
+        <div class="pair-images">`;
+      if (b) h += `<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${b.id})">✕</button></div>`;
+      else   h += `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`;
+      if (a) h += `<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${a.id})">✕</button></div>`;
+      else   h += `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
+      h += `</div></div>`;
+    });
+    h += '</div>';
+  }
+  if (unB.length || unA.length) {
+    h += `<div class="nopair-section">
+      <div class="nopair-header">⚠️ 未割当て（${unB.length + unA.length}枚）</div>
+      <div class="nopair-grid">`;
+    [...unB,...unA].forEach(p => {
+      h += `<div class="nopair-item">
+        <img src="${p.src}" alt="" style="width:100%;display:block;object-fit:cover;aspect-ratio:1;border-radius:8px;">
+        <div class="solo-tag ${TM3[p.tag].badge}" style="border-radius:0 0 8px 8px;">${TM3[p.tag].name}</div>
+        <div class="nopair-assign"><button class="assign-btn unset" style="position:static;" onclick="s3OpenSheet(${p.id})">─</button></div>
+      </div>`;
+    });
+    h += `</div></div>`;
+  }
+  const soloTags = ['d','p','o'];
+  soloTags.forEach(t => {
+    const L = solos.filter(s => s.tag === t);
+    if (!L.length) return;
+    const m = TM3[t];
+    h += `<div class="solo-section">
+      <div class="solo-header">
+        <div class="solo-title"><div class="solo-dot" style="background:${m.dot}"></div>${m.name}</div>
+        <div class="solo-count">${L.length}枚</div>
+      </div>
+      <div class="solo-grid">`;
+    L.forEach(p => {
+      h += `<div class="solo-item">
+        <img src="${p.src}" alt="">
+        <div class="solo-tag ${m.badge}">${m.name}</div>
+        ${s3IncludeToggleHTML(p)}
+        <button class="del-btn" onclick="s3DelPhoto(${p.id})">✕</button>
+      </div>`;
+    });
+    h += `</div></div>`;
+  });
+  h += '</div>';
+  el.innerHTML = h;
 }
 
-function renderPreview(){
-  const info=sites[siteId].info||{};
-  const photos=(sites[siteId].photos||[]).filter(p=>p.selected);
-  const rows=[
-    ['タイトル',info.title],['現場名',info.name],['担当者',info.worker],['日付',info.date],
-    ['規模',info.area?info.area+'㎡':''],['施工日数',info.days?info.days+'日':''],
-    ['下地処理',info.base?(info.base+(info.baseDetail?`（${info.baseDetail}）`:'')):'' ],
-    ['パターン',[...(info.patterns||[]),info.patCustom].filter(Boolean).join(' / ')],
-    ['仕上げカラー',[...(info.colors||[]),info.colCustom].filter(Boolean).join(' / ')],
-    ['目地カラー',info.grout],['こだわり',info.kodawari],['お客様の声',info.voice],['お悩み',info.pain],['その他',info.memo],
-  ].filter(r=>r[1]);
-
-  const allPhotos=sites[siteId].photos||[];
-  const bPort=allPhotos.filter(p=>p.tag==='before'&&p.orientation==='portrait'&&p.selected);
-  const bLand=allPhotos.filter(p=>p.tag==='before'&&p.orientation==='landscape'&&p.selected);
-  const aPort=allPhotos.filter(p=>p.tag==='after'&&p.orientation==='portrait'&&p.selected);
-  const aLand=allPhotos.filter(p=>p.tag==='after'&&p.orientation==='landscape'&&p.selected);
-  const dph=allPhotos.filter(p=>p.tag==='during'&&p.selected);
-  const pph=allPhotos.filter(p=>p.tag==='pickup'&&p.selected);
-
-  const maxP=Math.max(bPort.length,aPort.length);
-  const maxL=Math.max(bLand.length,aLand.length);
-
-  let pairSection='';
-  if(maxP>0||maxL>0||dph.length){
-    pairSection+=`<div class="sec-title" style="margin-bottom:10px;">📷 写真（${photos.length}枚）</div>`;
-  }
-
-  // 縦ペア
-  for(let i=0;i<maxP;i++){
-    const b=bPort[i], a=aPort[i];
-    pairSection+=`<div style="display:flex;gap:5px;margin-bottom:8px;">`;
-    if(b) pairSection+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;">Before</div></div>`;
-    if(a) pairSection+=`<div style="flex:1;position:relative;border-radius:10px;overflow:hidden;aspect-ratio:.6;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;color:#000;">After</div></div>`;
-    pairSection+=`</div>`;
-  }
-  // 横ペア
-  for(let i=0;i<maxL;i++){
-    const b=bLand[i], a=aLand[i];
-    if(b) pairSection+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;margin-bottom:5px;"><img src="${b.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(74,158,255,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;">Before</div></div>`;
-    if(a) pairSection+=`<div style="position:relative;border-radius:10px;overflow:hidden;aspect-ratio:1.6;margin-bottom:10px;"><img src="${a.dataUrl}" style="width:100%;height:100%;object-fit:cover;"><div style="position:absolute;bottom:0;left:0;right:0;background:rgba(34,197,94,.85);font-size:11px;font-weight:700;text-align:center;padding:3px;color:#000;">After</div></div>`;
-  }
-  // 造形後
-  if(dph.length){
-    pairSection+=`<div style="font-size:11px;color:var(--text2);margin:8px 0 6px;border-left:3px solid var(--during);padding-left:6px;">造形後（${dph.length}枚）</div>`;
-    pairSection+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;">${dph.map(p=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}</div>`;
-  }
-  // こだわり
-  let pickupGrid='';
-  if(pph.length){
-    pickupGrid=`<div style="font-size:11px;color:var(--text2);margin:8px 0 6px;border-left:3px solid var(--pickup);padding-left:6px;">⭐ こだわりショット（${pph.length}枚）</div>`;
-    pickupGrid+=`<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:5px;">${pph.map(p=>`<div style="aspect-ratio:1;border-radius:8px;overflow:hidden;"><img src="${p.dataUrl}" style="width:100%;height:100%;object-fit:cover;"></div>`).join('')}</div>`;
-  }
-
-  document.getElementById('preview-content').innerHTML=`
-    <div class="preview-card">
-      <div class="preview-card-hd">施工情報</div>
-      ${rows.map(r=>`<div class="preview-row"><div class="pk">${r[0]}</div><div class="pv">${r[1]}</div></div>`).join('')}
-    </div>
-    ${pairSection}${pickupGrid}
-    <div class="divider"></div>
-    <div class="sec-title" style="margin-bottom:8px;">送付テキスト</div>
-    <div class="report-box">${buildText()}</div>`;
+function s3RenderPair(el) {
+  const bs = s3Photos.filter(p => p.tag === 'b');
+  const as = s3Photos.filter(p => p.tag === 'a');
+  const pnums = [...new Set([...bs,...as].filter(p => p.pairNum).map(p => p.pairNum))].sort((a,b) => a-b);
+  if (!pnums.length) { el.innerHTML = `<div class="empty-sec"><div class="ei">⇔</div>ペアが割り当てられていません</div>`; return; }
+  let h = '<div style="display:flex;flex-direction:column;gap:10px;">';
+  pnums.forEach(n => {
+    const b = bs.find(p => p.pairNum === n);
+    const a = as.find(p => p.pairNum === n);
+    const ok = b && a;
+    h += `<div class="pair-card ${ok ? 'ok' : 'warn'}">
+      <div class="pair-header"><div class="pair-num">PAIR ${fn(n)}</div><div class="pair-badge ${ok ? 'pb-ok' : 'pb-warn'}">${ok ? '✅ 完成' : '⚠️ 片方なし'}</div></div>
+      <div class="pair-images">
+        ${b ? `<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div></div>` : `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`}
+        ${a ? `<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div></div>` : `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`}
+      </div></div>`;
+  });
+  h += '</div>';
+  el.innerHTML = h;
 }
 
-function copyText(){
-  const text=buildText();
-  if(navigator.clipboard){ navigator.clipboard.writeText(text).then(()=>showToast('テキストをコピーしました！')); }
-  else{ const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');document.body.removeChild(ta);showToast('テキストをコピーしました！'); }
+function s3IncludeToggleHTML(p) {
+  return `<button class="include-toggle" onclick="event.stopPropagation();s3ToggleInclude(${p.id})">
+    <div class="toggle-dot ${p.include ? 'on' : ''}"></div>
+    <div class="toggle-lbl ${p.include ? 'on' : ''}">報告書に${p.include ? '含める' : '含めない'}</div>
+  </button>`;
+}
+function s3ToggleInclude(id) {
+  const p = s3Photos.find(x => x.id === id);
+  p.include = !p.include;
+  s2Photos[p.tag] = s2Photos[p.tag].map(x => x.id === id ? {...x, include: p.include} : x);
+  s3UpdateStats(); s3Render();
+  toast(p.include ? '報告書に含めます' : '報告書から除外しました');
+}
+function s3DelPhoto(id) {
+  const p = s3Photos.find(x => x.id === id);
+  if (p) s2Photos[p.tag] = s2Photos[p.tag].filter(x => x.id !== id);
+  s3Photos = s3Photos.filter(x => x.id !== id);
+  s2UpdateAll(); s3UpdateStats(); s3Render();
+  toast('削除しました');
+}
+function s3OpenSheet(id) {
+  s3SheetId = id;
+  const p = s3Photos.find(x => x.id === id);
+  s3SheetNewPair = p.pairNum;
+  document.getElementById('s3-sheet-img').src = p.src;
+  const usedSame  = s3Photos.filter(x => x.tag === p.tag && x.pairNum && x.id !== id).map(x => x.pairNum);
+  const usedOther = s3Photos.filter(x => ((p.tag === 'b' && x.tag === 'a') || (p.tag === 'a' && x.tag === 'b')) && x.pairNum).map(x => x.pairNum);
+  const maxN = Math.max(s3MaxPair, 3);
+  let g = '';
+  for (let n = 1; n <= maxN; n++) {
+    const isSel = s3SheetNewPair === n;
+    const isPaired = usedOther.includes(n) && !usedSame.includes(n);
+    g += `<button class="sn-btn ${isSel ? 'sel' : ''} ${isPaired ? 'paired' : ''}" onclick="s3SelPair(${n},this)">${fn(n)}</button>`;
+  }
+  g += `<button class="sn-btn sn-add" onclick="s3AddPair()">＋</button>`;
+  g += `<button class="sn-none ${s3SheetNewPair === null ? 'sel' : ''}" onclick="s3SelNone(this)">📌 ペアなし</button>`;
+  document.getElementById('s3-sheet-grid').innerHTML = g;
+  document.getElementById('s3-sheet').classList.add('show');
+}
+function s3SelPair(n, btn) {
+  s3SheetNewPair = n;
+  document.querySelectorAll('#s3-sheet-grid .sn-btn, #s3-sheet-grid .sn-none').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function s3SelNone(btn) {
+  s3SheetNewPair = null;
+  document.querySelectorAll('#s3-sheet-grid .sn-btn, #s3-sheet-grid .sn-none').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+}
+function s3AddPair() { s3MaxPair++; s3OpenSheet(s3SheetId); }
+function s3CloseSheet() { document.getElementById('s3-sheet').classList.remove('show'); }
+function s3ApplySheet() {
+  const p = s3Photos.find(x => x.id === s3SheetId);
+  p.pairNum = s3SheetNewPair;
+  // S2にも反映
+  const s2p = s2Photos[p.tag] && s2Photos[p.tag].find(x => x.id === s3SheetId);
+  if (s2p) s2p.pairNum = s3SheetNewPair;
+  if (s3SheetNewPair && s3SheetNewPair > s3MaxPair) s3MaxPair = s3SheetNewPair;
+  s3CloseSheet(); s3UpdateStats(); s3Render();
+  toast(s3SheetNewPair ? `ペア ${fn(s3SheetNewPair)} に割り当てました` : 'ペアなしに変更しました');
 }
 
-async function downloadZip(){
-  const site=sites[siteId]; const info=site.info||{};
-  const photos=(site.photos||[]).filter(p=>p.selected);
-  if(!photos.length){ showToast('写真が選択されていません'); return; }
-  showToast('ZIPを作成中...');
-  const zip=new JSZip();
-  const folders={before:zip.folder('Before（施工前）'),during:zip.folder('造形後'),after:zip.folder('After（仕上げ後）'),pickup:zip.folder('こだわりショット')};
-  const cnt={before:1,during:1,after:1,pickup:1};
-  for(const p of photos){
-    const ext=p.dataUrl.split(';')[0].split('/')[1]||'jpg';
-    const fname=`${String(cnt[p.tag]).padStart(3,'0')}_${p.orientation==='portrait'?'縦':'横'}.${ext}`;
-    cnt[p.tag]++;
-    const blob=await (await fetch(p.dataUrl)).blob();
-    folders[p.tag].file(fname,blob);
+// ══════════════════════════════
+//  STEP4: 報告書入力
+// ══════════════════════════════
+function syncStaffToS4() {
+  document.getElementById('f-staff').value = APP.staff || '';
+}
+
+function updatePhotoSummary() {
+  const incl = s3Photos.filter(p => p.include);
+  if (!incl.length) {
+    document.getElementById('photo-summary').textContent = '📸 写真なし（STEP2で追加してください）';
+    return;
   }
-  zip.file('報告書.txt',buildText());
-  const content=await zip.generateAsync({type:'blob'});
-  const url=URL.createObjectURL(content);
-  const a=document.createElement('a');
-  a.href=url; a.download=`${info.name||'現場'}_${(info.date||'').replace(/\//g,'-')}.zip`; a.click();
+  const cnt = t => incl.filter(p => p.tag === t).length;
+  const parts = [];
+  if (cnt('b')) parts.push(`Before ${cnt('b')}枚`);
+  if (cnt('d')) parts.push(`造形後 ${cnt('d')}枚`);
+  if (cnt('a')) parts.push(`After ${cnt('a')}枚`);
+  if (cnt('p')) parts.push(`⭐ ${cnt('p')}枚`);
+  if (cnt('o')) parts.push(`その他 ${cnt('o')}枚`);
+  document.getElementById('photo-summary').textContent = `📸 添付予定：${parts.join(' ／ ')}　計 ${incl.length}枚`;
+}
+
+function chipToggle(btn, group, multi) {
+  if (!multi) {
+    document.querySelectorAll(`#chips-${group} .chip, #chips-${group} .color-chip`).forEach(b => b.classList.remove('on'));
+  }
+  btn.classList.toggle('on');
+}
+function setType(v) {
+  document.getElementById('type-rs').classList.toggle('on', v === 'rs');
+  document.getElementById('type-rw').classList.toggle('on', v === 'rw');
+}
+function setYN(v) {
+  document.getElementById('yn-yes').classList.toggle('on', v === 'yes');
+  document.getElementById('yn-no').classList.toggle('on', v === 'no');
+}
+function fillEx(id, text) {
+  document.getElementById(id).value = text;
+  toast('例文を入力しました');
+}
+
+// ══════════════════════════════
+//  プレビュー・送付
+// ══════════════════════════════
+function getChips(containerId) {
+  return [...document.querySelectorAll(`#${containerId} .on`)].map(b => b.textContent.trim()).join('・');
+}
+function getChipsArr(containerId) {
+  return [...document.querySelectorAll(`#${containerId} .on`)].map(b => b.textContent.replace(/[●○▪]/g,'').trim());
+}
+
+function buildSendText() {
+  const title    = getChips('chips-title') || document.getElementById('title-custom').value || '（タイトル未入力）';
+  const size     = document.getElementById('f-size').value;
+  const days     = document.getElementById('f-days').value;
+  const baseYN   = document.getElementById('yn-yes').classList.contains('on') ? 'あり' : 'なし';
+  const baseText = document.getElementById('f-base').value;
+  const patterns = [...getChipsArr('chips-pattern'), document.getElementById('pattern-custom').value].filter(Boolean).join('、');
+  const colorMain = [...getChipsArr('chips-color-main'), document.getElementById('color-main-custom').value].filter(Boolean).join(' / ');
+  const colorSub  = [...getChipsArr('chips-color-sub'), document.getElementById('color-sub-custom').value].filter(Boolean).join(' / ');
+  const grout    = document.getElementById('f-grout').value;
+  const point    = document.getElementById('f-point').value;
+  const voice    = document.getElementById('f-voice').value;
+  const problem  = document.getElementById('f-problem').value;
+  const free     = document.getElementById('f-free').value;
+  const staff    = document.getElementById('f-staff').value || APP.staff || '（担当者未入力）';
+  const isRS     = document.getElementById('type-rs').classList.contains('on');
+  const typeName = isRS ? 'RollerStone' : 'RollerWall';
+
+  let txt = '';
+  txt += `【施工報告】${APP.pref} ${APP.company}\n`;
+  txt += `◆ ${typeName}　${title}\n`;
+  txt += `${'─'.repeat(18)}\n\n`;
+  txt += `■ 担当：${staff}\n`;
+  txt += `■ 日付：${new Date().toLocaleDateString('ja-JP', {year:'numeric', month:'numeric', day:'numeric'})}\n\n`;
+  if (size)      txt += `▷ 規模：${size}㎡\n`;
+  if (days)      txt += `▷ 施工日数：${days}日\n`;
+  txt += `▷ 下地処理：${baseYN}${baseText ? ' （' + baseText + '）' : ''}\n`;
+  if (patterns)  txt += `▷ パターン：${patterns}\n`;
+  if (colorMain) {
+    txt += `▷ 仕上げカラー：${colorMain}`;
+    if (colorSub) txt += ` / サブ：${colorSub}`;
+    txt += '\n';
+  }
+  if (grout)   txt += `▷ 目地カラー：${grout}\n`;
+  if (point)   txt += `\n★ こだわりポイント\n${point}\n`;
+  if (voice)   txt += `\n💬 お客様の声\n${voice}\n`;
+  if (problem) txt += `\n😟 お客様のお悩み\n${problem}\n`;
+  if (free)    txt += `\n📝 ${free}\n`;
+  // 写真サマリー
+  const incl = s3Photos.filter(p => p.include);
+  if (incl.length) {
+    const cnt = t => incl.filter(p => p.tag === t).length;
+    txt += `\n${'─'.repeat(18)}\n`;
+    txt += `📷 添付：${incl.length}枚（Before:${cnt('b')} 造形後:${cnt('d')} After:${cnt('a')} ⭐:${cnt('p')}）`;
+  }
+  return txt;
+}
+
+function goPreview() {
+  const txt = buildSendText();
+  document.getElementById('send-text-box').textContent = txt;
+  // フィードバック欄をリセット
+  document.getElementById('fb-text').style.display = '';
+  document.getElementById('fb-actions').style.display = '';
+  document.getElementById('fb-sent').style.display = 'none';
+  document.getElementById('fb-text').value = '';
+  goTo('preview');
+}
+
+function copyText() {
+  const txt = document.getElementById('send-text-box').textContent;
+  const btn = document.getElementById('btn-copy');
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(txt).then(() => {
+      btn.textContent = '✅ コピーしました！';
+      btn.classList.add('copied-flash');
+      setTimeout(() => { btn.textContent = '📋 テキストをコピー'; btn.classList.remove('copied-flash'); }, 2500);
+    }).catch(() => fallbackCopy(txt));
+  } else { fallbackCopy(txt); }
+}
+function fallbackCopy(txt) {
+  const ta = document.createElement('textarea');
+  ta.value = txt; ta.style.cssText = 'position:fixed;opacity:0;';
+  document.body.appendChild(ta); ta.select();
+  document.execCommand('copy'); document.body.removeChild(ta);
+  toast('コピーしました');
+}
+
+function downloadZip() {
+  // 実装フェーズでは JSZip で写真込みZIPを生成
+  // 現時点：テキストをダウンロード
+  const txt = document.getElementById('send-text-box').textContent;
+  const d = new Date();
+  const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
+  const blob = new Blob([txt], {type: 'text/plain;charset=utf-8'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `RS_施工報告_${ds}.txt`; a.click();
   URL.revokeObjectURL(url);
-  showToast('ZIPをダウンロードしました！');
+  toast('📄 ダウンロードしました（本番版は写真込みZIPになります）');
 }
 
-function deleteSiteFromHome(id, e){
-  e.stopPropagation();
-  const name = sites[id]?.info?.name || '（名前なし）';
-  if(!confirm(`「${name}」を削除しますか？\n写真も全て削除されます。`)) return;
-  delete sites[id];
-  persist(); renderHome();
-  showToast('削除しました');
-}
-function deleteSite(){
-  if(!confirm('この現場を削除しますか？')) return;
-  delete sites[siteId]; persist(); siteId=null; renderHome(); showScreen('s-home'); showToast('削除しました');
+function confirmDelete() {
+  if (confirm('この報告書データを削除しますか？\n※写真データも含め削除されます')) {
+    s2Photos = {b:[],d:[],a:[],p:[],o:[]};
+    s3Photos = []; s3MaxPair = 0;
+    toast('削除しました');
+    setTimeout(() => goTo('s2'), 800);
+  }
 }
 
-function showToast(msg){
-  const t=document.getElementById('toast');
-  t.textContent=msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),2500);
+// フィードバック
+async function sendFeedback() {
+  const msg = document.getElementById('fb-text').value.trim();
+  if (!msg) { toast('フィードバック内容を入力してください'); return; }
+  const staff = document.getElementById('f-staff').value || APP.staff || '匿名';
+  try {
+    const res = await fetch('https://formspree.io/f/xjkwgqpk', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+      body: JSON.stringify({message: msg, staff, date: new Date().toLocaleDateString('ja-JP'), _subject: `RS-Reporter フィードバック from ${staff}`})
+    });
+    if (!res.ok) throw new Error();
+  } catch(e) {
+    try { const s = JSON.parse(localStorage.getItem('rs_fb') || '[]'); s.push({msg, staff, date: new Date().toISOString()}); localStorage.setItem('rs_fb', JSON.stringify(s)); } catch(e2){}
+  }
+  document.getElementById('fb-text').style.display = 'none';
+  document.getElementById('fb-actions').style.display = 'none';
+  document.getElementById('fb-sent').style.display = 'block';
+}
+function skipFeedback() {
+  document.getElementById('fb-text').style.display = 'none';
+  document.getElementById('fb-actions').style.display = 'none';
 }
 
-init();
+// ══════════════════════════════
+//  トースト
+// ══════════════════════════════
+let toastTimer;
+function toast(msg) {
+  const el = document.getElementById('toast-el');
+  el.textContent = msg; el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 2500);
+}
 </script>
 </body>
 </html>
