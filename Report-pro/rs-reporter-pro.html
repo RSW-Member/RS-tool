@@ -16,10 +16,10 @@ html{height:100%;}
 body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text);max-width:480px;margin:0 auto;min-height:100vh;}
 
 /* ─── 共通ヘッダー ─── */
-.app-header{background:#000;border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;}
-.app-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;}
-.app-sub{font-size:10px;color:var(--text2);}
-.header-step{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);letter-spacing:1px;}
+.app-header{background:#000;border-bottom:2px solid var(--accent);padding:10px 16px;display:flex;align-items:center;gap:10px;position:sticky;top:0;z-index:200;flex-wrap:nowrap;overflow:hidden;}
+.app-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;white-space:nowrap;line-height:1.2;}
+.app-sub{font-size:10px;color:var(--text2);white-space:nowrap;line-height:1.2;}
+.header-step{margin-left:auto;font-family:'Bebas Neue',sans-serif;font-size:16px;color:var(--accent);letter-spacing:1px;white-space:nowrap;flex-shrink:0;}
 .header-back{background:none;border:none;color:var(--text2);font-size:20px;cursor:pointer;margin-right:4px;}
 
 /* ─── 画面管理 ─── */
@@ -52,18 +52,18 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .guide-btn{width:100%;padding:14px;background:transparent;color:var(--accent);border:1.5px solid rgba(232,160,32,.3);border-radius:14px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;}
 
 /* ─── ステップバー ─── */
-.step-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:10px 16px;display:flex;align-items:center;gap:4px;}
-.sbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;}
+.step-bar{background:var(--surface);border-bottom:1px solid var(--border);padding:8px 12px;display:flex;align-items:center;gap:2px;}
+.sbar-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;min-width:0;}
 .sbar-dot{width:8px;height:8px;border-radius:50%;background:var(--border);}
 .sbar-dot.done{background:var(--ok);}
 .sbar-dot.active{background:var(--accent);box-shadow:0 0 0 3px rgba(232,160,32,.2);}
-.sbar-label{font-size:9px;color:var(--text2);font-weight:700;}
+.sbar-label{font-size:9px;color:var(--text2);font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%;text-align:center;}
 .sbar-label.active{color:var(--accent);}
-.sbar-line{width:100%;height:1px;background:var(--border);flex:none;}
+.sbar-line{width:16px;min-width:8px;height:1px;background:var(--border);flex:none;}
 .sbar-line.done{background:var(--ok);}
 
 /* ── STEP2: 写真アップ ── */
-.s2-body{padding:16px;display:flex;flex-direction:column;gap:16px;padding-bottom:100px;}
+.s2-body{padding:16px;display:flex;flex-direction:column;gap:16px;padding-bottom:160px;}
 .section-label{font-size:11px;font-weight:700;color:var(--text2);letter-spacing:1px;display:flex;align-items:center;gap:6px;}
 .section-label::before{content:'';width:3px;height:11px;background:var(--accent);border-radius:2px;}
 .tag-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;}
@@ -93,9 +93,9 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .pill-p{background:rgba(245,158,11,.2);color:var(--pickup);}
 .pill-o{background:rgba(148,163,184,.15);color:var(--other);}
 .uploaded-section{display:flex;flex-direction:column;gap:10px;}
-.thumb-scroll{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;}
+.thumb-scroll{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:10px;padding-top:4px;}
 .thumb-scroll::-webkit-scrollbar{display:none;}
-.thumb-item{position:relative;flex-shrink:0;width:64px;height:64px;border-radius:8px;overflow:hidden;cursor:pointer;}
+.thumb-item{position:relative;flex-shrink:0;width:100px;height:100px;border-radius:10px;overflow:hidden;cursor:pointer;}
 .thumb-item img{width:100%;height:100%;object-fit:cover;display:block;}
 .thumb-tag{position:absolute;bottom:0;left:0;right:0;font-size:8px;font-weight:700;text-align:center;padding:2px 0;}
 .tb-b{background:rgba(74,158,255,.85);}
@@ -146,9 +146,14 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .pair-badge{font-size:10px;font-weight:700;padding:2px 10px;border-radius:100px;margin-left:auto;}
 .pb-ok{background:rgba(34,197,94,.12);color:var(--after);}
 .pb-warn{background:rgba(239,68,68,.1);color:var(--danger);}
-.pair-images{display:grid;grid-template-columns:1fr 1fr;gap:2px;}
+.pair-images{display:grid;grid-template-columns:1fr 1fr;gap:2px;align-items:start;}
 .pair-slot{position:relative;}
 .pair-slot img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.pair-slot img.port-img{aspect-ratio:3/4;}
+.pair-slot img.land-img{aspect-ratio:4/3;}
+.orient-pill{position:absolute;top:5px;left:5px;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;background:rgba(0,0,0,.75);color:#e0e0e0;letter-spacing:.5px;}
+.s3-guide{background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:12px 14px;font-size:11px;color:var(--text2);line-height:2.0;}
+.s3-guide strong{color:var(--accent);}
 .pair-slot-empty{aspect-ratio:4/3;background:#111;display:flex;align-items:center;justify-content:center;flex-direction:column;gap:4px;font-size:11px;color:var(--text2);}
 .slot-lbl{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px;}
 .sl-b{background:rgba(74,158,255,.85);}
@@ -161,9 +166,9 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .solo-title{display:flex;align-items:center;gap:6px;font-size:13px;font-weight:700;}
 .solo-dot{width:9px;height:9px;border-radius:50%;}
 .solo-count{font-size:11px;color:var(--text2);}
-.solo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;}
+.solo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}.solo-grid .port-frame{grid-column:span 1;}.solo-grid .land-frame{grid-column:span 1;}
 .solo-item{position:relative;border-radius:10px;overflow:hidden;}
-.solo-item img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}
+.solo-item img{width:100%;display:block;object-fit:cover;aspect-ratio:4/3;}.solo-item img.port-img{aspect-ratio:3/4;}.solo-item img.land-img{aspect-ratio:4/3;}
 .solo-tag{position:absolute;bottom:0;left:0;right:0;font-size:9px;font-weight:700;text-align:center;padding:3px 0;}
 .st-d{background:rgba(168,85,247,.85);}
 .st-p{background:rgba(245,158,11,.85);color:#000;}
@@ -214,6 +219,7 @@ body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text
 .color-chip.on{border-color:var(--accent);background:rgba(232,160,32,.15);color:var(--accent);}
 .cdot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
 .finput{width:100%;background:#111;border:1.5px solid var(--border);border-radius:10px;padding:11px 12px;font-size:13px;color:var(--text);font-family:inherit;outline:none;transition:border-color .2s;}
+.finput.auto-grow{overflow-y:hidden;resize:none;min-height:80px;}
 .finput:focus{border-color:rgba(232,160,32,.5);}
 .finput::placeholder{color:#444;}
 textarea.finput{resize:none;line-height:1.7;}
@@ -227,7 +233,7 @@ textarea.finput{resize:none;line-height:1.7;}
 .photo-summary-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:12px 14px;font-size:12px;color:var(--text2);line-height:1.9;margin-top:16px;}
 
 /* ── プレビュー画面 ── */
-.preview-body{padding:16px;display:flex;flex-direction:column;gap:12px;padding-bottom:230px;}
+.preview-body{padding:16px;display:flex;flex-direction:column;gap:12px;padding-bottom:260px;}
 .send-section-title{font-size:11px;font-weight:700;color:var(--text2);margin-bottom:6px;padding:0 2px;display:flex;align-items:center;gap:6px;}
 .send-section-title::before{content:'';width:3px;height:10px;background:var(--accent);border-radius:2px;}
 .send-text-box{background:#111;border:1px solid var(--border);border-radius:12px;padding:14px;font-size:13px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-all;}
@@ -252,7 +258,19 @@ textarea.finput{resize:none;line-height:1.7;}
 /* ── トースト ── */
 .toast{position:fixed;bottom:220px;left:50%;transform:translateX(-50%) translateY(12px);background:rgba(232,160,32,.97);color:#000;padding:12px 28px;border-radius:100px;font-size:13px;font-weight:700;opacity:0;transition:all .25s;z-index:999;white-space:nowrap;pointer-events:none;}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+/* ── 報告一覧カード ── */
+.report-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:border-color .15s;margin-bottom:8px;}
+.report-card:active{border-color:var(--accent);}
+.report-card-icon{width:44px;height:44px;border-radius:10px;background:rgba(232,160,32,.1);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.report-card-body{flex:1;min-width:0;}
+.report-card-title{font-size:14px;font-weight:900;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.report-card-meta{font-size:11px;color:var(--text2);margin-top:2px;}
+.report-card-del{width:32px;height:32px;border-radius:8px;background:transparent;border:1px solid rgba(239,68,68,.2);color:var(--danger);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.empty-home{text-align:center;padding:40px 20px;color:var(--text2);font-size:13px;line-height:2;}
+.empty-home .ei{font-size:40px;margin-bottom:12px;}
 </style>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 </head>
 <body>
 
@@ -268,9 +286,9 @@ textarea.finput{resize:none;line-height:1.7;}
 </div>
 
 <!-- ═══════════════════════════════════
-     SCREEN 0: ホーム
+     SCREEN 0a: 初回登録
 ═══════════════════════════════════ -->
-<div class="screen active" id="screen-home">
+<div class="screen active" id="screen-register">
   <div class="home-hero">
     <div class="home-logo">RS-REPORTER PRO</div>
     <div class="home-tagline">ROLLERSTONE 認定施工店向け 施工報告アプリ</div>
@@ -315,6 +333,72 @@ textarea.finput{resize:none;line-height:1.7;}
   </div>
 </div>
 
+<!-- ═══════════════════════════════════
+     SCREEN 0b: メインホーム（現場一覧）
+═══════════════════════════════════ -->
+<div class="screen" id="screen-home">
+  <!-- 店舗ヘッダー -->
+  <div style="background:#000;border-bottom:1px solid var(--border);padding:14px 16px;display:flex;align-items:center;justify-content:space-between;">
+    <div>
+      <div style="font-size:11px;color:var(--text2);" id="home-info-pref"></div>
+      <div style="font-size:15px;font-weight:900;color:var(--text);" id="home-info-company"></div>
+      <div style="font-size:12px;color:var(--accent);" id="home-info-staff"></div>
+    </div>
+    <button onclick="showRegister()" style="background:transparent;border:1px solid var(--border);border-radius:8px;padding:6px 12px;font-size:11px;color:var(--text2);font-family:inherit;cursor:pointer;">設定変更</button>
+  </div>
+  <!-- 新規作成ボタン -->
+  <div style="padding:16px 16px 8px;">
+    <button class="start-btn" onclick="showNewSiteSheet()" style="font-size:16px;padding:16px;">＋ 新しい現場の報告を作成</button>
+    <a class="guide-btn" href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-app-overview.html" target="_blank" style="display:block;text-align:center;text-decoration:none;margin-top:10px;">使い方・アップデート予定を見る →</a>
+  </div>
+  <!-- 報告済み一覧 -->
+  <div style="padding:0 16px 16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+      <div style="font-size:13px;font-weight:900;color:var(--text);display:flex;align-items:center;gap:8px;">
+        <div style="width:3px;height:14px;background:var(--accent);border-radius:2px;"></div>
+        報告済みの現場
+      </div>
+      <div style="font-size:11px;color:var(--text2);" id="home-report-count"></div>
+    </div>
+    <div id="home-report-list"></div>
+  </div>
+</div>
+
+<!-- 現場名入力シート -->
+<div class="sheet" id="new-site-sheet">
+  <div class="sheet-card">
+    <div style="font-size:16px;font-weight:900;color:var(--text);margin-bottom:4px;">🏗 現場情報を入力</div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:16px;">報告書のタイトルになります</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div>
+        <div class="setup-label">お客様名</div>
+        <input class="home-input" id="ns-client" placeholder="例：田中様邸">
+      </div>
+      <div>
+        <div class="setup-label">施工場所</div>
+        <input class="home-input" id="ns-place" placeholder="例：駐車場、玄関アプローチ">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button class="sh-cancel" onclick="closeNewSiteSheet()">キャンセル</button>
+      <button class="sh-apply" onclick="startNewSite()">作成してSTEP2へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- 報告テキスト確認シート -->
+<div class="sheet" id="report-view-sheet">
+  <div class="sheet-card" style="max-height:80vh;overflow-y:auto;">
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-bottom:12px;" id="rv-title"></div>
+    <div style="background:#111;border-radius:10px;padding:14px;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-all;margin-bottom:14px;" id="rv-text"></div>
+    <div style="display:flex;gap:8px;">
+      <button class="sh-cancel" style="flex:1;" onclick="closeReportView()">閉じる</button>
+      <button class="sh-apply" style="flex:1;" onclick="copyReportText()">📋 テキストをコピー</button>
+    </div>
+    <button onclick="deleteReport()" style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px solid rgba(239,68,68,.3);border-radius:12px;font-size:13px;font-weight:700;color:var(--danger);font-family:inherit;cursor:pointer;">🗑 この報告を削除</button>
+  </div>
+</div>
+
 <!-- ステップバー（STEP2〜4で表示） -->
 <div id="step-bar-wrap" style="display:none;">
   <div class="step-bar">
@@ -345,6 +429,28 @@ textarea.finput{resize:none;line-height:1.7;}
 ═══════════════════════════════════ -->
 <div class="screen" id="screen-s2">
 <div class="s2-body">
+  <!-- 操作ガイド -->
+  <div style="background:rgba(232,160,32,.08);border:1.5px solid rgba(232,160,32,.25);border-radius:14px;padding:16px;">
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-bottom:12px;">📷 写真のアップ方法</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">タグを選ぶ（Before / 造形後 / After …）</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">アップゾーンをタップして写真を選ぶ（複数OK）</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">タグを切り替えながら繰り返す</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.15);border-radius:10px;padding:11px 12px;">
+        <div style="font-size:18px;flex-shrink:0;">💡</div>
+        <div style="font-size:12px;color:var(--text2);line-height:1.6;">Beforeだけ・造形後まで、<strong style="color:var(--text);">途中でも保存できます。</strong>後日続きからアップ可能です。</div>
+      </div>
+    </div>
+  </div>
   <!-- タグ選択 -->
   <div>
     <div class="section-label" style="margin-bottom:12px;">① タグを選ぶ</div>
@@ -392,7 +498,10 @@ textarea.finput{resize:none;line-height:1.7;}
 </div>
 <div class="fixed-footer">
   <button class="primary-btn" id="s2-next-btn" disabled onclick="goTo('s3')">写真を整理する →</button>
-  <button class="secondary-btn" onclick="goTo('home')">← ホームに戻る</button>
+  <div style="display:flex;gap:8px;">
+    <button class="secondary-btn" style="flex:1;" onclick="goTo('home')">← ホームに戻る</button>
+    <button id="s2-save-btn" style="flex:1;padding:13px;background:rgba(34,197,94,.15);color:var(--ok);border:1.5px solid rgba(34,197,94,.3);border-radius:12px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;" onclick="saveAndExit()">💾 途中保存して終わる</button>
+  </div>
 </div>
 </div><!-- screen-s2 -->
 
@@ -401,6 +510,27 @@ textarea.finput{resize:none;line-height:1.7;}
 ═══════════════════════════════════ -->
 <div class="screen" id="screen-s3">
 <div class="s3-body">
+  <div style="background:rgba(232,160,32,.08);border:1.5px solid rgba(232,160,32,.25);border-radius:14px;padding:16px;">
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;">📌 操作方法</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">写真をタップ → ペア番号（①②③…）を割り当て</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;"><strong style="color:var(--accent);">ペア確認</strong>タブで Before/After を並べて確認、修正できます</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">タグを間違えた場合は写真タップ → <strong style="color:var(--pickup);">タグ変更</strong>で修正できます</div>
+      </div>
+      <div style="display:flex;align-items:flex-start;gap:10px;">
+        <div style="width:24px;height:24px;border-radius:50%;background:var(--accent);color:#000;font-size:12px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+        <div style="font-size:13px;color:var(--text);line-height:1.6;">造形後・こだわりは「報告書に含める」トグルで選択</div>
+      </div>
+    </div>
+  </div>
   <div class="prog-card">
     <div class="prog-top">
       <div class="prog-label">ペアリング進捗</div>
@@ -432,7 +562,12 @@ textarea.finput{resize:none;line-height:1.7;}
 <div class="sheet" id="s3-sheet">
   <div class="sheet-card">
     <div class="sheet-thumb"><img id="s3-sheet-img" src="" alt=""></div>
-    <div class="sheet-label">この写真の画角番号を選んでください</div>
+    <!-- タグ変更 -->
+    <div style="margin-bottom:12px;">
+      <div style="font-size:11px;font-weight:700;color:var(--text2);margin-bottom:8px;">▼ タグを変更する</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;" id="s3-tag-change-btns"></div>
+    </div>
+    <div class="sheet-label">画角番号を選んでください</div>
     <div class="sheet-grid" id="s3-sheet-grid"></div>
     <div class="sheet-actions">
       <button class="sh-cancel" onclick="s3CloseSheet()">キャンセル</button>
@@ -448,14 +583,25 @@ textarea.finput{resize:none;line-height:1.7;}
 <div class="screen" id="screen-s4">
 <div class="s4-body">
   <!-- ガイド -->
-  <div style="background:rgba(232,160,32,.07);border:1px solid rgba(232,160,32,.2);border-radius:12px;padding:13px 14px;margin-bottom:14px;">
-    <div style="font-size:12px;font-weight:900;color:var(--accent);margin-bottom:8px;">📋 操作方法</div>
-    <div style="font-size:11px;color:var(--text2);line-height:2;">
-      <div>① 施工種別を選ぶ</div>
-      <div>② 各項目を入力・選択（例文ボタンも活用）</div>
-      <div>③「プレビューを確認する」を押す</div>
-      <div>④ テキストをコピー → LINEに貼り付け</div>
-      <div>⑤ ZIPをダウンロード → LINEに添付して完了</div>
+  <div style="background:rgba(232,160,32,.08);border:1.5px solid rgba(232,160,32,.25);border-radius:14px;padding:16px;margin-bottom:14px;">
+    <div style="font-size:14px;font-weight:900;color:var(--accent);margin-bottom:12px;">📋 報告書の作り方</div>
+    <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">施工種別を選ぶ（ローラーストーン / ウォール）</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">各項目を入力・選択（例文ボタンも活用）</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--accent);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">「プレビューを確認する」で仕上がり確認</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;background:#111;border-radius:10px;padding:11px 12px;">
+        <div style="width:26px;height:26px;border-radius:50%;background:var(--ok);color:#000;font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+        <div style="font-size:13px;color:var(--text);font-weight:700;">テキストコピー → ZIP保存 → <strong style="color:var(--ok);">報告を保存</strong></div>
+      </div>
     </div>
   </div>
   <!-- 担当者名 -->
@@ -550,32 +696,31 @@ textarea.finput{resize:none;line-height:1.7;}
   <!-- こだわりポイント -->
   <div class="field">
     <div class="field-label">こだわりポイント</div>
-    <textarea class="finput" id="f-point" rows="3" placeholder="施工のこだわりや特徴を入力…"></textarea>
+    <textarea class="finput auto-grow" id="f-point" oninput="autoGrow(this)" rows="3" placeholder="施工のこだわりや特徴を入力…"></textarea>
     <button class="ex-btn" onclick="fillEx('f-point','目地幅を3mmに統一し、上質な仕上がりを実現。石の向きを揃えて整然とした印象に。')">例文を使う</button>
   </div>
   <!-- お客様の声 -->
   <div class="field">
     <div class="field-label">お客様の声</div>
-    <textarea class="finput" id="f-voice" rows="2" placeholder="「想像以上の仕上がりで大満足です！」など"></textarea>
+    <textarea class="finput auto-grow" id="f-voice" oninput="autoGrow(this)" rows="2" placeholder="「想像以上の仕上がりで大満足です！」など"></textarea>
     <button class="ex-btn" onclick="fillEx('f-voice','「想像以上の仕上がりで大満足です！近所の方にも褒められました」')">例文を使う</button>
   </div>
   <!-- お客様のお悩み -->
   <div class="field">
     <div class="field-label">お客様のお悩み <span class="opt">任意</span></div>
-    <textarea class="finput" id="f-problem" rows="2" placeholder="「コンクリートが味気なくておしゃれにしたかった」など"></textarea>
+    <textarea class="finput auto-grow" id="f-problem" oninput="autoGrow(this)" rows="2" placeholder="「コンクリートが味気なくておしゃれにしたかった」など"></textarea>
     <button class="ex-btn" onclick="fillEx('f-problem','コンクリートが味気なくておしゃれにしたかった')">例文を使う</button>
   </div>
   <!-- 自由記述 -->
   <div class="field" style="border-radius:0 0 12px 12px;">
     <div class="field-label">その他・自由記述 <span class="opt">任意</span></div>
-    <textarea class="finput" id="f-free" rows="2" placeholder="自由記入"></textarea>
+    <textarea class="finput auto-grow" id="f-free" oninput="autoGrow(this)" rows="2" placeholder="自由記入"></textarea>
   </div>
   <!-- 写真サマリー（STEP2から引継ぎ） -->
   <div class="photo-summary-card" id="photo-summary">📸 写真なし（STEP2で追加してください）</div>
 </div>
 <div class="fixed-footer">
   <button class="primary-btn" onclick="goPreview()">プレビューを確認する →</button>
-  <button class="secondary-btn" onclick="goTo('s3')">← 写真整理に戻る</button>
 </div>
 </div><!-- screen-s4 -->
 
@@ -584,12 +729,25 @@ textarea.finput{resize:none;line-height:1.7;}
 ═══════════════════════════════════ -->
 <div class="screen" id="screen-preview">
 <div class="preview-body">
+
   <div class="send-section-title">送付テキスト</div>
   <div class="send-text-box" id="send-text-box"></div>
-  <div class="steps-card">
-    <div class="steps-title">2ステップで送付</div>
-    <div class="step-row"><span class="step-num">①</span>テキストをコピー → LINEに貼り付け</div>
-    <div class="step-row"><span class="step-num">②</span>ZIPをダウンロード → LINEに添付</div>
+  <div style="background:var(--surface);border:1.5px solid rgba(232,160,32,.25);border-radius:14px;padding:16px;">
+    <div style="font-size:15px;font-weight:900;color:var(--accent);margin-bottom:14px;display:flex;align-items:center;gap:8px;">📤 送付の手順</div>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div style="display:flex;align-items:center;gap:12px;background:#111;border-radius:10px;padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+        <div style="font-size:14px;color:var(--text);font-weight:700;">テキストをコピー → LINEに貼り付け</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:#111;border-radius:10px;padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--accent);color:#000;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+        <div style="font-size:14px;color:var(--text);font-weight:700;">ZIPをダウンロード → LINEに添付</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;background:rgba(34,197,94,.06);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:12px;">
+        <div style="width:28px;height:28px;border-radius:50%;background:var(--ok);color:#000;font-size:14px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+        <div style="font-size:14px;color:var(--ok);font-weight:700;">「この報告を保存する」を押して保存！</div>
+      </div>
+    </div>
   </div>
   <!-- フィードバック -->
   <div class="fb-card">
@@ -605,7 +763,8 @@ textarea.finput{resize:none;line-height:1.7;}
 </div>
 <div class="fixed-footer">
   <button class="primary-btn btn-copy" id="btn-copy" onclick="copyText()">📋 テキストをコピー</button>
-  <button class="primary-btn btn-zip"  style="background:#222;color:var(--text);margin-top:-4px;" onclick="downloadZip()">📦 ZIPをダウンロード</button>
+  <button class="primary-btn" style="background:#222;color:var(--text);border:1.5px solid var(--border);" onclick="downloadZip()">📦 ZIPをダウンロード</button>
+  <button class="primary-btn" id="save-btn" style="background:var(--ok);color:#000;font-size:17px;" onclick="saveReport()">💾 この報告を保存する</button>
   <div class="action-row">
     <button class="secondary-btn" style="flex:1;" onclick="goTo('s4')">← 修正する</button>
     <button class="danger-btn" onclick="confirmDelete()">🗑 削除</button>
@@ -656,17 +815,22 @@ const TM3 = {
 // ══════════════════════════════
 function goTo(name) {
   document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.getElementById('screen-' + (name === 'home' ? 'home' : name === 's2' ? 's2' : name === 's3' ? 's3' : name === 's4' ? 's4' : 'preview')).classList.add('active');
-  document.getElementById('step-bar-wrap').style.display = (name === 'home') ? 'none' : 'block';
+  const screenId = {
+    home: 'screen-home',
+    register: 'screen-register',
+    s2: 'screen-s2', s3: 'screen-s3', s4: 'screen-s4',
+    preview: 'screen-preview'
+  }[name] || 'screen-home';
+  document.getElementById(screenId).classList.add('active');
+  const isHome = name === 'home' || name === 'register';
+  document.getElementById('step-bar-wrap').style.display = isHome ? 'none' : 'block';
   updateStepBar(name);
   document.getElementById('header-step').textContent =
-    name === 'home'    ? '' :
-    name === 's2'      ? 'STEP 2' :
-    name === 's3'      ? 'STEP 3' :
-    name === 's4'      ? 'STEP 4' : '送付';
+    isHome ? '' : name === 's2' ? 'STEP 2' : name === 's3' ? 'STEP 3' : name === 's4' ? 'STEP 4' : '送付';
   window.scrollTo(0, 0);
+  if (name === 'home') { renderHomeReports(); }
   if (name === 's3') { s3SyncFromS2(); s3UpdateStats(); s3Render(); }
-  if (name === 's4') { updatePhotoSummary(); syncStaffToS4(); }
+  if (name === 's4') { updatePhotoSummary(); syncStaffToS4(); setTimeout(restoreDraft, 100); }
   APP.curScreen = name;
 }
 
@@ -691,6 +855,17 @@ function updateStepBar(name) {
 // ══════════════════════════════
 //  ホーム画面
 // ══════════════════════════════
+function showRegister() {
+  // 現在の値をフォームに反映してからregister画面へ
+  const p = document.getElementById('home-pref');
+  if (p && APP.pref) p.value = APP.pref;
+  const c = document.getElementById('home-company');
+  if (c && APP.company) c.value = APP.company;
+  const s = document.getElementById('home-staff');
+  if (s && APP.staff) s.value = APP.staff;
+  goTo('register');
+}
+
 function startApp() {
   const pref    = document.getElementById('home-pref').value;
   const company = document.getElementById('home-company').value.trim();
@@ -705,7 +880,114 @@ function startApp() {
     localStorage.setItem('rs_company', company);
     localStorage.setItem('rs_staff', staff);
   } catch(e) {}
+  updateHomeInfo();
+  goTo('home');
+}
+
+function updateHomeInfo() {
+  const el = (id, v) => { const e = document.getElementById(id); if(e) e.textContent = v; };
+  el('home-info-pref', APP.pref + '　認定施工店');
+  el('home-info-company', APP.company);
+  el('home-info-staff', '担当：' + APP.staff);
+}
+
+// 現場名入力シート
+function showNewSiteSheet() {
+  document.getElementById('ns-client').value = '';
+  document.getElementById('ns-place').value = '';
+  document.getElementById('new-site-sheet').classList.add('show');
+}
+function closeNewSiteSheet() {
+  document.getElementById('new-site-sheet').classList.remove('show');
+}
+function startNewSite() {
+  const client = document.getElementById('ns-client').value.trim();
+  const place  = document.getElementById('ns-place').value.trim();
+  if (!client) { toast('お客様名を入力してください'); return; }
+  APP.siteName = client + (place ? ' ' + place : '');
+  closeNewSiteSheet();
+  // 写真・状態リセット
+  s2Photos = {b:[],d:[],a:[],p:[],o:[]};
+  s2Pid = 0; s2CurTag = 'b'; s2CurOrient = 'all';
+  s3Photos = []; s3MaxPair = 0;
+  document.getElementById('s2-uploaded').style.display = 'none';
+  document.getElementById('s2-next-btn').disabled = true;
   goTo('s2');
+}
+
+// 報告一覧を描画
+function renderHomeReports() {
+  let reports = [];
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('rs_report_')) {
+        const d = JSON.parse(localStorage.getItem(k));
+        if (d) reports.push({key: k, ...d});
+      }
+    }
+  } catch(e) {}
+  reports.sort((a,b) => new Date(b.savedAt) - new Date(a.savedAt));
+
+  const count = document.getElementById('home-report-count');
+  const list  = document.getElementById('home-report-list');
+  if (!count || !list) return;
+  count.textContent = reports.length + '件';
+
+  if (!reports.length) {
+    list.innerHTML = `<div class="empty-home"><div class="ei">📋</div>まだ報告はありません<br><span style="font-size:11px;">「新しい現場の報告を作成」から始めてください</span></div>`;
+    return;
+  }
+  list.innerHTML = reports.map(r => {
+    const d = new Date(r.savedAt);
+    const ds = `${d.getFullYear()}/${d.getMonth()+1}/${d.getDate()}`;
+    const title = r.siteName || r.title || '無題の現場';
+    return `<div class="report-card" onclick="viewReport('${r.key}')">
+      <div class="report-card-icon">📋</div>
+      <div class="report-card-body">
+        <div class="report-card-title">${title}</div>
+        <div class="report-card-meta">${r.staff || APP.staff} ・ ${ds}</div>
+      </div>
+      <button class="report-card-del" onclick="event.stopPropagation();deleteReportByKey('${r.key}')">🗑</button>
+    </div>`;
+  }).join('');
+}
+
+// 報告テキスト表示
+let currentViewKey = null;
+function viewReport(key) {
+  try {
+    const d = JSON.parse(localStorage.getItem(key));
+    if (!d) return;
+    currentViewKey = key;
+    document.getElementById('rv-title').textContent = d.siteName || d.title || '無題の現場';
+    document.getElementById('rv-text').textContent = d.text || '';
+    document.getElementById('report-view-sheet').classList.add('show');
+  } catch(e) {}
+}
+function closeReportView() {
+  document.getElementById('report-view-sheet').classList.remove('show');
+  currentViewKey = null;
+}
+function copyReportText() {
+  const txt = document.getElementById('rv-text').textContent;
+  navigator.clipboard?.writeText(txt).then(() => toast('📋 テキストをコピーしました')).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = txt; document.body.appendChild(ta); ta.select();
+    document.execCommand('copy'); document.body.removeChild(ta);
+    toast('📋 コピーしました');
+  });
+}
+function deleteReport() {
+  if (!currentViewKey) return;
+  if (!confirm('この報告を削除しますか？')) return;
+  deleteReportByKey(currentViewKey);
+  closeReportView();
+}
+function deleteReportByKey(key) {
+  localStorage.removeItem(key);
+  renderHomeReports();
+  toast('削除しました');
 }
 
 // showGuide → 外部URLリンクに移行（ボタン側でhref処理）
@@ -716,9 +998,16 @@ window.addEventListener('load', () => {
     const p = localStorage.getItem('rs_pref');
     const c = localStorage.getItem('rs_company');
     const s = localStorage.getItem('rs_staff');
-    if (p) document.getElementById('home-pref').value = p;
-    if (c) document.getElementById('home-company').value = c;
-    if (s) document.getElementById('home-staff').value = s;
+    if (p && c && s) {
+      // 登録済み → ホーム画面へ
+      APP.pref = p; APP.company = c; APP.staff = s;
+      document.getElementById('home-pref').value = p;
+      document.getElementById('home-company').value = c;
+      document.getElementById('home-staff').value = s;
+      updateHomeInfo();
+      goTo('home');
+    }
+    // 未登録はregister画面のまま（初期active）
   } catch(e) {}
 });
 
@@ -737,31 +1026,76 @@ function s2SelectTag(t, btn) {
   pill.textContent = m.label;
 }
 
+// ── 画像処理キュー（1枚ずつ処理してUIをブロックしない）──
+let s2Queue = [];
+let s2Processing = false;
+
 function s2HandleFiles(files) {
   if (!files || !files.length) return;
-  Array.from(files).forEach(file => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      const img = new Image();
-      img.onload = () => {
-        const orient = img.naturalHeight > img.naturalWidth ? 'port' : 'land';
-        s2Photos[s2CurTag].push({
-          id: s2Pid++,
-          src: e.target.result,
-          tag: s2CurTag,
-          orient,
-          pairNum: null,
-          include: true
-        });
-        s2UpdateAll();
-      };
-      img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-  });
-  toast(TM2[s2CurTag].name + ' に追加しました');
-  // ファイル入力リセット（同じファイルを再選択できるよう）
+  const tag = s2CurTag;
+  const fileArr = Array.from(files);
+  // 処理件数をトーストで先行表示
+  toast(`${TM2[tag].name} を ${fileArr.length}枚 処理中…`);
+  // キューに追加
+  fileArr.forEach(file => s2Queue.push({file, tag}));
   document.getElementById('s2-file-input').value = '';
+  if (!s2Processing) s2ProcessQueue();
+}
+
+function s2ProcessQueue() {
+  if (!s2Queue.length) {
+    s2Processing = false;
+    toast('✅ すべて追加しました');
+    return;
+  }
+  s2Processing = true;
+  const {file, tag} = s2Queue.shift();
+
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      // ── Canvasでリサイズ（長辺1200px以内）──
+      const MAX = 1200;
+      let w = img.naturalWidth, h = img.naturalHeight;
+      const orient = h > w ? 'port' : 'land';
+      if (w > MAX || h > MAX) {
+        const ratio = Math.min(MAX / w, MAX / h);
+        w = Math.round(w * ratio);
+        h = Math.round(h * ratio);
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, w, h);
+      // 本体用（報告書添付用）: quality 0.82
+      const src = canvas.toDataURL('image/jpeg', 0.82);
+      // サムネイル用（表示専用）: 200px以内
+      const TW = 200;
+      const tr = Math.min(TW / w, TW / h);
+      const tw = Math.round(w * tr), th = Math.round(h * tr);
+      const tc = document.createElement('canvas');
+      tc.width = tw; tc.height = th;
+      tc.getContext('2d').drawImage(canvas, 0, 0, tw, th);
+      const thumb = tc.toDataURL('image/jpeg', 0.7);
+
+      s2Photos[tag].push({
+        id: s2Pid++,
+        src,       // 添付用（リサイズ済み）
+        thumb,     // サムネイル表示用（小さい）
+        tag,
+        orient,
+        pairNum: null,
+        include: true
+      });
+      s2UpdateAll();
+      // 少し間を空けて次を処理（UIに息継ぎさせる）
+      setTimeout(s2ProcessQueue, 30);
+    };
+    img.onerror = () => { toast('読み込み失敗：' + file.name); setTimeout(s2ProcessQueue, 30); };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
 }
 
 function s2SetOrient(o, btn) {
@@ -809,7 +1143,7 @@ function s2RenderThumbs() {
     L.forEach(p => {
       const oLbl = p.orient === 'port' ? '▯縦' : '▭横';
       html += `<div class="thumb-item">
-        <img src="${p.src}" alt="">
+        <img src="${p.thumb || p.src}" alt="" loading="lazy">
         <div class="thumb-tag ${m.badge}">${m.name}</div>
         <div class="orient-badge">${oLbl}</div>
         <button class="thumb-del" onclick="event.stopPropagation();s2DelPhoto(${p.id},'${t}')">✕</button>
@@ -931,9 +1265,9 @@ function s3RenderAll(el) {
           <div class="pair-badge ${ok ? 'pb-ok' : 'pb-warn'}">${ok ? '✅ 完成' : '⚠️ 片方なし'}</div>
         </div>
         <div class="pair-images">`;
-      if (b) h += `<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${b.id})">✕</button></div>`;
+      if (b) h += `<div class="pair-slot"><img src="${b.thumb||b.src}" class="${b.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${b.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-b">Before</div><button class="assign-btn" onclick="s3OpenSheet(${b.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${b.id})">✕</button></div>`;
       else   h += `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`;
-      if (a) h += `<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${a.id})">✕</button></div>`;
+      if (a) h += `<div class="pair-slot"><img src="${a.thumb||a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="orient-pill">${a.orient==='port'?'▯縦':'▭横'}</div><div class="slot-lbl sl-a">After</div><button class="assign-btn" onclick="s3OpenSheet(${a.id})">${fn(n)}</button><button class="del-btn" onclick="s3DelPhoto(${a.id})">✕</button></div>`;
       else   h += `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`;
       h += `</div></div>`;
     });
@@ -945,9 +1279,13 @@ function s3RenderAll(el) {
       <div class="nopair-grid">`;
     [...unB,...unA].forEach(p => {
       h += `<div class="nopair-item">
-        <img src="${p.src}" alt="" style="width:100%;display:block;object-fit:cover;aspect-ratio:1;border-radius:8px;">
+        <img src="${p.thumb||p.src}" alt="" class="${p.orient==='port'?'port-img':'land-img'}" style="width:100%;display:block;object-fit:cover;border-radius:8px;" loading="lazy">
+        <div class="orient-pill">${p.orient==='port'?'▯縦':'▭横'}</div>
         <div class="solo-tag ${TM3[p.tag].badge}" style="border-radius:0 0 8px 8px;">${TM3[p.tag].name}</div>
-        <div class="nopair-assign"><button class="assign-btn unset" style="position:static;" onclick="s3OpenSheet(${p.id})">─</button></div>
+        <div class="nopair-assign" style="display:flex;gap:4px;">
+          <button class="assign-btn unset" style="position:static;" onclick="s3OpenSheet(${p.id})">─</button>
+          <button onclick="s3DelPhoto(${p.id})" style="width:28px;height:28px;border-radius:8px;background:rgba(239,68,68,.9);border:none;color:#fff;font-size:11px;cursor:pointer;flex-shrink:0;">✕</button>
+        </div>
       </div>`;
     });
     h += `</div></div>`;
@@ -965,7 +1303,8 @@ function s3RenderAll(el) {
       <div class="solo-grid">`;
     L.forEach(p => {
       h += `<div class="solo-item">
-        <img src="${p.src}" alt="">
+        <img src="${p.thumb||p.src}" alt="" class="${p.orient==='port'?'port-img':'land-img'}" loading="lazy">
+        <div class="orient-pill">${p.orient==='port'?'▯縦':'▭横'}</div>
         <div class="solo-tag ${m.badge}">${m.name}</div>
         ${s3IncludeToggleHTML(p)}
         <button class="del-btn" onclick="s3DelPhoto(${p.id})">✕</button>
@@ -991,7 +1330,12 @@ function s3RenderPair(el) {
       <div class="pair-header"><div class="pair-num">PAIR ${fn(n)}</div><div class="pair-badge ${ok ? 'pb-ok' : 'pb-warn'}">${ok ? '✅ 完成' : '⚠️ 片方なし'}</div></div>
       <div class="pair-images">
         ${b ? `<div class="pair-slot"><img src="${b.src}"><div class="slot-lbl sl-b">Before</div></div>` : `<div class="pair-slot-empty"><div style="font-size:22px">📷</div><span>Before なし</span></div>`}
-        ${a ? `<div class="pair-slot"><img src="${a.src}"><div class="slot-lbl sl-a">After</div></div>` : `<div class="pair-slot-empty"><div style="font-size:22px">✨</div><span>After なし</span></div>`}
+        ${a ? `<div class="pair-slot"><img src="${a.src}" class="${a.orient==='port'?'port-img':'land-img'}"><div class="slot-lbl sl-a">After</div></div>` :
+        `<div class="pair-slot-empty" style="cursor:pointer;" onclick="s3PickAfterForPair(${n})">
+          <div style="font-size:28px">➕</div>
+          <span style="font-size:10px;color:var(--accent);font-weight:700;">After を選ぶ</span>
+          <input type="file" accept="image/*" style="display:none;" id="pick-after-${n}" onchange="s3HandlePickAfter(this.files,${n})">
+        </div>`}
       </div></div>`;
   });
   h += '</div>';
@@ -1018,24 +1362,72 @@ function s3DelPhoto(id) {
   s2UpdateAll(); s3UpdateStats(); s3Render();
   toast('削除しました');
 }
+// タグ変更用の一時変数
+let s3SheetNewTag = null;
+
 function s3OpenSheet(id) {
   s3SheetId = id;
   const p = s3Photos.find(x => x.id === id);
   s3SheetNewPair = p.pairNum;
-  document.getElementById('s3-sheet-img').src = p.src;
-  const usedSame  = s3Photos.filter(x => x.tag === p.tag && x.pairNum && x.id !== id).map(x => x.pairNum);
-  const usedOther = s3Photos.filter(x => ((p.tag === 'b' && x.tag === 'a') || (p.tag === 'a' && x.tag === 'b')) && x.pairNum).map(x => x.pairNum);
-  const maxN = Math.max(s3MaxPair, 3);
-  let g = '';
-  for (let n = 1; n <= maxN; n++) {
-    const isSel = s3SheetNewPair === n;
-    const isPaired = usedOther.includes(n) && !usedSame.includes(n);
-    g += `<button class="sn-btn ${isSel ? 'sel' : ''} ${isPaired ? 'paired' : ''}" onclick="s3SelPair(${n},this)">${fn(n)}</button>`;
+  s3SheetNewTag = p.tag; // 現在のタグ
+  document.getElementById('s3-sheet-img').src = p.thumb || p.src;
+
+  // タグ変更ボタン
+  const TM3keys = [
+    {t:'b', label:'📷 Before', col:'var(--before)'},
+    {t:'d', label:'🔨 造形後', col:'var(--during)'},
+    {t:'a', label:'✨ After',  col:'var(--after)'},
+    {t:'p', label:'⭐ こだわり',col:'var(--pickup)'},
+    {t:'o', label:'📌 その他', col:'var(--other)'},
+  ];
+  const tagContainer = document.getElementById('s3-tag-change-btns');
+  tagContainer.innerHTML = TM3keys.map(({t, label, col}) =>
+    `<button onclick="s3SelTag('${t}',this)" style="padding:6px 12px;border-radius:100px;font-size:12px;font-weight:700;font-family:inherit;cursor:pointer;transition:all .15s;border:2px solid ${p.tag===t ? col : '#333'};background:${p.tag===t ? col+'22' : '#111'};color:${p.tag===t ? col : '#666'};">${label}</button>`
+  ).join('');
+
+  // ペア番号グリッド（Before/Afterのみ表示）
+  const isPairable = p.tag === 'b' || p.tag === 'a';
+  const sheetGrid = document.getElementById('s3-sheet-grid');
+  if (isPairable) {
+    const usedSame  = s3Photos.filter(x => x.tag === p.tag && x.pairNum && x.id !== id).map(x => x.pairNum);
+    const usedOther = s3Photos.filter(x => ((p.tag === 'b' && x.tag === 'a') || (p.tag === 'a' && x.tag === 'b')) && x.pairNum).map(x => x.pairNum);
+    const maxN = Math.max(s3MaxPair, 3);
+    let g = '';
+    for (let n = 1; n <= maxN; n++) {
+      const isSel = s3SheetNewPair === n;
+      const isPaired = usedOther.includes(n) && !usedSame.includes(n);
+      g += `<button class="sn-btn ${isSel ? 'sel' : ''} ${isPaired ? 'paired' : ''}" onclick="s3SelPair(${n},this)">${fn(n)}</button>`;
+    }
+    g += `<button class="sn-btn sn-add" onclick="s3AddPair()">＋</button>`;
+    g += `<button class="sn-none ${s3SheetNewPair === null ? 'sel' : ''}" onclick="s3SelNone(this)">📌 ペアなし</button>`;
+    sheetGrid.innerHTML = g;
+    sheetGrid.style.display = '';
+    document.querySelector('.sheet-label').style.display = '';
+  } else {
+    sheetGrid.innerHTML = '';
+    sheetGrid.style.display = 'none';
+    document.querySelector('.sheet-label').style.display = 'none';
   }
-  g += `<button class="sn-btn sn-add" onclick="s3AddPair()">＋</button>`;
-  g += `<button class="sn-none ${s3SheetNewPair === null ? 'sel' : ''}" onclick="s3SelNone(this)">📌 ペアなし</button>`;
-  document.getElementById('s3-sheet-grid').innerHTML = g;
   document.getElementById('s3-sheet').classList.add('show');
+}
+
+function s3SelTag(t, btn) {
+  s3SheetNewTag = t;
+  // ボタンの見た目更新
+  const TM3colors = {b:'var(--before)',d:'var(--during)',a:'var(--after)',p:'var(--pickup)',o:'var(--other)'};
+  const col = TM3colors[t];
+  document.querySelectorAll('#s3-tag-change-btns button').forEach(b => {
+    b.style.border = '2px solid #333';
+    b.style.background = '#111';
+    b.style.color = '#666';
+  });
+  btn.style.border = `2px solid ${col}`;
+  btn.style.background = col + '22';
+  btn.style.color = col;
+  // タグがBefore/After以外ならペア番号グリッドを非表示
+  const isPairable = t === 'b' || t === 'a';
+  document.getElementById('s3-sheet-grid').style.display = isPairable ? '' : 'none';
+  document.querySelector('.sheet-label').style.display = isPairable ? '' : 'none';
 }
 function s3SelPair(n, btn) {
   s3SheetNewPair = n;
@@ -1051,13 +1443,33 @@ function s3AddPair() { s3MaxPair++; s3OpenSheet(s3SheetId); }
 function s3CloseSheet() { document.getElementById('s3-sheet').classList.remove('show'); }
 function s3ApplySheet() {
   const p = s3Photos.find(x => x.id === s3SheetId);
+  const oldTag = p.tag;
+  // タグ変更があれば反映
+  if (s3SheetNewTag && s3SheetNewTag !== oldTag) {
+    // S2の古いタグ配列から削除
+    s2Photos[oldTag] = s2Photos[oldTag].filter(x => x.id !== s3SheetId);
+    // タグ更新
+    p.tag = s3SheetNewTag;
+    // Before/After以外ならpairNumをクリア
+    if (s3SheetNewTag !== 'b' && s3SheetNewTag !== 'a') {
+      p.pairNum = null;
+      s3SheetNewPair = null;
+    }
+    // S2の新しいタグ配列に追加
+    s2Photos[s3SheetNewTag].push({...p});
+  }
   p.pairNum = s3SheetNewPair;
-  // S2にも反映
+  // S2にもpairNum反映
   const s2p = s2Photos[p.tag] && s2Photos[p.tag].find(x => x.id === s3SheetId);
   if (s2p) s2p.pairNum = s3SheetNewPair;
   if (s3SheetNewPair && s3SheetNewPair > s3MaxPair) s3MaxPair = s3SheetNewPair;
+  s2UpdateAll();
   s3CloseSheet(); s3UpdateStats(); s3Render();
-  toast(s3SheetNewPair ? `ペア ${fn(s3SheetNewPair)} に割り当てました` : 'ペアなしに変更しました');
+  const msgs = [];
+  if (s3SheetNewTag !== oldTag) msgs.push(`タグを ${TM3[s3SheetNewTag].name} に変更`);
+  if (s3SheetNewPair) msgs.push(`ペア ${fn(s3SheetNewPair)} に割り当て`);
+  else if (s3SheetNewTag === 'b' || s3SheetNewTag === 'a') msgs.push('ペアなし');
+  toast(msgs.length ? msgs.join(' / ') : '変更しました');
 }
 
 // ══════════════════════════════
@@ -1190,18 +1602,92 @@ function fallbackCopy(txt) {
   toast('コピーしました');
 }
 
-function downloadZip() {
-  // 実装フェーズでは JSZip で写真込みZIPを生成
-  // 現時点：テキストをダウンロード
-  const txt = document.getElementById('send-text-box').textContent;
+async function downloadZip() {
   const d = new Date();
   const ds = `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,'0')}${String(d.getDate()).padStart(2,'0')}`;
-  const blob = new Blob([txt], {type: 'text/plain;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url; a.download = `RS_施工報告_${ds}.txt`; a.click();
-  URL.revokeObjectURL(url);
-  toast('📄 ダウンロードしました（本番版は写真込みZIPになります）');
+  const siteName = (APP.siteName || '現場').replace(/[\s\\/:*?"<>|]/g,'_');
+  const zipName = `RS_報告_${siteName}_${ds}.zip`;
+
+  // JSZipが読み込まれているか確認
+  if (typeof JSZip === 'undefined') {
+    toast('⚠️ ZIPライブラリ未読込。ネット接続を確認してください');
+    return;
+  }
+
+  const btn = document.getElementById('btn-zip');
+  btn.textContent = '⏳ ZIP作成中…';
+  btn.disabled = true;
+
+  try {
+    const zip = new JSZip();
+    const txt = document.getElementById('send-text-box').textContent;
+    // 報告テキストをZIPに含める
+    zip.file(`報告書_${ds}.txt`, txt);
+
+    const tagName = {b:'Before', d:'造形後', a:'After', p:'こだわり', o:'その他'};
+    // タグ別カウンター
+    const tagCount = {b:0, d:0, a:0, p:0, o:0};
+
+    // ペアありの写真（Pair別フォルダ）
+    const pairNums = [...new Set(s3Photos.filter(p => p.pairNum).map(p => p.pairNum))].sort((a,b)=>a-b);
+    for (const n of pairNums) {
+      const folderName = `Pair${n}`;
+      const pairPhotos = s3Photos.filter(p => p.pairNum === n);
+      for (const photo of pairPhotos) {
+        if (!photo.src) continue;
+        tagCount[photo.tag] = (tagCount[photo.tag] || 0) + 1;
+        const num = String(tagCount[photo.tag]).padStart(2,'0');
+        const fname = `${ds}_${tagName[photo.tag]}_${num}.jpg`;
+        // Base64データをバイナリに変換
+        const base64 = photo.src.split(',')[1];
+        if (base64) zip.folder(folderName).file(fname, base64, {base64: true});
+      }
+    }
+
+    // ペアなし・単体写真（その他フォルダ）
+    const soloPhotos = s3Photos.filter(p => !p.pairNum);
+    for (const photo of soloPhotos) {
+      if (!photo.src) continue;
+      tagCount[photo.tag] = (tagCount[photo.tag] || 0) + 1;
+      const num = String(tagCount[photo.tag]).padStart(2,'0');
+      const fname = `${ds}_${tagName[photo.tag]}_${num}.jpg`;
+      const base64 = photo.src.split(',')[1];
+      if (base64) zip.folder('その他').file(fname, base64, {base64: true});
+    }
+
+    // ZIP生成・ダウンロード
+    const blob = await zip.generateAsync({type:'blob', compression:'DEFLATE', compressionOptions:{level:6}});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = zipName; a.click();
+    URL.revokeObjectURL(url);
+    showDownloadGuide(zipName);
+
+  } catch(e) {
+    toast('ZIP生成に失敗しました: ' + e.message);
+  } finally {
+    btn.textContent = '📦 ZIPをダウンロード';
+    btn.disabled = false;
+  }
+}
+function showDownloadGuide(fname) {
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
+  overlay.innerHTML = `
+    <div style="background:#1a1a1a;border:1px solid rgba(232,160,32,.3);border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;">
+      <div style="font-size:28px;text-align:center;margin-bottom:12px;">📥</div>
+      <div style="font-size:15px;font-weight:900;color:#e8a020;text-align:center;margin-bottom:6px;">ダウンロード完了！</div>
+      <div style="font-size:13px;color:#f0f0f0;font-weight:700;text-align:center;margin-bottom:16px;">${fname}</div>
+      <div style="background:#111;border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:#999;line-height:2.2;">
+        <div style="color:#e8a020;font-weight:700;margin-bottom:4px;">📁 ファイルの場所</div>
+        <div>iPhone：<strong style="color:#f0f0f0;">ファイルアプリ → ダウンロード</strong></div>
+        <div>Android：<strong style="color:#f0f0f0;">ファイルマネージャ → ダウンロード</strong></div>
+        <div style="margin-top:8px;color:#e8a020;font-weight:700;">📤 LINEへの添付方法</div>
+        <div>LINEトーク → ＋ → ファイル → ダウンロード内のファイルを選択</div>
+      </div>
+      <button onclick="this.parentElement.parentElement.remove()" style="width:100%;padding:15px;background:#e8a020;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;">OK、わかった！</button>
+    </div>`;
+  document.body.appendChild(overlay);
 }
 
 function confirmDelete() {
@@ -1240,6 +1726,173 @@ function skipFeedback() {
 // ══════════════════════════════
 //  トースト
 // ══════════════════════════════
+// ── テキストエリア自動伸縮 ──
+function autoGrow(el) {
+  el.style.height = 'auto';
+  el.style.height = (el.scrollHeight) + 'px';
+  autoDraft(); // 入力のたびに下書き保存
+}
+
+// ── 自動下書き保存 ──
+function autoDraft() {
+  try {
+    const draft = {
+      savedAt: new Date().toISOString(),
+      pref: APP.pref, company: APP.company, staff: APP.staff,
+      form: {
+        staff:    document.getElementById('f-staff')?.value || '',
+        size:     document.getElementById('f-size')?.value || '',
+        days:     document.getElementById('f-days')?.value || '',
+        base:     document.getElementById('f-base')?.value || '',
+        grout:    document.getElementById('f-grout')?.value || '',
+        point:    document.getElementById('f-point')?.value || '',
+        voice:    document.getElementById('f-voice')?.value || '',
+        problem:  document.getElementById('f-problem')?.value || '',
+        free:     document.getElementById('f-free')?.value || '',
+        titleCustom: document.getElementById('title-custom')?.value || '',
+        patternCustom: document.getElementById('pattern-custom')?.value || '',
+      }
+    };
+    localStorage.setItem('rs_draft', JSON.stringify(draft));
+  } catch(e) {}
+}
+
+// ── 下書き復元（STEP4表示時） ──
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem('rs_draft');
+    if (!raw) return;
+    const d = JSON.parse(raw);
+    if (!d.form) return;
+    const age = (Date.now() - new Date(d.savedAt).getTime()) / 1000 / 60; // 分
+    if (age > 120) return; // 2時間以上古い下書きは無視
+    const f = d.form;
+    const set = (id, v) => { const el = document.getElementById(id); if (el && v) el.value = v; };
+    set('f-staff', f.staff); set('f-size', f.size); set('f-days', f.days);
+    set('f-base', f.base); set('f-grout', f.grout); set('f-point', f.point);
+    set('f-voice', f.voice); set('f-problem', f.problem); set('f-free', f.free);
+    set('title-custom', f.titleCustom); set('pattern-custom', f.patternCustom);
+    // 自動伸縮を適用
+    ['f-point','f-voice','f-problem','f-free'].forEach(id => {
+      const el = document.getElementById(id);
+      if (el && el.value) { el.style.height='auto'; el.style.height=el.scrollHeight+'px'; }
+    });
+    const ago = Math.round(age);
+    if (ago < 1) return;
+    showDraftBanner(ago < 60 ? `${ago}分前の下書きを復元しました` : `${Math.round(age/60)}時間前の下書きを復元しました`);
+  } catch(e) {}
+}
+
+function showDraftBanner(msg) {
+  const banner = document.createElement('div');
+  banner.style.cssText = 'background:rgba(232,160,32,.12);border:1px solid rgba(232,160,32,.3);border-radius:10px;padding:10px 14px;font-size:12px;color:var(--accent);margin-bottom:12px;display:flex;align-items:center;gap:8px;';
+  banner.innerHTML = `<span>📝</span><span style="flex:1;">${msg}</span><button onclick="this.parentElement.remove()" style="background:none;border:none;color:var(--text2);font-size:16px;cursor:pointer;">✕</button>`;
+  const body = document.querySelector('.s4-body');
+  if (body) body.insertBefore(banner, body.firstChild);
+}
+
+// 30秒ごとに自動下書き保存
+setInterval(autoDraft, 30000);
+
+// ── STEP2途中保存して終わる ──
+function saveAndExit() {
+  const total = Object.values(s2Photos).reduce((s, a) => s + a.length, 0);
+  if (total === 0) { toast('写真が1枚もありません'); return; }
+  try {
+    // 写真データは容量が大きいためsrcは省略してメタ情報のみ保存
+    const meta = {};
+    ['b','d','a','p','o'].forEach(t => {
+      meta[t] = s2Photos[t].map(p => ({
+        id: p.id, tag: p.tag, orient: p.orient,
+        pairNum: p.pairNum, include: p.include,
+        thumb: p.thumb  // サムネイルは保存（小さいので問題ない）
+      }));
+    });
+    const data = {
+      savedAt: new Date().toISOString(),
+      pref: APP.pref, company: APP.company, staff: APP.staff,
+      photoMeta: meta,
+      totalCount: total
+    };
+    localStorage.setItem('rs_midway', JSON.stringify(data));
+    // 保存成功UI
+    const btn = document.getElementById('s2-save-btn');
+    btn.textContent = '✅ 保存しました！';
+    btn.style.background = 'rgba(34,197,94,.3)';
+    setTimeout(() => {
+      btn.textContent = '💾 途中保存して終わる';
+      btn.style.background = 'rgba(34,197,94,.15)';
+    }, 2500);
+    toast(`💾 ${total}枚のデータを保存しました。次回続きからアップできます`);
+  } catch(e) {
+    toast('保存に失敗しました（容量不足の可能性があります）');
+  }
+}
+
+// ── 報告書保存 ──
+function saveReport() {
+  const btn = document.getElementById('save-btn');
+  try {
+    const saveData = {
+      savedAt: new Date().toISOString(),
+      pref: APP.pref,
+      company: APP.company,
+      staff: APP.staff,
+      siteName: APP.siteName || document.getElementById('title-custom')?.value || '',
+      text: document.getElementById('send-text-box').textContent,
+    };
+    const key = `rs_report_${Date.now()}`;
+    localStorage.setItem(key, JSON.stringify(saveData));
+    localStorage.removeItem('rs_draft'); // 下書きクリア
+    btn.textContent = '✅ 保存しました！';
+    btn.style.background = 'rgba(34,197,94,.3)';
+    btn.style.color = 'var(--ok)';
+    btn.style.borderColor = 'var(--ok)';
+    btn.disabled = true;
+    toast('✅ 報告書を保存しました');
+    setTimeout(() => {
+      btn.textContent = '💾 この報告を保存する';
+      btn.disabled = false;
+    }, 3000);
+  } catch(e) {
+    toast('保存に失敗しました');
+  }
+}
+
+// ── STEP3 ペア確認からAfterを直接アップロード ──
+function s3PickAfterForPair(pairNum) {
+  const input = document.getElementById(`pick-after-${pairNum}`);
+  if (input) input.click();
+}
+function s3HandlePickAfter(files, pairNum) {
+  if (!files || !files.length) return;
+  const file = files[0];
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const orient = img.naturalHeight > img.naturalWidth ? 'port' : 'land';
+      const newPhoto = {
+        id: s2Pid++,
+        src: e.target.result,
+        tag: 'a',
+        orient,
+        pairNum: pairNum,
+        include: true
+      };
+      s2Photos['a'].push(newPhoto);
+      s3Photos.push(newPhoto);
+      if (pairNum > s3MaxPair) s3MaxPair = pairNum;
+      s2UpdateAll();
+      s3UpdateStats();
+      s3Render();
+      toast(`✅ After を PAIR ${fn(pairNum)} に追加しました`);
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
 let toastTimer;
 function toast(msg) {
   const el = document.getElementById('toast-el');
