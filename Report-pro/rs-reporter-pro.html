@@ -3866,8 +3866,15 @@
     }
 
     // ── 報告書保存（完了時はIndexedDBの作業中データも削除）──
+    const REPORT_MAX = 10; // 保存上限
     async function saveReport() {
       const btn = document.getElementById('save-btn');
+      // ── 保存上限チェック ──
+      const existingCount = Object.keys(localStorage).filter(k => k.startsWith('rs_report_')).length;
+      if (existingCount >= REPORT_MAX) {
+        toast(`⚠️ 保存できる現場は最大${REPORT_MAX}件です。ホームの「報告済みの現場」から古い報告を削除してください。`);
+        return;
+      }
       try {
         const saveData = {
           savedAt: new Date().toISOString(),
