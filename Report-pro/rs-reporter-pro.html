@@ -1987,6 +1987,9 @@
         <button class="sh-cancel" style="flex:1;" onclick="closeReportView()">閉じる</button>
         <button class="sh-apply" style="flex:1;" onclick="copyReportText()">📋 テキストをコピー</button>
       </div>
+      <button onclick="reopenReport(currentViewKey)"
+        style="width:100%;margin-top:8px;padding:11px;background:rgba(34,197,94,.12);border:1.5px solid rgba(34,197,94,.4);border-radius:12px;font-size:13px;font-weight:700;color:var(--ok);font-family:inherit;cursor:pointer;">✏️
+        この報告を再編集する</button>
       <button onclick="deleteReport()"
         style="width:100%;margin-top:8px;padding:11px;background:transparent;border:1.5px solid rgba(239,68,68,.3);border-radius:12px;font-size:13px;font-weight:700;color:var(--danger);font-family:inherit;cursor:pointer;">🗑
         この報告を削除</button>
@@ -2839,6 +2842,56 @@
     function closeReportView() {
       document.getElementById('report-view-sheet').classList.remove('show');
       currentViewKey = null;
+    }
+    async function reopenReport(key) {
+      if (!key) return;
+      if (!confirm('この報告を再編集しますか？\n現在の保存データは取り消されます。\n（再編集後に再保存してください）')) return;
+      try {
+        const d = JSON.parse(localStorage.getItem(key));
+        if (!d) { toast('データが見つかりません'); return; }
+        // ── APP状態を復元 ──
+        APP.siteName = d.siteName || '';
+        APP.siteId = 'site_' + Date.now();
+        // ── 写真を取得（IndexedDB フルサイズ → localStorage サムネイル）──
+        let photos = [];
+        try {
+          const rec = await dbGetCompleted(key);
+          if (rec && rec.photos && rec.photos.length) photos = rec.photos;
+        } catch (e) { }
+        if (!photos.length && d.photos && d.photos.length) photos = d.photos;
+        // ── s2Photos を復元（タグ別に分類）──
+        s2Photos = { b: [], d: [], a: [], p: [], o: [] };
+        s2Pid = 0;
+        photos.forEach(p => {
+          const tag = p.tag || 'o';
+          if (!s2Photos[tag]) return;
+          s2Photos[tag].push({ id: s2Pid++, src: p.thumb || p.src, thumb: p.thumb || p.src, tag });
+        });
+        s2CurTag = 'b'; s2CurOrient = 'all';
+        s3Photos = []; s3MaxPair = 0;
+        // ── 旧テキストを下書きとして保存（STEP4で復元される）──
+        try {
+          localStorage.setItem('rs_draft', JSON.stringify({ custom: d.siteName || '', text: d.text || '' }));
+        } catch (e) { }
+        // ── 旧報告を削除 ──
+        localStorage.removeItem(key);
+        try { await dbDeleteCompleted(key); } catch (e) { }
+        closeReportView();
+        // ── 写真がある場合はSTEP3、ない場合はSTEP4へ ──
+        if (photos.length > 0) {
+          s3SyncFromS2();
+          s3UpdateStats();
+          goTo('s3');
+          s3Render();
+          toast(`📂 ${d.siteName}（${photos.length}枚）を呼び出しました。再編集してください。`);
+        } else {
+          goTo('s4');
+          setTimeout(restoreDraft, 200);
+          toast(`📝 ${d.siteName} のテキストを呼び出しました。`);
+        }
+      } catch (e) {
+        toast('再編集の呼び出しに失敗しました: ' + (e.message || e));
+      }
     }
     function copyReportText() {
       const txt = document.getElementById('rv-text').textContent;
