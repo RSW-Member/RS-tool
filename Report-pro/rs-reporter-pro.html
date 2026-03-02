@@ -3502,8 +3502,8 @@
           zip.file(`報告書_${ds}.txt`, txt);
           photoFiles.forEach(f => zip.file(f.name, f.base64, { base64: true }));
           const blob = await zip.generateAsync({ type: 'blob', compression: 'DEFLATE', compressionOptions: { level: 4 } });
-          triggerDownload(blob, zipName);
-          showDownloadGuide(zipName, photoFiles.length);
+          const handledByModal = triggerDownload(blob, zipName);
+          if (!handledByModal) showDownloadGuide(zipName, photoFiles.length);
           btn.textContent = '📦 ZIPをダウンロード'; btn.disabled = false;
           return;
         } catch (e) {
@@ -3518,8 +3518,8 @@
           entries.push({ name: f.name, data: b64ToUint8(f.base64) });
         }
         const zipBlob = buildZip(entries);
-        triggerDownload(zipBlob, zipName);
-        showDownloadGuide(zipName, photoFiles.length);
+        const handledByModal2 = triggerDownload(zipBlob, zipName);
+        if (!handledByModal2) showDownloadGuide(zipName, photoFiles.length);
       } catch (e2) {
         // 最終フォールバック：テキストのみ
         toast('⚠️ ZIP生成失敗。テキストのみダウンロードします');
@@ -3534,36 +3534,76 @@
       const url = URL.createObjectURL(blob);
       const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
       if (isIOS) {
-        // iOSでは非同期処理後のa.click()が無効なため、
-        // ユーザーが直接タップするリンクをモーダルで表示する。
-        // ユーザー自身のタップ => ユーザー操作コンテキスト => download属性が有効になりファイル名が付く。
-        const overlay = document.createElement('div');
-        overlay.id = 'ios-dl-overlay';
-        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 16px 32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
-        overlay.innerHTML = `
-          <div style="background:#1a1a1a;border:1.5px solid rgba(232,160,32,.4);border-radius:20px;padding:24px;width:100%;">
-            <div style="font-size:26px;text-align:center;margin-bottom:10px;">📦</div>
-            <div style="font-size:15px;font-weight:900;color:var(--accent);text-align:center;margin-bottom:6px;">ZIPの準備ができました</div>
-            <div style="font-size:12px;color:#aaa;text-align:center;margin-bottom:18px;">${filename}</div>
-            <a href="${url}" download="${filename}"
-              onclick="setTimeout(()=>{document.getElementById('ios-dl-overlay')?.remove();URL.revokeObjectURL('${url}');},2000);"
-              style="display:block;width:100%;padding:16px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:900;text-align:center;text-decoration:none;box-sizing:border-box;">
-              ⬇️ タップしてダウンロード
-            </a>
+        // ── iPhone 用：ダウンロード → LINE送付まで ワンストップモーダル ──
+        const ol = document.createElement('div');
+        ol.id = 'ios-dl-overlay';
+        ol.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 16px 32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);overflow-y:auto;';
+        ol.innerHTML = `
+          <div style="background:#1a1a1a;border:1.5px solid rgba(232,160,32,.4);border-radius:20px;padding:22px;width:100%;">
+            <div style="font-size:22px;text-align:center;margin-bottom:6px;">📦</div>
+            <div style="font-size:15px;font-weight:900;color:var(--accent);text-align:center;margin-bottom:4px;">ZIPの準備ができました</div>
+            <div style="font-size:11px;color:#777;text-align:center;margin-bottom:16px;word-break:break-all;">${filename}</div>
+
+            <!-- STEP1: ダウンロードボタン -->
+            <div id="ios-step1">
+              <a href="${url}" download="${filename}" id="ios-dl-link"
+                onclick="iosDlTapped('${url}')"
+                style="display:block;width:100%;padding:15px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:900;text-align:center;text-decoration:none;box-sizing:border-box;">
+                ⬇️ タップしてZIPをダウンロード
+              </a>
+              <div style="font-size:11px;color:#555;text-align:center;margin-top:8px;">ダウンロード後、次のステップが表示されます</div>
+            </div>
+
+            <!-- STEP2: ファイル保存 → LINE手順（タップ後に表示） -->
+            <div id="ios-step2" style="display:none;">
+              <div style="font-size:13px;font-weight:900;color:var(--ok);margin-bottom:12px;text-align:center;">✅ ダウンロード開始！<br><span style="font-size:11px;font-weight:400;color:#aaa;">次の手順でLINEグループに送ってください</span></div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:16px;">
+                <div style="background:#111;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;">
+                  <div style="width:28px;height:28px;border-radius:50%;background:rgba(232,160,32,.2);color:var(--accent);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">1</div>
+                  <div style="font-size:12px;color:#ccc;line-height:1.7;">Safariの画面で<strong style="color:#fff;">右下の「共有」ボタン（□↑）</strong>をタップ</div>
+                </div>
+                <div style="background:#111;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;">
+                  <div style="width:28px;height:28px;border-radius:50%;background:rgba(232,160,32,.2);color:var(--accent);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">2</div>
+                  <div style="font-size:12px;color:#ccc;line-height:1.7;"><strong style="color:#fff;">「ファイルに保存」</strong>を選択 → iCloud Driveまたはダウンロードに保存</div>
+                </div>
+                <div style="background:#111;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;">
+                  <div style="width:28px;height:28px;border-radius:50%;background:rgba(34,197,94,.2);color:var(--ok);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">3</div>
+                  <div style="font-size:12px;color:#ccc;line-height:1.7;"><strong style="color:#fff;">LINEを開く</strong> → グループを選択 → <strong style="color:#fff;">＋</strong> をタップ</div>
+                </div>
+                <div style="background:#111;border-radius:10px;padding:12px;display:flex;align-items:center;gap:12px;">
+                  <div style="width:28px;height:28px;border-radius:50%;background:rgba(34,197,94,.2);color:var(--ok);font-size:13px;font-weight:900;display:flex;align-items:center;justify-content:center;flex-shrink:0;">4</div>
+                  <div style="font-size:12px;color:#ccc;line-height:1.7;"><strong style="color:#fff;">「ファイル」</strong>→「ダウンロード」フォルダ → <strong style="color:#fff;">${filename}</strong> を選んで送信</div>
+                </div>
+              </div>
+            </div>
+
             <button onclick="document.getElementById('ios-dl-overlay').remove();URL.revokeObjectURL('${url}');"
-              style="width:100%;margin-top:10px;padding:12px;background:transparent;color:#666;border:1px solid #333;border-radius:12px;font-size:13px;font-family:inherit;cursor:pointer;">
-              キャンセル
+              style="width:100%;padding:11px;background:transparent;color:#555;border:1px solid #333;border-radius:12px;font-size:13px;font-family:inherit;cursor:pointer;">
+              閉じる
             </button>
           </div>`;
-        document.body.appendChild(overlay);
+        document.body.appendChild(ol);
+        return true; // iOSはこのモーダル内でガイドまで完結させる
       } else {
         const a = document.createElement('a');
         a.href = url; a.download = filename;
         document.body.appendChild(a); a.click();
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 1000);
+        return false;
       }
+    }
+
+    function iosDlTapped(url) {
+      // ダウンロードリンクタップ後：STEP1を隠してSTEP2を表示
+      setTimeout(() => {
+        const s1 = document.getElementById('ios-step1');
+        const s2 = document.getElementById('ios-step2');
+        if (s1) s1.style.display = 'none';
+        if (s2) s2.style.display = 'block';
+      }, 800);
     }
 
     function strToUint8(str) {
@@ -3875,6 +3915,7 @@
         toast(`⚠️ 保存できる現場は最大${REPORT_MAX}件です。ホームの「報告済みの現場」から古い報告を削除してください。`);
         return;
       }
+      if (btn) btn.disabled = true;
       try {
         const saveData = {
           savedAt: new Date().toISOString(),
@@ -3885,19 +3926,25 @@
           text: document.getElementById('send-text-box').textContent,
         };
         const key = `rs_report_${Date.now()}`;
+        // ①テキスト保存（必ず成功させる）
         localStorage.setItem(key, JSON.stringify(saveData));
-        localStorage.removeItem('rs_draft'); // 下書きクリア
-        // 作業中データをIndexedDBから削除（報告完了）
-        if (APP.siteId) await dbDeleteSite(APP.siteId);
+        localStorage.removeItem('rs_draft');
+        // ②作業中データ削除（失敗しても続行）
+        try {
+          if (APP.siteId) await dbDeleteSite(APP.siteId);
+        } catch (e) { }
         APP.siteId = null;
-        // 写真データをIndexedDB（completed ストア）に保存
-        const photosToSave = s3Photos.filter(p => p.include !== false);
-        await dbSaveCompleted(key, photosToSave);
-        // 完了モーダルを表示してホームへ戻る
-        if (btn) btn.disabled = true;
+        // ③写真保存（失敗しても続行 ← ここが「現れたり現れなかったり」の原因）
+        try {
+          const photosToSave = s3Photos.filter(p => p.include !== false);
+          await dbSaveCompleted(key, photosToSave);
+        } catch (photoErr) {
+          console.warn('写真データの保存に失敗しました（報告テキストは保存済み）:', photoErr);
+        }
+        // ④ ホームへ（必ず実行）
         showSaveCompleteModal(saveData.siteName);
       } catch (e) {
-        toast('保存に失敗しました');
+        toast('保存に失敗しました: ' + (e.message || e));
         if (btn) btn.disabled = false;
       }
     }
