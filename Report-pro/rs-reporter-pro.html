@@ -3480,11 +3480,19 @@
 
     function triggerDownload(blob, filename) {
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = filename;
-      document.body.appendChild(a); a.click();
-      document.body.removeChild(a);
-      setTimeout(() => URL.revokeObjectURL(url), 1000);
+      const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+      if (isIOS) {
+        // iOSはaタグのdownloadが効かないため、直接URLを開く（Safariのシェアシートが起動する）
+        window.location.href = url;
+        setTimeout(() => URL.revokeObjectURL(url), 5000);
+      } else {
+        const a = document.createElement('a');
+        a.href = url; a.download = filename;
+        document.body.appendChild(a); a.click();
+        document.body.removeChild(a);
+        setTimeout(() => URL.revokeObjectURL(url), 1000);
+      }
     }
 
     function strToUint8(str) {
@@ -3595,19 +3603,28 @@
       return (crc ^ 0xFFFFFFFF) >>> 0;
     }
     function showDownloadGuide(fname, photoCount) {
+      const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
+        (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       const overlay = document.createElement('div');
       overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;display:flex;align-items:flex-end;justify-content:center;padding-bottom:32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
-      overlay.innerHTML = `
-    <div style="background:#1a1a1a;border:1px solid rgba(232,160,32,.3);border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;">
-      <div style="font-size:28px;text-align:center;margin-bottom:12px;">📥</div>
-      <div style="font-size:15px;font-weight:900;color:#e8a020;text-align:center;margin-bottom:6px;">ダウンロード完了！</div>
-      <div style="font-size:13px;color:#f0f0f0;font-weight:700;text-align:center;margin-bottom:16px;">${fname}${photoCount !== undefined ? `<br><span style="font-size:11px;color:#aaa;">(写真 ${photoCount}枚 + 報告テキスト)</span>` : ""}</div>
-      <div style="background:#111;border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:#999;line-height:2.2;">
+      const iosGuide = `
+        <div style="color:#e8a020;font-weight:700;margin-bottom:4px;">📱 iPhone の場合</div>
+        <div>画面が開いたら <strong style="color:#f0f0f0;">右下の「共有」ボタン → 「ファイルに保存」</strong> を選択</div>
+        <div style="margin-top:8px;color:#e8a020;font-weight:700;">📤 LINE への添付</div>
+        <div>LINEトーク → ＋ → ファイル → 保存したZIPを選択</div>`;
+      const otherGuide = `
         <div style="color:#e8a020;font-weight:700;margin-bottom:4px;">📁 ファイルの場所</div>
         <div>iPhone：<strong style="color:#f0f0f0;">ファイルアプリ → ダウンロード</strong></div>
         <div>Android：<strong style="color:#f0f0f0;">ファイルマネージャ → ダウンロード</strong></div>
         <div style="margin-top:8px;color:#e8a020;font-weight:700;">📤 LINEへの添付方法</div>
-        <div>LINEトーク → ＋ → ファイル → ダウンロード内のファイルを選択</div>
+        <div>LINEトーク → ＋ → ファイル → ダウンロード内のファイルを選択</div>`;
+      overlay.innerHTML = `
+    <div style="background:#1a1a1a;border:1px solid rgba(232,160,32,.3);border-radius:20px;padding:24px;width:calc(100% - 32px);max-width:440px;">
+      <div style="font-size:28px;text-align:center;margin-bottom:12px;">📥</div>
+      <div style="font-size:15px;font-weight:900;color:#e8a020;text-align:center;margin-bottom:6px;">${isIOS ? 'ZIPを開きました！' : 'ダウンロード完了！'}</div>
+      <div style="font-size:13px;color:#f0f0f0;font-weight:700;text-align:center;margin-bottom:16px;">${fname}${photoCount !== undefined ? `<br><span style="font-size:11px;color:#aaa;">(写真 ${photoCount}枚 + 報告テキスト)</span>` : ""}</div>
+      <div style="background:#111;border-radius:12px;padding:14px;margin-bottom:16px;font-size:12px;color:#999;line-height:2.2;">
+        ${isIOS ? iosGuide : otherGuide}
       </div>
       <button onclick="this.parentElement.parentElement.remove()" style="width:100%;padding:15px;background:#e8a020;color:#000;border:none;border-radius:12px;font-size:15px;font-weight:900;font-family:inherit;cursor:pointer;">OK、わかった！</button>
     </div>`;
