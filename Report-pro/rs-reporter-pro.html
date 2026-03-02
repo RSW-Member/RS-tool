@@ -2393,6 +2393,9 @@
     </div>
     <div class="fixed-footer">
       <button class="primary-btn" onclick="goPreview()">プレビューを確認する →</button>
+      <button onclick="goTo('s3')"
+        style="width:100%;padding:12px;background:transparent;color:var(--text2);border:1.5px solid var(--border);border-radius:12px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">←
+        写真整理に戻る</button>
     </div>
   </div><!-- screen-s4 -->
 
@@ -3416,8 +3419,12 @@
     async function downloadZip() {
       const d = new Date();
       const ds = `${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}`;
-      const siteName = (APP.siteName || '現場').replace(/[\s\/:*?"<>|]/g, '_');
-      const zipName = `RS_報告_${siteName}_${ds}.zip`;
+      const sanitize = s => (s || '').replace(/[\s\/:*?"<>|]/g, '_');
+      const siteName = sanitize(APP.siteName || '現場');
+      const company = sanitize(APP.company || '');
+      const zipName = company
+        ? `${ds}_${siteName}_${company}.zip`
+        : `${ds}_${siteName}.zip`;
       const btn = document.getElementById('btn-zip');
       if (btn) { btn.textContent = '⏳ ZIP作成中…'; btn.disabled = true; }
 
@@ -3812,19 +3819,37 @@
         // 作業中データをIndexedDBから削除（報告完了）
         if (APP.siteId) await dbDeleteSite(APP.siteId);
         APP.siteId = null;
-        btn.textContent = '✅ 保存しました！';
-        btn.style.background = 'rgba(34,197,94,.3)';
-        btn.style.color = 'var(--ok)';
-        btn.style.borderColor = 'var(--ok)';
-        btn.disabled = true;
-        toast('✅ 報告書を保存しました');
-        setTimeout(() => {
-          btn.textContent = '💾 この報告を保存する';
-          btn.disabled = false;
-        }, 3000);
+
+        // 完了モーダルを表示してホームへ戻る
+        if (btn) btn.disabled = true;
+        showSaveCompleteModal(saveData.siteName);
       } catch (e) {
         toast('保存に失敗しました');
+        if (btn) btn.disabled = false;
       }
+    }
+
+    function showSaveCompleteModal(siteName) {
+      const overlay = document.createElement('div');
+      overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.9);z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
+      overlay.innerHTML = `
+    <div style="text-align:center;">
+      <div style="font-size:64px;margin-bottom:16px;">✅</div>
+      <div style="font-size:20px;font-weight:900;color:var(--ok);margin-bottom:8px;">報告書を保存しました</div>
+      <div style="font-size:14px;color:var(--text2);margin-bottom:4px;">${siteName || '現場'}</div>
+      <div style="font-size:12px;color:#555;margin-top:16px;">ホーム画面に戻ります…</div>
+    </div>`;
+      document.body.appendChild(overlay);
+      // 2秒待ってホームへ
+      setTimeout(() => {
+        overlay.remove();
+        // 写真・状態をリセット
+        s2Photos = { b: [], d: [], a: [], p: [], o: [] };
+        s2Pid = 0; s2CurTag = 'b'; s2CurOrient = 'all';
+        s3Photos = []; s3MaxPair = 0;
+        APP.siteName = ''; APP.siteId = null;
+        goTo('home');
+      }, 2000);
     }
 
     // ── STEP3 ペア確認からAfterを直接アップロード ──
