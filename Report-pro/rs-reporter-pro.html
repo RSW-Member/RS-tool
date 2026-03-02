@@ -1978,6 +1978,8 @@
   <div class="sheet" id="report-view-sheet">
     <div class="sheet-card" style="max-height:80vh;overflow-y:auto;">
       <div style="font-size:14px;font-weight:900;color:var(--accent);margin-bottom:12px;" id="rv-title"></div>
+      <!-- 写真ギャラリー -->
+      <div id="rv-gallery" style="background:#111;border-radius:10px;padding:12px;margin-bottom:12px;"></div>
       <div
         style="background:#111;border-radius:10px;padding:14px;font-size:12px;line-height:1.9;color:var(--text);white-space:pre-wrap;word-break:break-all;margin-bottom:14px;"
         id="rv-text"></div>
@@ -2484,7 +2486,7 @@
     //  IndexedDB（現場別写真保存）
     // ══════════════════════════════
     const DB_NAME = 'rs_reporter_db';
-    const DB_VER = 1;
+    const DB_VER = 2;
     let rsDB = null;
 
     function openDB() {
@@ -2495,6 +2497,9 @@
           const db = e.target.result;
           if (!db.objectStoreNames.contains('sites')) {
             db.createObjectStore('sites', { keyPath: 'siteId' });
+          }
+          if (!db.objectStoreNames.contains('completed')) {
+            db.createObjectStore('completed', { keyPath: 'reportKey' });
           }
         };
         req.onsuccess = e => { rsDB = e.target.result; resolve(rsDB); };
@@ -2535,6 +2540,18 @@
         await new Promise((resolve, reject) => {
           const tx = db.transaction('sites', 'readwrite');
           tx.objectStore('sites').delete(siteId);
+          tx.oncomplete = resolve;
+          tx.onerror = e => reject(e.target.error);
+        });
+      } catch (e) { }
+    }
+
+    async function dbSaveCompleted(reportKey, photos) {
+      try {
+        const db = await openDB();
+        return new Promise((resolve, reject) => {
+          const tx = db.transaction('completed', 'readwrite');
+          tx.objectStore('completed').put({ reportKey, photos });
           tx.oncomplete = resolve;
           tx.onerror = e => reject(e.target.error);
         });
@@ -2773,13 +2790,40 @@
 
     // 報告テキスト表示
     let currentViewKey = null;
-    function viewReport(key) {
+    async function viewReport(key) {
       try {
         const d = JSON.parse(localStorage.getItem(key));
         if (!d) return;
         currentViewKey = key;
         document.getElementById('rv-title').textContent = d.siteName || d.title || '無題の現場';
         document.getElementById('rv-text').textContent = d.text || '';
+        // 写真ギャラリー
+        const galleryEl = document.getElementById('rv-gallery');
+        if (galleryEl) {
+          galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真を読み込み中…</div>';
+          try {
+            const rec = await dbGetCompleted(key);
+            if (rec && rec.photos && rec.photos.length) {
+              const tagColor = { b: '#4a9eff', d: '#a855f7', a: '#22c55e', p: '#f59e0b', o: '#94a3b8' };
+              const tagLabel = { b: 'Before', d: '造形後', a: 'After', p: 'こだわり', o: 'その他' };
+              galleryEl.innerHTML = `
+                <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">
+                  📷 保存写真 ${rec.photos.length}枚
+                </div>
+                <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                  ${rec.photos.map(p => `
+                    <div style="position:relative;width:88px;height:88px;border-radius:8px;overflow:hidden;flex-shrink:0;">
+                      <img src="${p.thumb || p.src}" style="width:100%;height:100%;object-fit:cover;display:block;">
+                      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:8px;font-weight:700;text-align:center;padding:2px 0;color:${tagColor[p.tag] || '#ccc'};">${tagLabel[p.tag] || p.tag}</div>
+                    </div>`).join('')}
+                </div>`;
+            } else {
+              galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真データなし（このバージョン以前の報告）</div>';
+            }
+          } catch (e) {
+            galleryEl.innerHTML = '';
+          }
+        }
         document.getElementById('report-view-sheet').classList.add('show');
       } catch (e) { }
     }
@@ -2804,6 +2848,7 @@
     }
     function deleteReportByKey(key) {
       localStorage.removeItem(key);
+      dbDeleteCompleted(key).catch(() => { });
       renderHomeReports();
       toast('削除しました');
     }
@@ -3490,9 +3535,28 @@
       const isIOS = /iP(hone|ad|od)/.test(navigator.userAgent) ||
         (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
       if (isIOS) {
-        // iOSはaタグのdownloadが効かないため、直接URLを開く（Safariのシェアシートが起動する）
-        window.location.href = url;
-        setTimeout(() => URL.revokeObjectURL(url), 5000);
+        // iOSでは非同期処理後のa.click()が無効なため、
+        // ユーザーが直接タップするリンクをモーダルで表示する。
+        // ユーザー自身のタップ => ユーザー操作コンテキスト => download属性が有効になりファイル名が付く。
+        const overlay = document.createElement('div');
+        overlay.id = 'ios-dl-overlay';
+        overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:10000;display:flex;align-items:flex-end;justify-content:center;padding:0 16px 32px;max-width:480px;margin:0 auto;left:50%;transform:translateX(-50%);';
+        overlay.innerHTML = `
+          <div style="background:#1a1a1a;border:1.5px solid rgba(232,160,32,.4);border-radius:20px;padding:24px;width:100%;">
+            <div style="font-size:26px;text-align:center;margin-bottom:10px;">📦</div>
+            <div style="font-size:15px;font-weight:900;color:var(--accent);text-align:center;margin-bottom:6px;">ZIPの準備ができました</div>
+            <div style="font-size:12px;color:#aaa;text-align:center;margin-bottom:18px;">${filename}</div>
+            <a href="${url}" download="${filename}"
+              onclick="setTimeout(()=>{document.getElementById('ios-dl-overlay')?.remove();URL.revokeObjectURL('${url}');},2000);"
+              style="display:block;width:100%;padding:16px;background:var(--accent);color:#000;border:none;border-radius:12px;font-size:16px;font-weight:900;text-align:center;text-decoration:none;box-sizing:border-box;">
+              ⬇️ タップしてダウンロード
+            </a>
+            <button onclick="document.getElementById('ios-dl-overlay').remove();URL.revokeObjectURL('${url}');"
+              style="width:100%;margin-top:10px;padding:12px;background:transparent;color:#666;border:1px solid #333;border-radius:12px;font-size:13px;font-family:inherit;cursor:pointer;">
+              キャンセル
+            </button>
+          </div>`;
+        document.body.appendChild(overlay);
       } else {
         const a = document.createElement('a');
         a.href = url; a.download = filename;
@@ -3819,7 +3883,9 @@
         // 作業中データをIndexedDBから削除（報告完了）
         if (APP.siteId) await dbDeleteSite(APP.siteId);
         APP.siteId = null;
-
+        // 写真データをIndexedDB（completed ストア）に保存
+        const photosToSave = s3Photos.filter(p => p.include !== false);
+        await dbSaveCompleted(key, photosToSave);
         // 完了モーダルを表示してホームへ戻る
         if (btn) btn.disabled = true;
         showSaveCompleteModal(saveData.siteName);
