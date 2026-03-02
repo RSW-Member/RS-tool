@@ -1,0 +1,1091 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RS-Reporter Pro｜操作マニュアル</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
+
+        :root {
+            --bg: #0f0f0f;
+            --surface: #191919;
+            --border: #2a2a2a;
+            --accent: #e8a020;
+            --text: #f0f0f0;
+            --text2: #888;
+            --ok: #22c55e;
+            --before: #4a9eff;
+            --during: #a855f7;
+            --after: #22c55e;
+            --pickup: #f59e0b;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Noto Sans JP', sans-serif;
+            line-height: 1.7;
+        }
+
+        /* ヘッダー */
+        .hero {
+            background: linear-gradient(160deg, #111 0%, #000 100%);
+            border-bottom: 3px solid var(--accent);
+            padding: 60px 24px 48px;
+            text-align: center;
+        }
+
+        .hero-logo {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 52px;
+            color: var(--accent);
+            letter-spacing: 6px;
+        }
+
+        .hero-sub {
+            font-size: 13px;
+            color: var(--text2);
+            letter-spacing: 3px;
+            margin-top: 6px;
+        }
+
+        .hero-desc {
+            margin-top: 20px;
+            font-size: 15px;
+            color: var(--text);
+            font-weight: 700;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            margin-top: 16px;
+            background: rgba(232, 160, 32, .15);
+            border: 1.5px solid rgba(232, 160, 32, .4);
+            color: var(--accent);
+            border-radius: 100px;
+            padding: 6px 20px;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        /* メインコンテナ */
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px 24px 80px;
+        }
+
+        /* 目次 */
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 48px;
+        }
+
+        .toc-title {
+            font-size: 14px;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toc a {
+            display: block;
+            color: var(--text2);
+            text-decoration: none;
+            font-size: 13px;
+            padding: 5px 0;
+            border-bottom: 1px solid var(--border);
+            transition: color .15s;
+        }
+
+        .toc a:last-child {
+            border-bottom: none;
+        }
+
+        .toc a:hover {
+            color: var(--accent);
+        }
+
+        .toc-num {
+            display: inline-block;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            background: rgba(232, 160, 32, .15);
+            color: var(--accent);
+            font-size: 11px;
+            font-weight: 900;
+            text-align: center;
+            line-height: 22px;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
+
+        /* セクション */
+        .section {
+            margin-bottom: 56px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 20px;
+            padding-bottom: 14px;
+            border-bottom: 2px solid var(--border);
+        }
+
+        .section-num {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: var(--accent);
+            color: #000;
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .section-sub {
+            font-size: 12px;
+            color: var(--text2);
+            margin-top: 2px;
+        }
+
+        /* カード */
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 18px;
+            margin-bottom: 14px;
+        }
+
+        .card-title {
+            font-size: 13px;
+            font-weight: 900;
+            color: var(--accent);
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card p {
+            font-size: 13px;
+            color: var(--text2);
+            line-height: 1.9;
+        }
+
+        .card p+p {
+            margin-top: 8px;
+        }
+
+        /* ステップリスト */
+        .steps {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .steps li {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 16px;
+        }
+
+        .step-n {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(232, 160, 32, .2);
+            color: var(--accent);
+            font-size: 13px;
+            font-weight: 900;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .step-body {
+            flex: 1;
+        }
+
+        .step-body strong {
+            font-size: 14px;
+            color: var(--text);
+            display: block;
+            margin-bottom: 4px;
+        }
+
+        .step-body span {
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.8;
+        }
+
+        /* フロー図 */
+        .flow {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin: 24px 0;
+        }
+
+        .flow-box {
+            width: 100%;
+            max-width: 440px;
+            background: var(--surface);
+            border: 1.5px solid var(--border);
+            border-radius: 14px;
+            padding: 14px 18px;
+            text-align: center;
+            position: relative;
+        }
+
+        .flow-box.accent {
+            border-color: rgba(232, 160, 32, .5);
+            background: rgba(232, 160, 32, .06);
+        }
+
+        .flow-box.ok {
+            border-color: rgba(34, 197, 94, .4);
+            background: rgba(34, 197, 94, .06);
+        }
+
+        .flow-box.wip {
+            border-color: rgba(232, 160, 32, .3);
+            background: rgba(20, 20, 20, 1);
+        }
+
+        .flow-label {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text2);
+            margin-bottom: 4px;
+            letter-spacing: 1px;
+        }
+
+        .flow-name {
+            font-size: 16px;
+            font-weight: 900;
+            color: var(--text);
+        }
+
+        .flow-desc {
+            font-size: 11px;
+            color: var(--text2);
+            margin-top: 4px;
+        }
+
+        .flow-arrow {
+            font-size: 22px;
+            color: var(--accent);
+            line-height: 1;
+            padding: 4px 0;
+        }
+
+        .flow-branch {
+            display: flex;
+            gap: 12px;
+            width: 100%;
+            max-width: 440px;
+            margin: 0;
+        }
+
+        .flow-branch .flow-box {
+            max-width: none;
+            flex: 1;
+        }
+
+        /* タグ説明 */
+        .tags {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .tag-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 16px;
+        }
+
+        .tag-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+
+        .tag-name {
+            font-size: 13px;
+            font-weight: 900;
+            width: 80px;
+            flex-shrink: 0;
+        }
+
+        .tag-desc {
+            font-size: 12px;
+            color: var(--text2);
+        }
+
+        /* 注意・ポイントボックス */
+        .notice {
+            border-radius: 12px;
+            padding: 14px 16px;
+            font-size: 12px;
+            line-height: 1.9;
+            margin: 14px 0;
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .notice.warn {
+            background: rgba(239, 68, 68, .08);
+            border: 1px solid rgba(239, 68, 68, .25);
+            color: #fca5a5;
+        }
+
+        .notice.tip {
+            background: rgba(34, 197, 94, .07);
+            border: 1px solid rgba(34, 197, 94, .25);
+            color: #86efac;
+        }
+
+        .notice.info {
+            background: rgba(74, 158, 255, .07);
+            border: 1px solid rgba(74, 158, 255, .25);
+            color: #93c5fd;
+        }
+
+        .notice-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        /* iPhone手順 */
+        .ios-steps {
+            background: #111;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .ios-step {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 8px 0;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .ios-step:last-child {
+            border-bottom: none;
+        }
+
+        .ios-icon {
+            font-size: 18px;
+            flex-shrink: 0;
+        }
+
+        .ios-text {
+            font-size: 12px;
+            color: var(--text2);
+            line-height: 1.7;
+        }
+
+        .ios-text strong {
+            color: var(--text);
+        }
+
+        /* フッター */
+        .footer {
+            text-align: center;
+            padding: 40px 24px;
+            border-top: 1px solid var(--border);
+            font-size: 11px;
+            color: var(--text2);
+        }
+
+        .footer strong {
+            color: var(--accent);
+        }
+
+        /* レスポンシブ */
+        @media (max-width: 600px) {
+            .hero-logo {
+                font-size: 38px;
+            }
+
+            .container {
+                padding: 24px 16px 60px;
+            }
+
+            .flow-branch {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- ヘッダー -->
+    <div class="hero">
+        <div class="hero-logo">RS-REPORTER PRO</div>
+        <div class="hero-sub">ROLLERSTONE 認定施工店向け 施工報告アプリ</div>
+        <div class="hero-desc">操作マニュアル｜現場担当者向け</div>
+        <div class="hero-badge">Version 2026.3 — 複数日対応・写真保存機能付き</div>
+    </div>
+
+    <div class="container">
+
+        <!-- 目次 -->
+        <div class="toc">
+            <div class="toc-title">📋 目次</div>
+            <a href="#s0"><span class="toc-num">0</span>アプリの概要・アクセス方法</a>
+            <a href="#s1"><span class="toc-num">1</span>初回登録（店舗・担当者情報）</a>
+            <a href="#s2"><span class="toc-num">2</span>新しい現場の報告を作成する</a>
+            <a href="#s3"><span class="toc-num">3</span>STEP 2｜写真をアップロードする</a>
+            <a href="#s4"><span class="toc-num">4</span>途中保存して後日続きから再開する</a>
+            <a href="#s5"><span class="toc-num">5</span>STEP 3｜写真を整理する</a>
+            <a href="#s6"><span class="toc-num">6</span>STEP 4｜報告書を入力する</a>
+            <a href="#s7"><span class="toc-num">7</span>プレビュー・送付・ZIPダウンロード</a>
+            <a href="#s8"><span class="toc-num">8</span>ホーム画面の見方</a>
+            <a href="#s9"><span class="toc-num">9</span>よくある質問</a>
+        </div>
+
+        <!-- 0. 概要 -->
+        <div class="section" id="s0">
+            <div class="section-header">
+                <div class="section-num">0</div>
+                <div>
+                    <div class="section-title">アプリの概要・アクセス方法</div>
+                    <div class="section-sub">スマホで完結する施工報告書作成ツール</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🎯 このアプリでできること</div>
+                <p>現場の施工写真をスマホで整理し、グループLINEへ送る「施工報告テキスト」と「写真ZIPファイル」を素早く作成できます。</p>
+                <p>Beforeの写真だけ撮った段階で一旦保存し、後日Afterを追加して報告完了、という<strong
+                        style="color:var(--text);">複数日にまたがる作業</strong>にも対応しています。</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🌐 アクセスURL</div>
+                <p style="word-break:break-all;">
+                    <a href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-pro.html" target="_blank"
+                        style="color:var(--accent);font-weight:700;">
+                        https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-pro.html
+                    </a>
+                </p>
+                <p style="margin-top:8px;">ブラウザで上記URLを開くだけで利用できます。インストール不要です。<br>
+                    <strong style="color:var(--text);">Safari / Chrome</strong> を推奨します。
+                </p>
+            </div>
+
+            <div class="notice tip">
+                <div class="notice-icon">💡</div>
+                <div>ホーム画面への追加（ブックマーク）をしておくと次回からすぐ開けます。<br>
+                    Safari の場合：共有ボタン →「ホーム画面に追加」</div>
+            </div>
+        </div>
+
+        <!-- 全体フロー -->
+        <div class="section">
+            <div class="card">
+                <div class="card-title">🗺 全体の作業フロー</div>
+            </div>
+            <div class="flow">
+                <div class="flow-box accent">
+                    <div class="flow-label">スタート</div>
+                    <div class="flow-name">🏠 ホーム画面</div>
+                    <div class="flow-desc">「新しい現場の報告を作成」をタップ</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <div class="flow-label">STEP 2</div>
+                    <div class="flow-name">📷 写真アップロード</div>
+                    <div class="flow-desc">タグを選んで写真を追加</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+
+                <!-- 分岐 -->
+                <div
+                    style="width:100%;max-width:440px;text-align:center;font-size:12px;color:var(--text2);padding:4px 0;">
+                    ─── 当日で終わらない場合は ───
+                </div>
+                <div class="flow-branch">
+                    <div class="flow-box wip" style="border-color:rgba(232,160,32,.3);">
+                        <div class="flow-label" style="color:var(--accent);">途中保存</div>
+                        <div class="flow-name" style="font-size:13px;">💾 写真を保存して終了</div>
+                        <div class="flow-desc" style="color:var(--accent);font-weight:700;">写真データをこの端末に保存</div>
+                    </div>
+                    <div style="display:flex;align-items:center;font-size:20px;color:var(--text2);">→</div>
+                    <div class="flow-box wip">
+                        <div class="flow-label" style="color:var(--accent);">後日</div>
+                        <div class="flow-name" style="font-size:13px;">📂 再開ボタン</div>
+                        <div class="flow-desc">ホームから続きを再開</div>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓（完了まで繰り返し）</div>
+
+                <div class="flow-box">
+                    <div class="flow-label">STEP 3</div>
+                    <div class="flow-name">🗂 写真整理</div>
+                    <div class="flow-desc">Before/After のペアを組む</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <div class="flow-label">STEP 4</div>
+                    <div class="flow-name">📝 報告書入力</div>
+                    <div class="flow-desc">施工内容・サイズ・カラーなどを選択</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box">
+                    <div class="flow-label">STEP 5</div>
+                    <div class="flow-name">👁 プレビュー</div>
+                    <div class="flow-desc">テキストを確認・コピー</div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-branch">
+                    <div class="flow-box ok">
+                        <div class="flow-name" style="font-size:13px;">📋 LINEにテキスト送付</div>
+                    </div>
+                    <div style="display:flex;align-items:center;font-size:20px;color:var(--text2);">＋</div>
+                    <div class="flow-box ok">
+                        <div class="flow-name" style="font-size:13px;">📦 ZIPをダウンロード</div>
+                    </div>
+                </div>
+                <div class="flow-arrow">↓</div>
+                <div class="flow-box ok">
+                    <div class="flow-label">完了</div>
+                    <div class="flow-name">✅ 報告を保存してホームへ</div>
+                    <div class="flow-desc">「報告済みの現場」に記録が残ります</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1. 初回登録 -->
+        <div class="section" id="s1">
+            <div class="section-header">
+                <div class="section-num">1</div>
+                <div>
+                    <div class="section-title">初回登録</div>
+                    <div class="section-sub">最初の1回だけ行います。次回から自動で表示されます。</div>
+                </div>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">1</div>
+                    <div class="step-body">
+                        <strong>都道府県を選択</strong>
+                        <span>プルダウンから施工エリアの都道府県を選びます。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">2</div>
+                    <div class="step-body">
+                        <strong>会社名を入力</strong>
+                        <span>例：ぬーまん工務店</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">3</div>
+                    <div class="step-body">
+                        <strong>担当者名を入力</strong>
+                        <span>例：ぬーまん太郎</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">4</div>
+                    <div class="step-body">
+                        <strong>「登録してはじめる」をタップ</strong>
+                        <span>登録情報はこの端末に保存されます。次回からこの画面はスキップされます。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="notice info">
+                <div class="notice-icon">ℹ️</div>
+                <div>登録情報を変更したい場合は、ホーム画面右上の「設定変更」ボタンから修正できます。</div>
+            </div>
+        </div>
+
+        <!-- 2. 新規作成 -->
+        <div class="section" id="s2">
+            <div class="section-header">
+                <div class="section-num">2</div>
+                <div>
+                    <div class="section-title">新しい現場の報告を作成する</div>
+                    <div class="section-sub">ホーム画面から開始</div>
+                </div>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">1</div>
+                    <div class="step-body">
+                        <strong>「＋ 新しい現場の報告を作成」をタップ</strong>
+                        <span>ホーム画面の一番上にある金色のボタンです。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">2</div>
+                    <div class="step-body">
+                        <strong>お客様名を入力（必須）</strong>
+                        <span>例：田中様邸　※報告書のタイトルとZIPファイル名になります。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">3</div>
+                    <div class="step-body">
+                        <strong>施工場所を入力（任意）</strong>
+                        <span>例：駐車場、玄関アプローチ　など複数箇所ある場合に入力します。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">4</div>
+                    <div class="step-body">
+                        <strong>「作成してSTEP2へ →」をタップ</strong>
+                        <span>写真アップロード画面に移動します。</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 3. STEP2 写真アップロード -->
+        <div class="section" id="s3">
+            <div class="section-header">
+                <div class="section-num">3</div>
+                <div>
+                    <div class="section-title">STEP 2｜写真をアップロードする</div>
+                    <div class="section-sub">タグを分けて写真を追加します</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">📂 写真のタグ（種類）</div>
+                <div class="tags">
+                    <div class="tag-row">
+                        <div class="tag-dot" style="background:#4a9eff;"></div>
+                        <div class="tag-name" style="color:#4a9eff;">Before</div>
+                        <div class="tag-desc">施工前の状態。必ず撮影してください。</div>
+                    </div>
+                    <div class="tag-row">
+                        <div class="tag-dot" style="background:#a855f7;"></div>
+                        <div class="tag-name" style="color:#a855f7;">造形後</div>
+                        <div class="tag-desc">下地・造形が終わった状態。</div>
+                    </div>
+                    <div class="tag-row">
+                        <div class="tag-dot" style="background:#22c55e;"></div>
+                        <div class="tag-name" style="color:#22c55e;">After</div>
+                        <div class="tag-desc">施工後（完成）の状態。</div>
+                    </div>
+                    <div class="tag-row">
+                        <div class="tag-dot" style="background:#f59e0b;"></div>
+                        <div class="tag-name" style="color:#f59e0b;">こだわり</div>
+                        <div class="tag-desc">アップや特徴部分など、自慢ポイントの写真。</div>
+                    </div>
+                    <div class="tag-row">
+                        <div class="tag-dot" style="background:#94a3b8;"></div>
+                        <div class="tag-name" style="color:#94a3b8;">その他</div>
+                        <div class="tag-desc">上記に当てはまらない写真。</div>
+                    </div>
+                </div>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">1</div>
+                    <div class="step-body">
+                        <strong>タグボタンで種類を選ぶ</strong>
+                        <span>「Before / 造形後 / After / こだわり / その他」から選択します。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">2</div>
+                    <div class="step-body">
+                        <strong>「② 写真を選ぶ」をタップ</strong>
+                        <span>カメラロールから複数選択できます。選択した写真が選んだタグに追加されます。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">3</div>
+                    <div class="step-body">
+                        <strong>タグを切り替えて繰り返す</strong>
+                        <span>Beforeを追加したら、タグをAfterに切り替えて再度写真を追加…という流れです。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">4</div>
+                    <div class="step-body">
+                        <strong>「写真を整理する →」をタップしてSTEP3へ</strong>
+                        <span>Before・Afterが1枚ずつ以上あることが条件です。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="notice tip">
+                <div class="notice-icon">💡</div>
+                <div>縦横フィルターで「縦のみ」「横のみ」を表示して確認できます。写真は自動でリサイズ（長辺1200px・JPEG圧縮）されます。</div>
+            </div>
+        </div>
+
+        <!-- 4. 途中保存・再開 -->
+        <div class="section" id="s4">
+            <div class="section-header">
+                <div class="section-num">4</div>
+                <div>
+                    <div class="section-title">途中保存して後日続きから再開する</div>
+                    <div class="section-sub">写真データを端末に保存。後日続きから再開できます。</div>
+                </div>
+            </div>
+
+            <div class="card" style="border-color:rgba(232,160,32,.4);">
+                <div class="card-title">💾 途中保存の手順</div>
+                <ul class="steps">
+                    <li>
+                        <div class="step-n">1</div>
+                        <div class="step-body">
+                            <strong>STEP2で写真をアップした状態で「💾 途中保存して終わる」をタップ</strong>
+                            <span>画面下部の固定フッターにあります。</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-n">2</div>
+                        <div class="step-body">
+                            <strong>保存完了モーダルを確認して「OK、ホームへ戻る」</strong>
+                            <span>写真の実データがこの端末のブラウザストレージ（IndexedDB）に保存されます。</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div style="margin-top:20px;" class="card" style="border-color:rgba(74,158,255,.3);">
+                <div class="card-title">📂 後日・再開の手順</div>
+                <ul class="steps">
+                    <li>
+                        <div class="step-n">1</div>
+                        <div class="step-body">
+                            <strong>ホーム画面の「🔨 作業中の現場」セクションを確認</strong>
+                            <span>保存した現場が一覧で表示されています。</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-n">2</div>
+                        <div class="step-body">
+                            <strong>「📂 再開」ボタンをタップ</strong>
+                            <span>保存した写真が復元され、STEP2が起動します。</span>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="step-n">3</div>
+                        <div class="step-body">
+                            <strong>続きの写真を追加して作業を再開</strong>
+                            <span>AfterやこだわりポイントなどをSTEP2で追加できます。</span>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+
+            <div class="notice warn">
+                <div class="notice-icon">⚠️</div>
+                <div>写真データは<strong>この端末のブラウザにのみ保存</strong>されます。別のスマホや別のブラウザでは見えません。ブラウザのキャッシュを削除すると写真も消えますのでご注意ください。
+                </div>
+            </div>
+        </div>
+
+        <!-- 5. STEP3 写真整理 -->
+        <div class="section" id="s5">
+            <div class="section-header">
+                <div class="section-num">5</div>
+                <div>
+                    <div class="section-title">STEP 3｜写真を整理する</div>
+                    <div class="section-sub">Before と After をペアに組みます</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">🗂 ペアとは？</div>
+                <p>施工前（Before）と施工後（After）を「ペア」として紐付けることで、報告書が視覚的にわかりやすくなります。同じ箇所をBeforeとAfterに割り当てるイメージです。</p>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">1</div>
+                    <div class="step-body">
+                        <strong>写真カードを確認する</strong>
+                        <span>「ペア1・ペア2…」という単位でUploadした写真が表示されます。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">2</div>
+                    <div class="step-body">
+                        <strong>写真をタップして「ペア番号・タグ」を変更</strong>
+                        <span>ペア番号を揃えるとBefore↔Afterのペアが完成します。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">3</div>
+                    <div class="step-body">
+                        <strong>不要な写真は「報告書に含めない」に切り替え</strong>
+                        <span>写真は削除せずに、報告書から除外できます。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">4</div>
+                    <div class="step-body">
+                        <strong>「STEP4 報告書を入力する →」をタップ</strong>
+                        <span>ペアが完成しているとチェックマークが表示されます。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="notice tip">
+                <div class="notice-icon">💡</div>
+                <div>「← 写真を追加する」でSTEP2に戻って写真の追加・削除ができます。STEP4からも「← 写真整理に戻る」で戻れます。</div>
+            </div>
+        </div>
+
+        <!-- 6. STEP4 報告書入力 -->
+        <div class="section" id="s6">
+            <div class="section-header">
+                <div class="section-num">6</div>
+                <div>
+                    <div class="section-title">STEP 4｜報告書を入力する</div>
+                    <div class="section-sub">タップ操作中心で手軽に入力できます</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">✍️ 入力項目一覧</div>
+                <div class="tags" style="gap:6px;">
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">施工エリア</strong>　駐車場・玄関など（チップ選択）</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">施工面積</strong>　数値を入力（㎡）</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">パターン</strong>　乱形石調・タイル調など（チップ選択）</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">仕上げカラー</strong>　メイン・サブカラーをカラーチップで選択
+                        </div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">目地カラー</strong>　テキスト入力</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">こだわりポイント</strong>　自由記述（例文あり）</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">お客様の声</strong>　自由記述（例文あり）</div>
+                    </div>
+                    <div class="tag-row" style="padding:10px 14px;">
+                        <div class="tag-desc"><strong style="color:var(--text);">お客様のお悩み</strong>　任意・自由記述（例文あり）</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="notice info">
+                <div class="notice-icon">ℹ️</div>
+                <div>「例文を使う」ボタンを押すとサンプルテキストが自動入力されます。修正して使うと効率的です。入力内容は30秒ごとに自動保存（下書き保存）されます。</div>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">最後</div>
+                    <div class="step-body">
+                        <strong>「プレビューを確認する →」をタップ</strong>
+                        <span>報告書テキストが自動生成され、プレビュー画面に移動します。</span>
+                    </div>
+                </li>
+            </ul>
+        </div>
+
+        <!-- 7. プレビュー・送付 -->
+        <div class="section" id="s7">
+            <div class="section-header">
+                <div class="section-num">7</div>
+                <div>
+                    <div class="section-title">プレビュー・送付・ZIPダウンロード</div>
+                    <div class="section-sub">LINEに報告テキストと写真ZIPを送付します</div>
+                </div>
+            </div>
+
+            <ul class="steps">
+                <li>
+                    <div class="step-n">①</div>
+                    <div class="step-body">
+                        <strong>「📋 テキストをコピー」をタップ</strong>
+                        <span>施工報告テキストをクリップボードにコピー → LINEに貼り付けて送信します。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">②</div>
+                    <div class="step-body">
+                        <strong>「📦 ZIPをダウンロード」をタップ</strong>
+                        <span>写真データと報告テキストをまとめたZIPファイルをダウンロード → LINEに添付します。</span>
+                    </div>
+                </li>
+                <li>
+                    <div class="step-n">③</div>
+                    <div class="step-body">
+                        <strong>「💾 この報告を保存する」をタップ</strong>
+                        <span>報告を保存して完了。自動的にホーム画面へ戻ります。</span>
+                    </div>
+                </li>
+            </ul>
+
+            <div class="card" style="margin-top:20px;border-color:rgba(74,158,255,.3);">
+                <div class="card-title">📱 iPhoneでのZIPダウンロード手順</div>
+                <div class="ios-steps">
+                    <div class="ios-step">
+                        <div class="ios-icon">📦</div>
+                        <div class="ios-text">「ZIPをダウンロード」をタップするとSafariがZIPファイルを開こうとします</div>
+                    </div>
+                    <div class="ios-step">
+                        <div class="ios-icon">📤</div>
+                        <div class="ios-text">画面右下の<strong>「共有」ボタン（四角＋矢印のアイコン）</strong>をタップ</div>
+                    </div>
+                    <div class="ios-step">
+                        <div class="ios-icon">📂</div>
+                        <div class="ios-text"><strong>「ファイルに保存」</strong>を選択 → 保存先を確認して「保存」</div>
+                    </div>
+                    <div class="ios-step">
+                        <div class="ios-icon">💬</div>
+                        <div class="ios-text">LINEトーク →「＋」→「ファイル」→「ファイルアプリ」→ 保存したZIPを選択して送信</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card" style="margin-top:14px;">
+                <div class="card-title">🗂 ZIPファイルの命名規則</div>
+                <p
+                    style="font-family:monospace;font-size:14px;color:var(--accent);background:#111;padding:10px;border-radius:8px;">
+                    20260302_田中様邸_ぬーまん工務店.zip
+                </p>
+                <p style="margin-top:8px;">「報告日（年月日）」「現場名」「会社名」の順番で命名されます。</p>
+            </div>
+        </div>
+
+        <!-- 8. ホーム画面 -->
+        <div class="section" id="s8">
+            <div class="section-header">
+                <div class="section-num">8</div>
+                <div>
+                    <div class="section-title">ホーム画面の見方</div>
+                    <div class="section-sub">作業中・報告済みの現場がひと目でわかります</div>
+                </div>
+            </div>
+
+            <div class="flow" style="gap:12px;">
+                <div class="flow-box"
+                    style="max-width:100%;border-color:rgba(232,160,32,.4);background:rgba(232,160,32,.06);">
+                    <div class="flow-label">セクション①</div>
+                    <div class="flow-name">🔨 作業中の現場</div>
+                    <div class="flow-desc">写真を途中保存した現場が表示されます。「📂 再開」で続きを開始。「🗑」で削除。</div>
+                </div>
+                <div class="flow-box" style="max-width:100%;">
+                    <div class="flow-label">セクション②</div>
+                    <div class="flow-name">📋 報告済みの現場</div>
+                    <div class="flow-desc">「この報告を保存する」で完了した現場の一覧。タップすると報告テキストを確認・コピーできます。</div>
+                </div>
+            </div>
+
+            <div class="notice tip">
+                <div class="notice-icon">💡</div>
+                <div>報告済みの現場カードをタップすると、過去のテキストを再確認・コピーできます。写真はZIPとして保存されているためアプリ上では参照できません。</div>
+            </div>
+        </div>
+
+        <!-- 9. よくある質問 -->
+        <div class="section" id="s9">
+            <div class="section-header">
+                <div class="section-num">9</div>
+                <div>
+                    <div class="section-title">よくある質問</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-title">❓ 別のスマホでも使えますか？</div>
+                <p>アプリ自体はどのスマホでも使えます。ただし、「作業中の現場」（途中保存データ）と「報告済みの現場」のリストは各端末のブラウザに保存されるため、別端末では見えません。</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">❓ 写真を間違えてアップしてしまいました</div>
+                <p>STEP2の写真サムネイルの右上にある「×」ボタンで削除できます。STEP3からでも写真を削除・除外できます。</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">❓ 入力中に画面を閉じてしまいました</div>
+                <p>STEP4の入力内容は30秒ごとに自動保存されます。アプリを再度開いてSTEP4に戻ると、下書きが復元されます。</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">❓ 写真が大量な現場でも使えますか？</div>
+                <p>写真は端末保存時に1,200px以内・JPEG圧縮が施されます。ただし非常に多い枚数（20枚超）の場合は保存容量が大きくなる可能性があります。場合によって分けて報告することを推奨します。</p>
+            </div>
+
+            <div class="card">
+                <div class="card-title">❓ iPhoneでZIPがダウンロードできません</div>
+                <p>iPhoneはSafariの仕様上、ZIPを直接ダウンロードする代わりにファイルを開きます。画面に「ZIPを開きました！」と表示されたら、Safariの<strong
+                        style="color:var(--text);">右下の共有ボタン → 「ファイルに保存」</strong>を選択してください。</p>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- フッター -->
+    <div class="footer">
+        <p><strong>RS-Reporter Pro</strong> — 職人の3秒を、会社の資産に変える</p>
+        <p style="margin-top:6px;">ROLLERSTONE 認定施工店向け 施工報告アプリ｜Version 2026.3</p>
+        <p style="margin-top:6px;">お問い合わせ・フィードバックはアプリ内のフィードバック欄からご連絡ください。</p>
+    </div>
+
+</body>
+
+</html>
