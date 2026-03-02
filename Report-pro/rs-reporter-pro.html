@@ -2450,8 +2450,9 @@
     </div>
     <div class="fixed-footer">
       <button class="primary-btn btn-copy" id="btn-copy" onclick="copyText()">📋 テキストをコピー</button>
-      <button class="primary-btn" style="background:#222;color:var(--text);border:1.5px solid var(--border);"
-        onclick="downloadZip()">📦 ZIPをダウンロード</button>
+      <button class="primary-btn" id="btn-zip"
+        style="background:#222;color:var(--text);border:1.5px solid var(--border);" onclick="downloadZip()">📦
+        ZIPをダウンロード</button>
       <button class="primary-btn" id="save-btn" style="background:var(--ok);color:#000;font-size:17px;"
         onclick="saveReport()">💾 この報告を保存する</button>
       <div class="action-row">
@@ -3418,8 +3419,7 @@
       const siteName = (APP.siteName || '現場').replace(/[\s\/:*?"<>|]/g, '_');
       const zipName = `RS_報告_${siteName}_${ds}.zip`;
       const btn = document.getElementById('btn-zip');
-      btn.textContent = '⏳ ZIP作成中…';
-      btn.disabled = true;
+      if (btn) { btn.textContent = '⏳ ZIP作成中…'; btn.disabled = true; }
 
       const tagName = { b: 'Before', d: '造形後', a: 'After', p: 'こだわり', o: 'その他' };
       const tagOrder = ['b', 'd', 'a', 'p', 'o'];
