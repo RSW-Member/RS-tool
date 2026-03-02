@@ -2800,28 +2800,37 @@
         // 写真ギャラリー
         const galleryEl = document.getElementById('rv-gallery');
         if (galleryEl) {
-          galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真を読み込み中…</div>';
-          try {
-            const rec = await dbGetCompleted(key);
-            if (rec && rec.photos && rec.photos.length) {
-              const tagColor = { b: '#4a9eff', d: '#a855f7', a: '#22c55e', p: '#f59e0b', o: '#94a3b8' };
-              const tagLabel = { b: 'Before', d: '造形後', a: 'After', p: 'こだわり', o: 'その他' };
-              galleryEl.innerHTML = `
-                <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">
-                  📷 保存写真 ${rec.photos.length}枚
-                </div>
-                <div style="display:flex;flex-wrap:wrap;gap:6px;">
-                  ${rec.photos.map(p => `
-                    <div style="position:relative;width:88px;height:88px;border-radius:8px;overflow:hidden;flex-shrink:0;">
-                      <img src="${p.thumb || p.src}" style="width:100%;height:100%;object-fit:cover;display:block;">
-                      <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:8px;font-weight:700;text-align:center;padding:2px 0;color:${tagColor[p.tag] || '#ccc'};">${tagLabel[p.tag] || p.tag}</div>
-                    </div>`).join('')}
-                </div>`;
-            } else {
-              galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真データなし（このバージョン以前の報告）</div>';
+          const tagColor = { b: '#4a9eff', d: '#a855f7', a: '#22c55e', p: '#f59e0b', o: '#94a3b8' };
+          const tagLabel = { b: 'Before', d: '造形後', a: 'After', p: 'こだわり', o: 'その他' };
+          const renderGallery = photos => {
+            if (!photos || !photos.length) {
+              galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真データなし（古い保存形式）</div>';
+              return;
             }
-          } catch (e) {
-            galleryEl.innerHTML = '';
+            galleryEl.innerHTML = `
+              <div style="font-size:11px;font-weight:700;color:var(--accent);margin-bottom:8px;">
+                📷 保存写真 ${photos.length}枚
+              </div>
+              <div style="display:flex;flex-wrap:wrap;gap:6px;">
+                ${photos.map(p => `
+                  <div style="position:relative;width:88px;height:88px;border-radius:8px;overflow:hidden;flex-shrink:0;">
+                    <img src="${p.thumb || p.src}" style="width:100%;height:100%;object-fit:cover;display:block;" loading="lazy">
+                    <div style="position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.7);font-size:8px;font-weight:700;text-align:center;padding:2px 0;color:${tagColor[p.tag] || '#ccc'};">${tagLabel[p.tag] || p.tag}</div>
+                  </div>`).join('')}
+              </div>`;
+          };
+          // ① まずlocalStorageのphotosフィールドを確認（新方式）
+          if (d.photos && d.photos.length) {
+            renderGallery(d.photos);
+          } else {
+            // ② なければIndexedDBを確認（旧方式フォールバック）
+            galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真を読み込み中…</div>';
+            try {
+              const rec = await dbGetCompleted(key);
+              renderGallery(rec && rec.photos ? rec.photos : null);
+            } catch (e) {
+              galleryEl.innerHTML = '<div style="font-size:11px;color:#555;text-align:center;padding:8px;">写真データなし（古い保存形式）</div>';
+            }
           }
         }
         document.getElementById('report-view-sheet').classList.add('show');
@@ -3917,6 +3926,11 @@
       }
       if (btn) btn.disabled = true;
       try {
+        // 写真サムネイルをlocalStorageに一緒に保存（確実に動作するアプローチ）
+        const photoThumbs = s3Photos
+          .filter(p => p.include !== false)
+          .map(p => ({ tag: p.tag, thumb: p.thumb || p.src, pair: p.pair }));
+
         const saveData = {
           savedAt: new Date().toISOString(),
           pref: APP.pref,
@@ -3924,22 +3938,21 @@
           staff: APP.staff,
           siteName: APP.siteName || document.getElementById('title-custom')?.value || '',
           text: document.getElementById('send-text-box').textContent,
+          photos: photoThumbs, // ← サムネイルをlocalStorageに直接保存
         };
         const key = `rs_report_${Date.now()}`;
-        // ①テキスト保存（必ず成功させる）
+        // ①テキスト＋写真サムネイル保存（必ず成功させる）
         localStorage.setItem(key, JSON.stringify(saveData));
         localStorage.removeItem('rs_draft');
         // ②作業中データ削除（失敗しても続行）
-        try {
-          if (APP.siteId) await dbDeleteSite(APP.siteId);
-        } catch (e) { }
+        try { if (APP.siteId) await dbDeleteSite(APP.siteId); } catch (e) { }
         APP.siteId = null;
-        // ③写真保存（失敗しても続行 ← ここが「現れたり現れなかったり」の原因）
+        // ③IndexedDBにも全サイズ写真を保存（失敗しても続行、サムネイルで代替可能）
         try {
           const photosToSave = s3Photos.filter(p => p.include !== false);
           await dbSaveCompleted(key, photosToSave);
         } catch (photoErr) {
-          console.warn('写真データの保存に失敗しました（報告テキストは保存済み）:', photoErr);
+          console.warn('IndexedDB写真保存失敗（サムネイルはlocalStorageに保存済み）:', photoErr);
         }
         // ④ ホームへ（必ず実行）
         showSaveCompleteModal(saveData.siteName);
