@@ -1,328 +1,828 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RS-Reporter Pro — アプリ概要</title>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
-:root{
-  --bg:#0a0a0a;--surface:#141414;--surface2:#1c1c1c;--border:#252525;
-  --accent:#e8a020;--text:#f0f0f0;--text2:#777;--text3:#333;
-  --before:#4a9eff;--during:#a855f7;--after:#22c55e;--pickup:#f59e0b;
-}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);font-family:'Noto Sans JP',sans-serif;color:var(--text);min-height:100vh;}
-a{color:inherit;text-decoration:none;}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RS-Reporter Pro — アプリ概要</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Bebas+Neue&display=swap');
 
-/* ── HERO ── */
-.hero{
-  background:linear-gradient(160deg,#0a0a0a 40%,#1a1200);
-  padding:56px 24px 48px;
-  text-align:center;
-  border-bottom:1px solid var(--border);
-  position:relative;overflow:hidden;
-}
-.hero::before{
-  content:'RS';font-family:'Bebas Neue',sans-serif;
-  font-size:320px;color:rgba(232,160,32,.04);
-  position:absolute;left:50%;top:-40px;transform:translateX(-50%);
-  line-height:1;pointer-events:none;white-space:nowrap;
-}
-.hero-logo{font-family:'Bebas Neue',sans-serif;font-size:36px;letter-spacing:4px;color:var(--accent);margin-bottom:4px;}
-.hero-tagline{font-size:11px;color:var(--text2);letter-spacing:2px;margin-bottom:28px;}
-.hero-catch{font-size:26px;font-weight:900;line-height:1.4;margin-bottom:12px;}
-.hero-catch span{color:var(--accent);}
-.hero-desc{font-size:14px;color:var(--text2);line-height:1.9;max-width:500px;margin:0 auto 32px;}
-.hero-badge-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;}
-.hbdg{font-size:11px;font-weight:700;padding:5px 14px;border-radius:100px;}
-.hbdg-a{background:rgba(232,160,32,.14);color:var(--accent);border:1px solid rgba(232,160,32,.28);}
-.hbdg-b{background:rgba(34,197,94,.1);color:var(--after);border:1px solid rgba(34,197,94,.22);}
+    :root {
+      --bg: #0a0a0a;
+      --surface: #141414;
+      --surface2: #1c1c1c;
+      --border: #252525;
+      --accent: #e8a020;
+      --text: #f0f0f0;
+      --text2: #777;
+      --text3: #333;
+      --before: #4a9eff;
+      --during: #a855f7;
+      --after: #22c55e;
+      --pickup: #f59e0b;
+    }
 
-/* ── SECTION ── */
-.section{padding:48px 24px;border-bottom:1px solid var(--border);max-width:640px;margin:0 auto;}
-.sec-eyebrow{font-size:11px;color:var(--accent);letter-spacing:2px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:8px;}
-.sec-eyebrow::before{content:'';width:20px;height:2px;background:var(--accent);border-radius:2px;}
-.sec-title{font-size:24px;font-weight:900;line-height:1.35;margin-bottom:8px;}
-.sec-title span{color:var(--accent);}
-.sec-desc{font-size:14px;color:var(--text2);line-height:1.9;margin-bottom:28px;}
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-/* ── 3ステップ ── */
-.steps{display:flex;flex-direction:column;gap:12px;}
-.step-card{
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:16px;padding:20px;
-  display:flex;align-items:flex-start;gap:16px;
-}
-.step-num{
-  font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);
-  line-height:1;flex-shrink:0;width:32px;
-}
-.step-icon{font-size:28px;flex-shrink:0;}
-.step-body{}
-.step-title{font-size:16px;font-weight:700;margin-bottom:4px;}
-.step-text{font-size:13px;color:var(--text2);line-height:1.7;}
+    body {
+      background: var(--bg);
+      font-family: 'Noto Sans JP', sans-serif;
+      color: var(--text);
+      min-height: 100vh;
+    }
 
-/* ── 機能一覧 ── */
-.features{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
-@media(min-width:500px){.features{grid-template-columns:repeat(3,1fr);}}
-.feat-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:18px 14px;text-align:center;}
-.feat-icon{font-size:28px;margin-bottom:8px;}
-.feat-title{font-size:13px;font-weight:700;margin-bottom:4px;}
-.feat-text{font-size:11px;color:var(--text2);line-height:1.6;}
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
 
-/* ── ROADMAP ── */
-.roadmap{display:flex;flex-direction:column;gap:0;}
-.rm-row{display:flex;gap:16px;align-items:flex-start;}
-.rm-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;}
-.rm-dot{
-  width:40px;height:40px;border-radius:50%;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'Bebas Neue',sans-serif;font-size:13px;font-weight:900;flex-shrink:0;
-}
-.rm-dot.now{background:var(--accent);color:#000;}
-.rm-dot.p2{background:rgba(168,85,247,.18);color:var(--during);border:1.5px solid rgba(168,85,247,.35);}
-.rm-dot.p3{background:rgba(34,197,94,.12);color:var(--after);border:1.5px solid rgba(34,197,94,.28);}
-.rm-dot.p4{background:rgba(74,158,255,.12);color:var(--before);border:1.5px solid rgba(74,158,255,.28);}
-.rm-line{width:2px;flex:1;min-height:24px;background:var(--border);margin:3px 0;}
-.rm-row:last-child .rm-line{display:none;}
-.rm-body{padding:6px 0 32px;}
-.rm-status{font-size:10px;font-weight:700;letter-spacing:1px;margin-bottom:5px;}
-.rm-status.now{color:var(--accent);}
-.rm-status.p2{color:var(--during);}
-.rm-status.p3{color:var(--after);}
-.rm-status.p4{color:var(--before);}
-.rm-title{font-size:17px;font-weight:900;margin-bottom:8px;}
-.rm-items{display:flex;flex-direction:column;gap:5px;}
-.rm-item{display:flex;align-items:flex-start;gap:8px;font-size:13px;color:var(--text2);}
-.rm-item::before{content:'—';color:var(--text3);flex-shrink:0;margin-top:1px;}
-.rm-tag{display:inline-block;font-size:10px;font-weight:700;padding:2px 8px;border-radius:100px;margin-left:8px;vertical-align:middle;}
-.tag-live{background:rgba(232,160,32,.15);color:var(--accent);}
-.tag-soon{background:rgba(168,85,247,.12);color:var(--during);}
-.tag-plan{background:rgba(34,197,94,.1);color:var(--after);}
-.tag-ai{background:rgba(74,158,255,.1);color:var(--before);}
+    /* ── HERO ── */
+    .hero {
+      background: linear-gradient(160deg, #0a0a0a 40%, #1a1200);
+      padding: 56px 24px 48px;
+      text-align: center;
+      border-bottom: 1px solid var(--border);
+      position: relative;
+      overflow: hidden;
+    }
 
-/* ── 注意事項 ── */
-.notice{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px 24px;}
-.notice-title{font-size:14px;font-weight:700;margin-bottom:12px;display:flex;align-items:center;gap:8px;}
-.notice-list{display:flex;flex-direction:column;gap:10px;}
-.notice-item{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--text2);line-height:1.7;}
-.notice-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+    .hero::before {
+      content: 'RS';
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 320px;
+      color: rgba(232, 160, 32, .04);
+      position: absolute;
+      left: 50%;
+      top: -40px;
+      transform: translateX(-50%);
+      line-height: 1;
+      pointer-events: none;
+      white-space: nowrap;
+    }
 
-/* ── CTA ── */
-.cta{padding:48px 24px;text-align:center;background:linear-gradient(160deg,#0a0a0a,#1a1200);}
-.cta-title{font-size:22px;font-weight:900;margin-bottom:8px;}
-.cta-title span{color:var(--accent);}
-.cta-desc{font-size:14px;color:var(--text2);margin-bottom:28px;line-height:1.8;}
-.cta-btn{
-  display:inline-flex;align-items:center;gap:8px;
-  padding:18px 36px;background:var(--accent);color:#000;
-  border:none;border-radius:14px;font-size:16px;font-weight:700;
-  font-family:inherit;cursor:pointer;text-decoration:none;
-  transition:opacity .15s;
-}
-.cta-btn:active{opacity:.85;}
+    .hero-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      letter-spacing: 4px;
+      color: var(--accent);
+      margin-bottom: 4px;
+    }
 
-/* ── FOOTER ── */
-.footer{padding:24px;text-align:center;border-top:1px solid var(--border);}
-.footer-logo{font-family:'Bebas Neue',sans-serif;font-size:18px;color:var(--accent);letter-spacing:2px;margin-bottom:6px;}
-.footer-text{font-size:11px;color:var(--text2);}
-</style>
+    .hero-tagline {
+      font-size: 11px;
+      color: var(--text2);
+      letter-spacing: 2px;
+      margin-bottom: 28px;
+    }
+
+    .hero-catch {
+      font-size: 26px;
+      font-weight: 900;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+
+    .hero-catch span {
+      color: var(--accent);
+    }
+
+    .hero-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.9;
+      max-width: 500px;
+      margin: 0 auto 32px;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .hbdg {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 14px;
+      border-radius: 100px;
+    }
+
+    .hbdg-a {
+      background: rgba(232, 160, 32, .14);
+      color: var(--accent);
+      border: 1px solid rgba(232, 160, 32, .28);
+    }
+
+    .hbdg-b {
+      background: rgba(34, 197, 94, .1);
+      color: var(--after);
+      border: 1px solid rgba(34, 197, 94, .22);
+    }
+
+    .hbdg-c {
+      background: rgba(74, 158, 255, .1);
+      color: var(--before);
+      border: 1px solid rgba(74, 158, 255, .22);
+    }
+
+    /* ── SECTION ── */
+    .section {
+      padding: 48px 24px;
+      border-bottom: 1px solid var(--border);
+      max-width: 640px;
+      margin: 0 auto;
+    }
+
+    .sec-eyebrow {
+      font-size: 11px;
+      color: var(--accent);
+      letter-spacing: 2px;
+      font-weight: 700;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sec-eyebrow::before {
+      content: '';
+      width: 20px;
+      height: 2px;
+      background: var(--accent);
+      border-radius: 2px;
+    }
+
+    .sec-title {
+      font-size: 24px;
+      font-weight: 900;
+      line-height: 1.35;
+      margin-bottom: 8px;
+    }
+
+    .sec-title span {
+      color: var(--accent);
+    }
+
+    .sec-desc {
+      font-size: 14px;
+      color: var(--text2);
+      line-height: 1.9;
+      margin-bottom: 28px;
+    }
+
+    /* ── ステップ ── */
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .step-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px;
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .step-num {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 36px;
+      color: var(--accent);
+      line-height: 1;
+      flex-shrink: 0;
+      width: 32px;
+    }
+
+    .step-icon {
+      font-size: 28px;
+      flex-shrink: 0;
+    }
+
+    .step-body {}
+
+    .step-title {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .step-text {
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+    }
+
+    .step-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-left: 8px;
+      vertical-align: middle;
+      background: rgba(34, 197, 94, .15);
+      color: var(--after);
+    }
+
+    /* ── 機能一覧 ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    @media(min-width:500px) {
+      .features {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .feat-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px 14px;
+      text-align: center;
+    }
+
+    .feat-card.new {
+      border-color: rgba(34, 197, 94, .3);
+    }
+
+    .feat-icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+
+    .feat-title {
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 4px;
+    }
+
+    .feat-text {
+      font-size: 11px;
+      color: var(--text2);
+      line-height: 1.6;
+    }
+
+    .feat-new {
+      display: inline-block;
+      font-size: 9px;
+      font-weight: 700;
+      padding: 1px 6px;
+      border-radius: 100px;
+      background: rgba(34, 197, 94, .15);
+      color: var(--after);
+      margin-left: 4px;
+      vertical-align: middle;
+    }
+
+    /* ── ROADMAP ── */
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .rm-row {
+      display: flex;
+      gap: 16px;
+      align-items: flex-start;
+    }
+
+    .rm-left {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex-shrink: 0;
+    }
+
+    .rm-dot {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 13px;
+      font-weight: 900;
+      flex-shrink: 0;
+    }
+
+    .rm-dot.now {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .rm-dot.p2 {
+      background: rgba(168, 85, 247, .18);
+      color: var(--during);
+      border: 1.5px solid rgba(168, 85, 247, .35);
+    }
+
+    .rm-dot.p3 {
+      background: rgba(34, 197, 94, .12);
+      color: var(--after);
+      border: 1.5px solid rgba(34, 197, 94, .28);
+    }
+
+    .rm-dot.p4 {
+      background: rgba(74, 158, 255, .12);
+      color: var(--before);
+      border: 1.5px solid rgba(74, 158, 255, .28);
+    }
+
+    .rm-line {
+      width: 2px;
+      flex: 1;
+      min-height: 24px;
+      background: var(--border);
+      margin: 3px 0;
+    }
+
+    .rm-row:last-child .rm-line {
+      display: none;
+    }
+
+    .rm-body {
+      padding: 6px 0 32px;
+    }
+
+    .rm-status {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      margin-bottom: 5px;
+    }
+
+    .rm-status.now {
+      color: var(--accent);
+    }
+
+    .rm-status.p2 {
+      color: var(--during);
+    }
+
+    .rm-status.p3 {
+      color: var(--after);
+    }
+
+    .rm-status.p4 {
+      color: var(--before);
+    }
+
+    .rm-title {
+      font-size: 17px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .rm-items {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .rm-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      font-size: 13px;
+      color: var(--text2);
+    }
+
+    .rm-item::before {
+      content: '—';
+      color: var(--text3);
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    .rm-tag {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 100px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+
+    .tag-live {
+      background: rgba(232, 160, 32, .15);
+      color: var(--accent);
+    }
+
+    .tag-soon {
+      background: rgba(168, 85, 247, .12);
+      color: var(--during);
+    }
+
+    .tag-plan {
+      background: rgba(34, 197, 94, .1);
+      color: var(--after);
+    }
+
+    .tag-ai {
+      background: rgba(74, 158, 255, .1);
+      color: var(--before);
+    }
+
+    /* ── 注意事項 ── */
+    .notice {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 20px 24px;
+    }
+
+    .notice-title {
+      font-size: 14px;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .notice-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .notice-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      font-size: 13px;
+      color: var(--text2);
+      line-height: 1.7;
+    }
+
+    .notice-icon {
+      font-size: 16px;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+
+    /* ── CTA ── */
+    .cta {
+      padding: 48px 24px;
+      text-align: center;
+      background: linear-gradient(160deg, #0a0a0a, #1a1200);
+    }
+
+    .cta-title {
+      font-size: 22px;
+      font-weight: 900;
+      margin-bottom: 8px;
+    }
+
+    .cta-title span {
+      color: var(--accent);
+    }
+
+    .cta-desc {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    .cta-btns {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .cta-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 18px 36px;
+      background: var(--accent);
+      color: #000;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity .15s;
+    }
+
+    .cta-btn:active {
+      opacity: .85;
+    }
+
+    .cta-btn-sub {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 14px 28px;
+      background: transparent;
+      color: var(--text2);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      text-decoration: none;
+    }
+
+    /* ── FOOTER ── */
+    .footer {
+      padding: 24px;
+      text-align: center;
+      border-top: 1px solid var(--border);
+    }
+
+    .footer-logo {
+      font-family: 'Bebas Neue', sans-serif;
+      font-size: 18px;
+      color: var(--accent);
+      letter-spacing: 2px;
+      margin-bottom: 6px;
+    }
+
+    .footer-text {
+      font-size: 11px;
+      color: var(--text2);
+    }
+  </style>
 </head>
+
 <body>
 
-<!-- HERO -->
-<div class="hero">
-  <div class="hero-logo">RS-Reporter Pro</div>
-  <div class="hero-tagline">ROLLERSTONE 認定施工店向け 施工報告アプリ</div>
-  <div class="hero-catch">職人の<span>3秒</span>を<br>会社の資産に変える</div>
-  <div class="hero-desc">
-    施工写真を撮るだけで報告書が完成。<br>
-    RollerStone認定施工店のために開発した、<br>
-    施工完了報告に特化したスマートフォンアプリです。
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-logo">RS-Reporter Pro</div>
+    <div class="hero-tagline">ROLLERSTONE 認定施工店向け 施工報告アプリ</div>
+    <div class="hero-catch">職人の<span>3秒</span>を<br>会社の資産に変える</div>
+    <div class="hero-desc">
+      施工写真を撮るだけで報告書が完成。<br>
+      RollerStone認定施工店のために開発した、<br>
+      施工完了報告に特化したスマートフォンアプリです。
+    </div>
+    <div class="hero-badge-row">
+      <span class="hbdg hbdg-a">📋 施工完了報告に特化</span>
+      <span class="hbdg hbdg-b">📱 スマホだけで完結</span>
+      <span class="hbdg hbdg-c">💾 複数日・再編集対応</span>
+    </div>
   </div>
-  <div class="hero-badge-row">
-    <span class="hbdg hbdg-a">📋 施工完了報告に特化</span>
-    <span class="hbdg hbdg-b">📱 スマホだけで完結</span>
-  </div>
-</div>
 
-<!-- 使い方 -->
-<div class="section">
-  <div class="sec-eyebrow">HOW IT WORKS</div>
-  <div class="sec-title"><span>3ステップ</span>で報告書が完成</div>
-  <div class="sec-desc">難しい操作は一切なし。現場で写真を撮りながらそのまま報告書を作れます。</div>
-  <div class="steps">
-    <div class="step-card">
-      <div class="step-num">1</div>
-      <div class="step-icon">📷</div>
-      <div class="step-body">
-        <div class="step-title">タグを選んで写真をアップ</div>
-        <div class="step-text">Before・造形後・After・こだわりの4種類でタグ付け。複数枚まとめて追加できます。</div>
+  <!-- 使い方 -->
+  <div class="section">
+    <div class="sec-eyebrow">HOW IT WORKS</div>
+    <div class="sec-title"><span>5ステップ</span>で報告書が完成</div>
+    <div class="sec-desc">難しい操作は一切なし。現場で写真を撮りながらそのまま報告書を作れます。複数日にまたがる現場にも対応しています。</div>
+    <div class="steps">
+      <div class="step-card">
+        <div class="step-num">1</div>
+        <div class="step-icon">📷</div>
+        <div class="step-body">
+          <div class="step-title">タグを選んで写真をアップ</div>
+          <div class="step-text">Before・造形後・After・こだわり・その他の5種類でタグ付け。複数枚まとめて追加可能。途中で保存して後日続きを再開することもできます。<span
+              class="step-badge">複数日対応</span></div>
+        </div>
       </div>
-    </div>
-    <div class="step-card">
-      <div class="step-num">2</div>
-      <div class="step-icon">✏️</div>
-      <div class="step-body">
-        <div class="step-title">施工情報を入力</div>
-        <div class="step-text">パターン・カラー・こだわりポイントなどをタップで選択。テキスト入力も可能です。</div>
+      <div class="step-card">
+        <div class="step-num">2</div>
+        <div class="step-icon">🗂</div>
+        <div class="step-body">
+          <div class="step-title">写真を整理する</div>
+          <div class="step-text">Before/Afterのペアを組み、縦横別に整理。ZIPに含めない写真を除外することもできます。</div>
+        </div>
       </div>
-    </div>
-    <div class="step-card">
-      <div class="step-num">3</div>
-      <div class="step-icon">📤</div>
-      <div class="step-body">
-        <div class="step-title">報告書をLINEで送付</div>
-        <div class="step-text">テキストをコピーしてLINEに貼り付け、写真ZIPを添付するだけで送付完了。</div>
+      <div class="step-card">
+        <div class="step-num">3</div>
+        <div class="step-icon">✏️</div>
+        <div class="step-body">
+          <div class="step-title">施工情報を入力</div>
+          <div class="step-text">パターン・カラー・こだわりポイントなどをタップで選択。テキスト入力も可能。30秒ごとに自動で下書き保存されます。</div>
+        </div>
       </div>
-    </div>
-  </div>
-</div>
-
-<!-- 主な機能 -->
-<div class="section">
-  <div class="sec-eyebrow">FEATURES</div>
-  <div class="sec-title">主な<span>機能</span></div>
-  <div class="sec-desc" style="margin-bottom:20px;">現在のバージョン（Phase 1）で使える機能です。</div>
-  <div class="features">
-    <div class="feat-card">
-      <div class="feat-icon">🏷️</div>
-      <div class="feat-title">4種タグ整理</div>
-      <div class="feat-text">Before / 造形後 / After / こだわりで自動分類</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">📋</div>
-      <div class="feat-title">報告書生成</div>
-      <div class="feat-text">施工情報を入力するだけで整形済みテキストが完成</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">📦</div>
-      <div class="feat-title">ZIP保存</div>
-      <div class="feat-text">タグ別フォルダで写真をまとめてダウンロード</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">🔗</div>
-      <div class="feat-title">Before/After自動ペア</div>
-      <div class="feat-text">画角を揃えて縦横別に自動で並べて表示</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">⭐</div>
-      <div class="feat-title">こだわりショット</div>
-      <div class="feat-text">SNS投稿用のイチオシ写真を最大20枚まで登録</div>
-    </div>
-    <div class="feat-card">
-      <div class="feat-icon">🏢</div>
-      <div class="feat-title">店舗情報表示</div>
-      <div class="feat-text">都道府県・会社名を登録して報告書に反映</div>
-    </div>
-  </div>
-</div>
-
-<!-- ロードマップ -->
-<div class="section">
-  <div class="sec-eyebrow">ROADMAP</div>
-  <div class="sec-title">今後の<span>アップデート予定</span></div>
-  <div class="sec-desc">このアプリは施工報告にとどまらず、集客・営業・SNS運用まで進化していきます。</div>
-
-  <div class="roadmap">
-
-    <div class="rm-row">
-      <div class="rm-left"><div class="rm-dot now">P1</div><div class="rm-line"></div></div>
-      <div class="rm-body">
-        <div class="rm-status now">Phase 1 ／ 現在公開中 <span class="rm-tag tag-live">LIVE</span></div>
-        <div class="rm-title">施工完了報告</div>
-        <div class="rm-items">
-          <div class="rm-item">写真のタグ別整理（Before / 造形後 / After / こだわり）</div>
-          <div class="rm-item">施工情報の入力・報告書テキスト自動生成</div>
-          <div class="rm-item">LINEへのテキスト送付・写真ZIPダウンロード</div>
-          <div class="rm-item">Before/After の画角別自動ペア表示</div>
+      <div class="step-card">
+        <div class="step-num">4</div>
+        <div class="step-icon">👁</div>
+        <div class="step-body">
+          <div class="step-title">プレビューで確認</div>
+          <div class="step-text">自動生成された報告書テキストをプレビュー。内容を確認してコピーし、LINEグループに貼り付けます。</div>
+        </div>
+      </div>
+      <div class="step-card">
+        <div class="step-num">5</div>
+        <div class="step-icon">📦</div>
+        <div class="step-body">
+          <div class="step-title">ZIPをダウンロードしてLINEへ送付</div>
+          <div class="step-text">全写真をまとめたZIPファイルを「日付_現場名_会社名.zip」の名前で保存。LINEの「＋ → ファイル」から添付して送信。テキスト1件＋ZIP1件で完結します。
+          </div>
         </div>
       </div>
     </div>
-
-    <div class="rm-row">
-      <div class="rm-left"><div class="rm-dot p2">P2</div><div class="rm-line"></div></div>
-      <div class="rm-body">
-        <div class="rm-status p2">Phase 2 ／ Coming Soon <span class="rm-tag tag-soon">準備中</span></div>
-        <div class="rm-title">お客様向け提案サポート</div>
-        <div class="rm-items">
-          <div class="rm-item">パターン・カラー別の完成イメージ書き出し</div>
-          <div class="rm-item">簡易提案書のPDF出力（お客様への提案第2回に活用）</div>
-          <div class="rm-item">施工実績のギャラリーとして蓄積・閲覧</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rm-row">
-      <div class="rm-left"><div class="rm-dot p3">P3</div><div class="rm-line"></div></div>
-      <div class="rm-body">
-        <div class="rm-status p3">Phase 3 ／ 開発予定 <span class="rm-tag tag-plan">PLANNED</span></div>
-        <div class="rm-title">Instagram 自動投稿</div>
-        <div class="rm-items">
-          <div class="rm-item">施工写真から投稿用カルーセルを自動作成（最大20枚）</div>
-          <div class="rm-item">Instagramへそのままワンタップで投稿</div>
-          <div class="rm-item">現場完了と同時にSNS発信まで完結</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="rm-row">
-      <div class="rm-left"><div class="rm-dot p4">P4</div><div class="rm-line"></div></div>
-      <div class="rm-body">
-        <div class="rm-status p4">Phase 4 ／ 開発予定 <span class="rm-tag tag-ai">AI</span></div>
-        <div class="rm-title">AI による完全自動化</div>
-        <div class="rm-items">
-          <div class="rm-item">施工写真からタイトル・本文をAIが自動生成</div>
-          <div class="rm-item">施工内容に合ったハッシュタグを自動提案</div>
-          <div class="rm-item">写真を撮るだけでSNS集客まで完結するツールへ</div>
-        </div>
-      </div>
-    </div>
-
   </div>
-</div>
 
-<!-- 注意事項 -->
-<div class="section">
-  <div class="sec-eyebrow">NOTICE</div>
-  <div class="sec-title">ご利用上の<span>注意</span></div>
-  <div class="notice">
-    <div class="notice-title">💡 知っておいてほしいこと</div>
-    <div class="notice-list">
-      <div class="notice-item">
-        <span class="notice-icon">📁</span>
-        <span>保存できる現場は<strong>最大10件</strong>です。写真のストレージとしての利用は想定していません。報告が完了したら削除して次の現場にお使いください。</span>
+  <!-- 主な機能 -->
+  <div class="section">
+    <div class="sec-eyebrow">FEATURES</div>
+    <div class="sec-title">主な<span>機能</span></div>
+    <div class="sec-desc" style="margin-bottom:20px;">現在のバージョン（Version 1）で使える機能です。</div>
+    <div class="features">
+      <div class="feat-card">
+        <div class="feat-icon">🏷️</div>
+        <div class="feat-title">5種タグ整理</div>
+        <div class="feat-text">Before / 造形後 / After / こだわり / その他で自動分類</div>
       </div>
-      <div class="notice-item">
-        <span class="notice-icon">💾</span>
-        <span>写真はZIPでスマホに保存できます。<strong>報告書送付後は必ずZIPを保存</strong>してから削除してください。</span>
+      <div class="feat-card">
+        <div class="feat-icon">📋</div>
+        <div class="feat-title">報告書生成</div>
+        <div class="feat-text">施工情報を入力するだけで整形済みテキストが完成</div>
       </div>
-      <div class="notice-item">
-        <span class="notice-icon">📱</span>
-        <span>スマートフォン（iOS / Android）での利用を想定しています。PCでも動作しますが、スマホからの操作が最適です。</span>
+      <div class="feat-card">
+        <div class="feat-icon">📦</div>
+        <div class="feat-title">ZIP送付</div>
+        <div class="feat-text">日付・現場名・会社名の付いたZIPでLINEに添付送信</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">💾</div>
+        <div class="feat-title">途中保存<span class="feat-new">NEW</span></div>
+        <div class="feat-text">写真データをこの端末に保存。後日ホームから再開可能</div>
+      </div>
+      <div class="feat-card new">
+        <div class="feat-icon">🖼️</div>
+        <div class="feat-title">写真付き保存<span class="feat-new">NEW</span></div>
+        <div class="feat-text">報告済み現場に写真サムネイルが残り、後から確認可能</div>
+      </div>
+      <div class="feat-card new">
+        <div class="feat-icon">✏️</div>
+        <div class="feat-title">再編集<span class="feat-new">NEW</span></div>
+        <div class="feat-text">保存済み報告を呼び出して写真・テキストを再編集して保存し直せる</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🔗</div>
+        <div class="feat-title">Before/After自動ペア</div>
+        <div class="feat-text">画角を揃えて縦横別に自動で並べて表示</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">📁</div>
+        <div class="feat-title">10件まで保存</div>
+        <div class="feat-text">報告済み現場を最大10件ホーム画面に保存・管理</div>
+      </div>
+      <div class="feat-card">
+        <div class="feat-icon">🏢</div>
+        <div class="feat-title">店舗情報表示</div>
+        <div class="feat-text">都道府県・会社名・担当者名を登録して報告書に反映</div>
       </div>
     </div>
   </div>
-</div>
 
-<!-- CTA -->
-<div class="cta">
-  <div class="cta-title">さっそく<span>はじめよう</span></div>
-  <div class="cta-desc">
-    RollerStone認定施工店であれば<br>
-    どなたでも無料でお使いいただけます。
+  <!-- ロードマップ -->
+  <div class="section">
+    <div class="sec-eyebrow">ROADMAP</div>
+    <div class="sec-title">今後の<span>アップデート予定</span></div>
+    <div class="sec-desc">このアプリは施工報告にとどまらず、SNS運用・集客・営業まで進化していきます。</div>
+
+    <div class="roadmap">
+
+      <div class="rm-row">
+        <div class="rm-left">
+          <div class="rm-dot now">V1</div>
+          <div class="rm-line"></div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-status now">Version 1 ／ 現在公開中 <span class="rm-tag tag-live">LIVE</span></div>
+          <div class="rm-title">施工完了報告</div>
+          <div class="rm-items">
+            <div class="rm-item">写真のタグ別整理（Before / 造形後 / After / こだわり / その他）</div>
+            <div class="rm-item">施工情報の入力・報告書テキスト自動生成</div>
+            <div class="rm-item">LINEへのテキスト送付・写真ZIPダウンロード（日付_現場名_会社名）</div>
+            <div class="rm-item">複数日対応：途中保存 → 後日再開</div>
+            <div class="rm-item">報告済み現場の写真付き保存・再編集機能</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-row">
+        <div class="rm-left">
+          <div class="rm-dot p2">V2</div>
+          <div class="rm-line"></div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-status p2">Version 2 ／ Coming Soon <span class="rm-tag tag-soon">準備中</span></div>
+          <div class="rm-title">Instagram 自動投稿</div>
+          <div class="rm-items">
+            <div class="rm-item">施工写真からInstagram投稿用カルーセルを自動作成</div>
+            <div class="rm-item">Instagramへワンタップで投稿（職人ごとに1アカウント紐付け）</div>
+            <div class="rm-item">現場完了と同時にSNS発信まで完結</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-row">
+        <div class="rm-left">
+          <div class="rm-dot p3">V3</div>
+          <div class="rm-line"></div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-status p3">Version 3 ／ 開発予定 <span class="rm-tag tag-plan">PLANNED</span></div>
+          <div class="rm-title">お客様向け提案サポート</div>
+          <div class="rm-items">
+            <div class="rm-item">パターン・カラー別の完成イメージ書き出し</div>
+            <div class="rm-item">簡易提案書の出力（お客様への提案第2回に活用）</div>
+            <div class="rm-item">施工実績のギャラリーとして蓄積・閲覧</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="rm-row">
+        <div class="rm-left">
+          <div class="rm-dot p4">V4</div>
+          <div class="rm-line"></div>
+        </div>
+        <div class="rm-body">
+          <div class="rm-status p4">Version 4 ／ 開発予定 <span class="rm-tag tag-ai">AI</span></div>
+          <div class="rm-title">AI による完全自動化</div>
+          <div class="rm-items">
+            <div class="rm-item">施工写真からタイトル・本文をAIが自動生成</div>
+            <div class="rm-item">施工内容に合ったハッシュタグを自動提案</div>
+            <div class="rm-item">写真を撮るだけでSNS集客まで完結するツールへ</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
   </div>
-  <a class="cta-btn" href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-pro.html">
-    アプリを開く →
-  </a>
-</div>
 
-<!-- FOOTER -->
-<div class="footer">
-  <div class="footer-logo">RS-Reporter Pro</div>
-  <div class="footer-text">RollerStone 認定施工店向け 施工報告アプリ<br>© 2025 RollerStone / RSW</div>
-</div>
+  <!-- 注意事項 -->
+  <div class="section">
+    <div class="sec-eyebrow">NOTICE</div>
+    <div class="sec-title">ご利用上の<span>注意</span></div>
+    <div class="notice">
+      <div class="notice-title">💡 知っておいてほしいこと</div>
+      <div class="notice-list">
+        <div class="notice-item">
+          <span class="notice-icon">📁</span>
+          <span>保存できる現場は<strong>最大10件</strong>です。報告が完了してZIPを保存したら、古い報告を削除してください。</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-icon">📦</span>
+          <span>写真は<strong>「日付_現場名_会社名.zip」</strong>でまとめてダウンロードできます。iPhoneは「ファイルに保存 → LINEでファイル添付」、Androidは「ダウンロード →
+            LINEでファイル添付」の手順で送付できます。</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-icon">✏️</span>
+          <span>保存した報告は「<strong>再編集する</strong>」ボタンから写真・テキストを呼び出して再保存できます。</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-icon">📱</span>
+          <span>スマートフォン（iOS / Android）での利用を想定しています。PCでも動作しますが、スマホからの操作が最適です。</span>
+        </div>
+        <div class="notice-item">
+          <span class="notice-icon">💾</span>
+          <span>データはすべてこの端末のブラウザに保存されます。ブラウザのデータを削除すると報告データも消えます。大切なデータはZIPでバックアップしてください。</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CTA -->
+  <div class="cta">
+    <div class="cta-title">さっそく<span>はじめよう</span></div>
+    <div class="cta-desc">
+      RollerStone認定施工店であれば<br>
+      どなたでも無料でお使いいただけます。
+    </div>
+    <div class="cta-btns">
+      <a class="cta-btn" href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-pro.html">
+        📱 アプリを開く →
+      </a>
+      <a class="cta-btn-sub" href="https://rsw-member.github.io/RS-tool/Report-pro/rs-reporter-manual.html">
+        📄 操作マニュアルを見る
+      </a>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-logo">RS-Reporter Pro</div>
+    <div class="footer-text">RollerStone 認定施工店向け 施工報告アプリ<br>© 2026 RollerStone / RSW — Version 1.0</div>
+  </div>
 
 </body>
+
 </html>
