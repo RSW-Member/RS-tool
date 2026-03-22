@@ -1,1 +1,705 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ローラーストーン 材料費シミュレーター</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react/18.2.0/umd/react.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/react-dom/18.2.0/umd/react-dom.production.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.9/babel.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Noto Sans JP',sans-serif;background:#f5f4f2;color:#1a1a1a;-webkit-text-size-adjust:100%}
+</style>
+</head>
+<body>
+<div id="root"></div>
+<script type="text/babel">
+const {useState,useMemo,useCallback,useEffect}=React;
 
+/* ━━━ DATA ━━━ */
+const TAX_RATE=0.1;
+const MATERIALS={
+  rsLiquid:{name:"RSリキッド",unit:"缶",size:"20kg(≒20L)/缶",price:14900,capacity:20},
+  cement:{name:"インスタントセメント",unit:"袋",size:"25kg/袋",price:750,capacity:25},
+  rsPlus:{name:"RSプラス",unit:"セット",size:"3kg×3袋(9kg)/セット",price:11900,capacity:9000},
+  rsMade:{name:"RSメイド",unit:"袋",size:"20kg/袋",price:9500,capacity:20000},
+  rsTafmilk:{name:"RSタフミルク",unit:"缶",size:"18kg/缶",price:21600,capacity:18},
+  rsColor:{name:"RSカラー",unit:"缶",size:"20kg/缶",price:16700,capacity:20},
+  rsCoat20:{name:"RSコート(20kg)",unit:"缶",size:"20kg/缶",price:26500,capacity:20},
+  rsCoat4:{name:"RSコート(4kg)",unit:"缶",size:"4kg/缶",price:8200,capacity:4},
+};
+const BASE_COLORS=[
+  {id:"milktea",name:"ミルクティー",price:19800},
+  {id:"yellowBeige",name:"イエローベージュ",price:19800},
+  {id:"pinkBrown",name:"ピンクブラウン",price:19800},
+  {id:"gray",name:"グレー",price:19800},
+  {id:"orange",name:"オレンジ",price:21000},
+  {id:"mossGreen",name:"モスグリーン",price:21000},
+  {id:"black",name:"ブラック",price:21000},
+  {id:"greige",name:"グレージュ",price:19800},
+];
+const TAPE_TYPES=[
+  {id:"t1w",name:"Type1（太幅）"},{id:"t1n",name:"Type1（細幅）"},
+  {id:"t2w",name:"Type2（太幅）"},{id:"t2n",name:"Type2（細幅）"},
+  {id:"t3",name:"Type3"},
+];
+const TAPE_PRICE=45000;
+const TAPE_ROLLS_PER_BOX=50;
+const TAPE_SQM_PER_ROLL=4;
+const PATTERNS=[
+  {id:"rankeigata",name:"乱形張り",needsTape:true},
+  {id:"tile",name:"タイル調",needsTape:false},
+  {id:"mokume",name:"木目調",needsTape:false},
+  {id:"other",name:"その他",needsTape:false},
+];
+
+const fmt=n=>"¥"+n.toLocaleString();
+const C={
+  bg:"#f5f4f2",white:"#fff",text:"#1a1a1a",sub:"#666",muted:"#999",
+  border:"#e8e5e0",borderLt:"#f0eeea",
+  accent:"#e84a8a",accentDk:"#c2255c",accentLt:"#fef0f5",
+  dark:"#1a1a1a",ok:"#2b8a3e",ng:"#c0392b",gold:"#e67700",
+};
+
+/* ━━━ CALC ━━━ */
+function calcProcesses(sqm,pattern,baseColor,tapeType,hasPreTreat){
+  const procs=[];
+  const batches=Math.ceil(sqm/2.5);
+
+  // 工程7: リキッド水塗布
+  const liqCoatL=sqm/15;
+  const liqCoatCans=Math.ceil(liqCoatL/20);
+  procs.push({
+    id:"p7",step:7,name:"RSリキッド水 塗布",required:true,
+    desc:"原液:水=1:1で希釈し、施工面に塗布",
+    items:[{
+      key:"rsLiquid",name:"RSリキッド（塗布用）",
+      spec:MATERIALS.rsLiquid.size,unitPrice:MATERIALS.rsLiquid.price,
+      qty:liqCoatCans,unit:"缶",
+      detail:`原液${liqCoatL.toFixed(1)}L必要 → ${liqCoatCans}缶`,
+      mix:"原液:水 = 1:1",
+    }],
+  });
+
+  // 工程8: セメント打設
+  const cementKg=batches*12.5;
+  const cementBags=Math.ceil(cementKg/25);
+  const plusG=batches*400;
+  const plusSets=Math.ceil(plusG/9000);
+  const madeG=batches*800;
+  const madeBags=Math.ceil(madeG/20000);
+  const pailCans=Math.ceil(batches/4);
+  const liqBuildL=pailCans*2.5;
+  const liqBuildCans=Math.ceil(liqBuildL/20);
+  procs.push({
+    id:"p8",step:8,name:"セメント打設（造形）",required:true,
+    desc:`${batches}練り（1練り≒2.5㎡）`,
+    items:[
+      {key:"cement",name:"インスタントセメント",spec:MATERIALS.cement.size,unitPrice:MATERIALS.cement.price,
+        qty:cementBags,unit:"袋",detail:`${cementKg}kg → ${cementBags}袋`,mix:"—"},
+      {key:"rsPlus",name:"RSプラス",spec:MATERIALS.rsPlus.size,unitPrice:MATERIALS.rsPlus.price,
+        qty:plusSets,unit:"セット",detail:`${plusG.toLocaleString()}g → ${plusSets}セット`,mix:"セメントに混合"},
+      {key:"rsMade",name:"RSメイド",spec:MATERIALS.rsMade.size,unitPrice:MATERIALS.rsMade.price,
+        qty:madeBags,unit:"袋",detail:`${madeG.toLocaleString()}g → ${madeBags}袋`,mix:"セメントに混合"},
+      {key:"rsLiquid",name:"RSリキッド（打設用）",spec:"ペール缶から取り分け",unitPrice:MATERIALS.rsLiquid.price,
+        qty:liqBuildCans,unit:"缶",detail:`${pailCans}ペール缶 × 原液2.5L = ${liqBuildL}L → ${liqBuildCans}缶`,
+        mix:`ペール缶: 水16〜17L + 原液2.5L`},
+    ],
+  });
+
+  // 工程6: テープ（乱形のみ）
+  if(pattern.needsTape){
+    const rolls=Math.ceil(sqm/TAPE_SQM_PER_ROLL);
+    const boxes=Math.ceil(rolls/TAPE_ROLLS_PER_BOX);
+    const selTape=TAPE_TYPES.find(t=>t.id===tapeType)||TAPE_TYPES[0];
+    procs.push({
+      id:"p6",step:6,name:"RSテープ貼り",required:false,label:"乱形のみ",
+      desc:`${selTape.name}を使用`,
+      items:[{
+        key:"tape",name:`RSテープ ${selTape.name}`,spec:`${TAPE_ROLLS_PER_BOX}巻/箱`,
+        unitPrice:TAPE_PRICE,qty:boxes,unit:"箱",
+        detail:`${rolls}巻必要（1巻≒4㎡）→ ${boxes}箱`,mix:"—",
+      }],
+    });
+  }
+
+  // 工程12: タフミルク水
+  const tafL=sqm/15;
+  const tafCans=Math.ceil(tafL/18);
+  procs.push({
+    id:"p12",step:12,name:"RSタフミルク水 塗布",required:true,
+    desc:"目地色下地。タフミルク:水=1:1で希釈",
+    items:[{
+      key:"rsTafmilk",name:"RSタフミルク",spec:MATERIALS.rsTafmilk.size,
+      unitPrice:MATERIALS.rsTafmilk.price,qty:tafCans,unit:"缶",
+      detail:`原液${tafL.toFixed(1)}L必要 → ${tafCans}缶`,mix:"タフミルク:水 = 1:1",
+    }],
+  });
+
+  // 工程13+15: 着色
+  const bc=BASE_COLORS.find(c=>c.id===baseColor)||BASE_COLORS[0];
+  const bcCans=Math.ceil(sqm/100);
+  const rcCans=Math.max(1,Math.ceil(sqm/400));
+  procs.push({
+    id:"p13",step:"13+15",name:"着色（目地カラー＋石色塗り）",required:true,
+    desc:"目地カラー塗布後、石色を着色",
+    items:[
+      {key:"baseColor",name:`RS基準色 ${bc.name}`,spec:"20kg/缶",unitPrice:bc.price,
+        qty:bcCans,unit:"缶",detail:`${sqm}㎡ ÷ 100㎡/缶 → ${bcCans}缶`,mix:"目地色原液+うすめ液=1:1"},
+      {key:"rsColor",name:"RSカラー（白ぼかし・石色用）",spec:MATERIALS.rsColor.size,
+        unitPrice:MATERIALS.rsColor.price,qty:rcCans,unit:"缶",
+        detail:`メインの約1/4消費 → ${rcCans}缶`,mix:"原液のまま使用"},
+    ],
+  });
+
+  // 工程16: コート
+  const coatL=sqm/20;
+  let coat20=0,coat4=0,coatCost=Infinity;
+  const max20=Math.ceil(coatL/20)+1;
+  for(let n20=0;n20<=max20;n20++){
+    const rem=Math.max(0,coatL-n20*20);
+    const n4=rem>0?Math.ceil(rem/4):0;
+    const cost=n20*26500+n4*8200;
+    if(cost<coatCost){coatCost=cost;coat20=n20;coat4=n4;}
+  }
+  const coatItems=[];
+  if(coat20>0) coatItems.push({key:"rsCoat20",name:"RSコート(20kg)",spec:"20kg/缶",unitPrice:26500,qty:coat20,unit:"缶",detail:``,mix:"水:コート=9:1"});
+  if(coat4>0) coatItems.push({key:"rsCoat4",name:"RSコート(4kg)",spec:"4kg/缶",unitPrice:8200,qty:coat4,unit:"缶",detail:``,mix:"水:コート=9:1"});
+  if(coatItems.length===0) coatItems.push({key:"rsCoat4",name:"RSコート(4kg)",spec:"4kg/缶",unitPrice:8200,qty:1,unit:"缶",detail:``,mix:"水:コート=9:1"});
+  procs.push({
+    id:"p16",step:16,name:"RSコート 塗布（最終仕上げ）",required:true,
+    desc:`コート原液${coatL.toFixed(1)}L必要`,items:coatItems,
+  });
+
+  // オプション: 下地付着処理
+  if(hasPreTreat){
+    procs.push({
+      id:"pOpt",step:"4b",name:"事前下地付着処理",required:false,label:"オプション",
+      desc:"鉄板・鏡面コンクリート等の場合",
+      items:[{
+        key:"preTreat",name:"RSメイド+RSリキッド(原液) 1:1",spec:"要現場判断",
+        unitPrice:0,qty:1,unit:"式",detail:"使用量は現場状況により異なります",mix:"RSメイド:RSリキッド原液=1:1",
+      }],
+    });
+  }
+
+  return procs;
+}
+
+/* ━━━ COMPONENTS ━━━ */
+
+function ProcessCard({proc,overrides,onOverride,taxIncl}){
+  const isManual=!!overrides;
+  const items=proc.items.map((item,i)=>{
+    const qty=isManual&&overrides[i]!=null?overrides[i]:item.qty;
+    const sub=qty*item.unitPrice;
+    return{...item,qty,sub};
+  });
+  const total=items.reduce((s,i)=>s+i.sub,0);
+  const dispTotal=taxIncl?Math.round(total*(1+TAX_RATE)):total;
+
+  const switchManual=()=>onOverride(proc.id,items.map(i=>i.qty));
+  const switchAuto=()=>onOverride(proc.id,null);
+  const adjustQty=(idx,delta)=>{
+    const cur=isManual?[...overrides]:items.map(i=>i.qty);
+    cur[idx]=Math.max(0,cur[idx]+delta);
+    onOverride(proc.id,cur);
+  };
+  const setQty=(idx,val)=>{
+    const cur=isManual?[...overrides]:items.map(i=>i.qty);
+    cur[idx]=Math.max(0,parseInt(val)||0);
+    onOverride(proc.id,cur);
+  };
+
+  return(
+    <div style={{background:C.white,borderRadius:12,marginBottom:14,border:isManual?`2px solid ${C.accent}`:`1px solid ${C.border}`,overflow:"hidden"}}>
+      <div style={{padding:"14px 16px",background:"#fafaf8",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:10}}>
+        <div style={{width:34,height:34,borderRadius:"50%",background:proc.required?C.accent:"#aaa",color:"#fff",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:800,flexShrink:0}}>
+          {proc.step}
+        </div>
+        <div style={{flex:1}}>
+          <div style={{fontSize:16,fontWeight:700,color:C.text}}>{proc.name}</div>
+          {proc.label&&<span style={{fontSize:11,background:"#eee",padding:"2px 8px",borderRadius:4,color:"#888",fontWeight:600}}>{proc.label}</span>}
+        </div>
+        <div style={{textAlign:"right"}}>
+          <div style={{fontSize:17,fontWeight:800,color:C.text}}>{fmt(dispTotal)}</div>
+          {taxIncl&&<div style={{fontSize:10,color:C.muted}}>税込</div>}
+        </div>
+      </div>
+      <div style={{padding:"12px 16px"}}>
+        {proc.desc&&<div style={{fontSize:13,color:C.sub,marginBottom:10,lineHeight:1.6}}>{proc.desc}</div>}
+        {items.map((item,idx)=>(
+          <div key={idx} style={{padding:"10px 0",borderTop:idx?`1px solid ${C.borderLt}`:"none"}}>
+            <div style={{fontSize:15,fontWeight:700,color:C.text}}>{item.name}</div>
+            <div style={{fontSize:12,color:C.muted,marginBottom:6}}>{item.spec} — {fmt(item.unitPrice)}{item.unitPrice>0?`/${item.unit}`:""}</div>
+            {item.mix&&item.mix!=="—"&&(
+              <span style={{display:"inline-block",padding:"3px 10px",borderRadius:5,fontSize:12,fontWeight:600,background:"#f0f0ee",color:"#555",marginBottom:6,marginRight:6}}>{item.mix}</span>
+            )}
+            <div style={{display:"flex",alignItems:"center",gap:8,marginTop:4}}>
+              {isManual?(
+                <>
+                  <button onClick={()=>adjustQty(idx,-1)} style={{width:32,height:32,borderRadius:6,border:`1px solid ${C.border}`,background:C.white,fontSize:18,cursor:"pointer",color:C.muted}}>−</button>
+                  <input type="number" value={item.qty} onChange={e=>setQty(idx,e.target.value)} min="0"
+                    style={{width:50,textAlign:"center",padding:"6px",borderRadius:6,border:`1.5px solid ${C.accent}`,fontSize:15,fontWeight:700,outline:"none"}}/>
+                  <button onClick={()=>adjustQty(idx,1)} style={{width:32,height:32,borderRadius:6,border:`1px solid ${C.border}`,background:C.white,fontSize:18,cursor:"pointer",color:C.muted}}>+</button>
+                  <span style={{fontSize:14,color:C.sub}}>{item.unit}</span>
+                </>
+              ):(
+                <span style={{fontSize:15,fontWeight:700,color:C.accent}}>{item.qty}{item.unit}</span>
+              )}
+              <span style={{flex:1,fontSize:13,color:C.muted,textAlign:"right"}}>{item.unitPrice>0?fmt(item.sub):""}</span>
+            </div>
+            {item.detail&&<div style={{fontSize:12,color:C.muted,marginTop:4}}>{item.detail}</div>}
+          </div>
+        ))}
+      </div>
+      {proc.items.some(i=>i.unitPrice>0)&&(
+        <div style={{padding:"8px 16px 12px",borderTop:`1px solid ${C.borderLt}`,display:"flex",gap:8}}>
+          {!isManual?(
+            <button onClick={switchManual} style={{padding:"6px 14px",borderRadius:6,border:`1.5px solid ${C.accent}`,background:C.white,color:C.accent,fontSize:12,fontWeight:700,cursor:"pointer"}}>✏️ 手動で調整</button>
+          ):(
+            <>
+              <button onClick={switchAuto} style={{padding:"6px 14px",borderRadius:6,border:`1px solid ${C.border}`,background:C.white,color:C.sub,fontSize:12,fontWeight:600,cursor:"pointer"}}>↩ 自動に戻す</button>
+              <span style={{fontSize:11,color:C.accent,fontWeight:600,display:"flex",alignItems:"center"}}>手動モード（0入力可）</span>
+            </>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function RefPanel({open,onClose,taxIncl}){
+  if(!open)return null;
+  const sections=[
+    {title:"打設系",items:[
+      {name:"RSメイド",size:"20kg/袋",price:9500},
+      {name:"RSリキッド",size:"20kg(≒20L)/缶",price:14900},
+      {name:"RSプラス",size:"3kg×3袋(9kg)/セット",price:11900},
+      {name:"インスタントセメント",size:"25kg/袋",price:750},
+    ]},
+    {title:"着色系",items:[
+      {name:"RSカラー",size:"20kg/缶",price:16700},
+      {name:"RSタフミルク",size:"18kg/缶",price:21600},
+      ...BASE_COLORS.map(c=>({name:`RS基準色 ${c.name}`,size:"20kg/缶",price:c.price})),
+    ]},
+    {title:"ブレンドカラー",items:[
+      {name:"カーキ",size:"4kg/本",price:18800},{name:"赤錆",size:"4kg/本",price:18800},
+      {name:"青",size:"4kg/本",price:18800},{name:"ホワイト",size:"4kg/本",price:18800},
+      {name:"スーパーブラック",size:"-",price:16500},
+    ]},
+    {title:"テープ",items:[
+      {name:"RSテープ Type1(太幅)",size:"50巻/箱",price:45000},
+      {name:"RSテープ Type1(細幅)",size:"50巻/箱",price:45000},
+      {name:"RSテープ Type2(太幅)",size:"50巻/箱",price:45000},
+      {name:"RSテープ Type2(細幅)",size:"50巻/箱",price:45000},
+      {name:"RSテープ Type3",size:"50巻/箱",price:45000},
+      {name:"RSテープ 3mm",size:"-",price:13000},
+    ]},
+    {title:"コート・その他",items:[
+      {name:"RSコート(20kg)",size:"20kg/缶",price:26500},
+      {name:"RSコート(4kg)",size:"4kg/缶",price:8200},
+      {name:"RSコートNEO(4kg)",size:"4kg",price:23750},
+      {name:"RS遅延剤(4kg)",size:"4kg",price:17600},
+    ]},
+  ];
+  return(
+    <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,.4)",display:"flex",justifyContent:"center",alignItems:"flex-end"}} onClick={onClose}>
+      <div style={{background:C.white,borderRadius:"14px 14px 0 0",width:"100%",maxWidth:780,maxHeight:"85vh",overflowY:"auto",boxShadow:"0 -4px 20px rgba(0,0,0,.1)"}} onClick={e=>e.stopPropagation()}>
+        <div style={{display:"flex",justifyContent:"center",padding:"10px 0 2px"}}><div style={{width:36,height:4,borderRadius:2,background:C.border}}/></div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"8px 20px 14px",borderBottom:`1px solid ${C.border}`,position:"sticky",top:0,background:C.white,zIndex:1}}>
+          <h2 style={{fontSize:17,fontWeight:700}}>RS材料 単価一覧表</h2>
+          <button onClick={onClose} style={{width:30,height:30,borderRadius:"50%",border:"none",background:C.borderLt,fontSize:14,cursor:"pointer",color:C.sub}}>✕</button>
+        </div>
+        <div style={{padding:"14px 18px 24px"}}>
+          {sections.map(sec=>(
+            <div key={sec.title} style={{marginBottom:18}}>
+              <div style={{fontSize:14,fontWeight:700,color:C.accent,marginBottom:6,paddingLeft:10,borderLeft:`3px solid ${C.accent}`}}>{sec.title}</div>
+              {sec.items.map((item,i)=>(
+                <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"8px 10px",borderBottom:`1px solid ${C.borderLt}`,fontSize:13}}>
+                  <div><span style={{fontWeight:600}}>{item.name}</span><br/><span style={{fontSize:11,color:C.muted}}>{item.size}</span></div>
+                  <div style={{textAlign:"right",fontWeight:700,color:C.text}}>
+                    {fmt(taxIncl?Math.round(item.price*(1+TAX_RATE)):item.price)}
+                    <br/><span style={{fontSize:10,color:C.muted}}>{taxIncl?"税込":"税抜"}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ━━━ MAIN APP ━━━ */
+function App(){
+  const [customerName,setCustomerName]=useState("");
+  const [projectName,setProjectName]=useState("");
+  const [zip,setZip]=useState("");
+  const [addr1,setAddr1]=useState("");
+  const [addr2,setAddr2]=useState("");
+  const [area,setArea]=useState("");
+  const [pattern,setPattern]=useState("rankeigata");
+  const [tapeType,setTapeType]=useState("t1w");
+  const [baseColor,setBaseColor]=useState("milktea");
+  const [optWash,setOptWash]=useState(false);
+  const [optRepair,setOptRepair]=useState(false);
+  const [optPreTreat,setOptPreTreat]=useState(false);
+  const [taxIncl,setTaxIncl]=useState(false);
+  const [calculated,setCalculated]=useState(false);
+  const [overrides,setOverrides]=useState({});
+  const [showRef,setShowRef]=useState(false);
+  // dimension mode
+  const [dimMode,setDimMode]=useState(false);
+  const [spaces,setSpaces]=useState([{l:"",w:""}]);
+
+  const sqm=parseFloat(area)||0;
+  const patternObj=PATTERNS.find(p=>p.id===pattern)||PATTERNS[0];
+
+  // Zip lookup
+  const lookupZip=useCallback(async(z)=>{
+    const clean=z.replace(/[^0-9]/g,"");
+    if(clean.length!==7)return;
+    try{
+      const res=await fetch(`https://zipcloud.ibsnet.co.jp/api/search?zipcode=${clean}`);
+      const data=await res.json();
+      if(data.results&&data.results[0]){
+        const r=data.results[0];
+        setAddr1(`${r.address1}${r.address2}${r.address3}`);
+      }
+    }catch{}
+  },[]);
+
+  useEffect(()=>{
+    const clean=zip.replace(/[^0-9]/g,"");
+    if(clean.length===7)lookupZip(clean);
+  },[zip,lookupZip]);
+
+  // Dimension calc
+  const dimTotal=useMemo(()=>{
+    return spaces.reduce((s,sp)=>{
+      const l=parseFloat(sp.l)||0;
+      const w=parseFloat(sp.w)||0;
+      return s+l*w;
+    },0);
+  },[spaces]);
+
+  const applyDim=()=>{
+    if(dimTotal>0){setArea(dimTotal.toFixed(1));setDimMode(false);}
+  };
+
+  const processes=useMemo(()=>{
+    if(!calculated||sqm<=0)return[];
+    return calcProcesses(sqm,patternObj,baseColor,tapeType,optPreTreat);
+  },[calculated,sqm,patternObj,baseColor,tapeType,optPreTreat]);
+
+  const handleOverride=useCallback((procId,vals)=>{
+    setOverrides(prev=>{
+      const n={...prev};
+      if(vals===null)delete n[procId];else n[procId]=vals;
+      return n;
+    });
+  },[]);
+
+  const grandTotal=useMemo(()=>{
+    return processes.reduce((sum,proc)=>{
+      const ov=overrides[proc.id];
+      return sum+proc.items.reduce((s,item,i)=>{
+        const qty=ov&&ov[i]!=null?ov[i]:item.qty;
+        return s+qty*item.unitPrice;
+      },0);
+    },0);
+  },[processes,overrides]);
+
+  const dispGrand=taxIncl?Math.round(grandTotal*(1+TAX_RATE)):grandTotal;
+  const unitPrice=sqm>0?Math.round(dispGrand/sqm):0;
+
+  const handleCalc=()=>{setOverrides({});setCalculated(true);};
+
+  const inp={width:"100%",padding:"12px 14px",borderRadius:8,border:`1px solid ${C.border}`,fontSize:16,outline:"none",boxSizing:"border-box",background:C.white,color:C.text};
+  const btnSel=(active)=>({
+    padding:"10px 16px",borderRadius:8,fontSize:14,fontWeight:600,
+    border:active?`2px solid ${C.accent}`:`1px solid ${C.border}`,
+    background:active?C.accentLt:C.white,
+    color:active?C.accent:C.sub,cursor:"pointer",
+  });
+
+  return(
+    <div style={{minHeight:"100vh",background:C.bg}}>
+      {/* Header */}
+      <div style={{background:C.dark,padding:"16px 20px",borderBottom:`4px solid ${C.accent}`}}>
+        <div style={{maxWidth:720,margin:"0 auto",display:"flex",alignItems:"center",gap:12}}>
+          <div style={{flex:1}}>
+            <h1 style={{fontSize:18,fontWeight:800,color:"#fff",letterSpacing:".5px"}}>
+              <span style={{color:C.accent}}>ROLLER STONE</span> 材料費シミュレーター
+            </h1>
+            <p style={{fontSize:11,color:"#777",marginTop:2}}>Cement Artist Nu☆Man / 株式会社KENSIN</p>
+          </div>
+          <button onClick={()=>setShowRef(true)} style={{padding:"8px 14px",borderRadius:6,border:`1.5px solid ${C.accent}`,background:"transparent",color:C.accent,fontSize:12,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+            単価表
+          </button>
+        </div>
+      </div>
+
+      <div style={{maxWidth:720,margin:"0 auto",padding:"16px 14px 60px"}}>
+
+        {/* Input */}
+        <div style={{background:C.white,borderRadius:12,padding:20,marginBottom:14,border:`1px solid ${C.border}`}}>
+          <h2 style={{fontSize:15,fontWeight:700,marginBottom:14,paddingBottom:10,borderBottom:`1px solid ${C.borderLt}`}}>現場情報を入力</h2>
+
+          <div style={{marginBottom:12}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:3}}>お客様名</label>
+            <input type="text" value={customerName} onChange={e=>setCustomerName(e.target.value)} placeholder="例：山田太郎 様" style={inp}
+              onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+          </div>
+          <div style={{marginBottom:12}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:3}}>現場名</label>
+            <input type="text" value={projectName} onChange={e=>setProjectName(e.target.value)} placeholder="例：○○邸 玄関アプローチ" style={inp}
+              onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+          </div>
+
+          {/* Address */}
+          <div style={{marginBottom:12}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:3}}>住所</label>
+            <div style={{display:"flex",gap:8,marginBottom:6}}>
+              <input type="text" value={zip} onChange={e=>setZip(e.target.value)} placeholder="郵便番号（7桁）" maxLength={8}
+                style={{...inp,width:160}}
+                onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+              <span style={{fontSize:12,color:C.muted,display:"flex",alignItems:"center"}}>自動反映</span>
+            </div>
+            <input type="text" value={addr1} onChange={e=>setAddr1(e.target.value)} placeholder="都道府県・市区町村（自動反映）" style={{...inp,marginBottom:6}}
+              onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+            <input type="text" value={addr2} onChange={e=>setAddr2(e.target.value)} placeholder="番地・建物名" style={inp}
+              onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+          </div>
+
+          {/* Area */}
+          <div style={{marginBottom:14}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:3}}>施工面積（㎡）</label>
+            {!dimMode?(
+              <div style={{display:"flex",gap:8}}>
+                <input type="number" value={area} onChange={e=>{setArea(e.target.value);setCalculated(false);}}
+                  placeholder="例：30" min="0.1" step="0.1" style={{...inp,flex:1}}
+                  onFocus={e=>e.target.style.borderColor=C.accent} onBlur={e=>e.target.style.borderColor=C.border}/>
+                <button onClick={()=>setDimMode(true)} style={{padding:"10px 12px",borderRadius:8,border:`1px solid ${C.border}`,background:C.white,fontSize:12,fontWeight:600,color:C.sub,cursor:"pointer",whiteSpace:"nowrap"}}>
+                  寸法入力
+                </button>
+              </div>
+            ):(
+              <div style={{background:C.accentLt,borderRadius:8,padding:14,border:`1px solid #f5c0d5`}}>
+                <div style={{fontSize:13,fontWeight:600,color:C.accentDk,marginBottom:8}}>スペース別 寸法入力</div>
+                {spaces.map((sp,i)=>(
+                  <div key={i} style={{display:"flex",gap:6,alignItems:"center",marginBottom:6}}>
+                    <span style={{fontSize:12,color:C.sub,width:24}}>#{i+1}</span>
+                    <input type="number" value={sp.l} onChange={e=>{const n=[...spaces];n[i]={...n[i],l:e.target.value};setSpaces(n);}}
+                      placeholder="L(m)" style={{...inp,flex:1,padding:"8px 10px",fontSize:14}}/>
+                    <span style={{color:C.muted}}>×</span>
+                    <input type="number" value={sp.w} onChange={e=>{const n=[...spaces];n[i]={...n[i],w:e.target.value};setSpaces(n);}}
+                      placeholder="W(m)" style={{...inp,flex:1,padding:"8px 10px",fontSize:14}}/>
+                    {spaces.length>1&&(
+                      <button onClick={()=>setSpaces(spaces.filter((_,j)=>j!==i))}
+                        style={{width:28,height:28,borderRadius:"50%",border:"none",background:"#fde8e8",color:C.ng,fontSize:14,cursor:"pointer"}}>✕</button>
+                    )}
+                  </div>
+                ))}
+                <div style={{display:"flex",gap:8,marginTop:8}}>
+                  <button onClick={()=>setSpaces([...spaces,{l:"",w:""}])}
+                    style={{padding:"6px 12px",borderRadius:6,border:`1px solid ${C.accent}`,background:C.white,color:C.accent,fontSize:12,fontWeight:600,cursor:"pointer"}}>＋ スペース追加</button>
+                  <span style={{flex:1,fontSize:14,fontWeight:700,color:C.accent,display:"flex",alignItems:"center",justifyContent:"flex-end"}}>
+                    合計: {dimTotal.toFixed(1)}㎡
+                  </span>
+                </div>
+                <div style={{display:"flex",gap:8,marginTop:10}}>
+                  <button onClick={applyDim} disabled={dimTotal<=0}
+                    style={{flex:1,padding:"10px",borderRadius:8,border:"none",background:dimTotal>0?C.accent:"#ccc",color:"#fff",fontSize:14,fontWeight:700,cursor:dimTotal>0?"pointer":"default"}}>
+                    この面積で計算
+                  </button>
+                  <button onClick={()=>setDimMode(false)}
+                    style={{padding:"10px 14px",borderRadius:8,border:`1px solid ${C.border}`,background:C.white,color:C.sub,fontSize:13,cursor:"pointer"}}>
+                    戻る
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Pattern */}
+          <div style={{marginBottom:14}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:5}}>造形パターン</label>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {PATTERNS.map(p=>(
+                <button key={p.id} onClick={()=>{setPattern(p.id);setCalculated(false);}} style={btnSel(pattern===p.id)}>{p.name}</button>
+              ))}
+            </div>
+          </div>
+
+          {/* Tape type (乱形 only) */}
+          {patternObj.needsTape&&(
+            <div style={{marginBottom:14}}>
+              <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:5}}>テープ種類</label>
+              <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+                {TAPE_TYPES.map(t=>(
+                  <button key={t.id} onClick={()=>{setTapeType(t.id);setCalculated(false);}} style={btnSel(tapeType===t.id)}>{t.name}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Base color */}
+          <div style={{marginBottom:14}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:5}}>基準色</label>
+            <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {BASE_COLORS.map(c=>(
+                <button key={c.id} onClick={()=>{setBaseColor(c.id);setCalculated(false);}}
+                  style={{...btnSel(baseColor===c.id),fontSize:13}}>
+                  {c.name}<br/><span style={{fontSize:10,opacity:.7}}>{fmt(c.price)}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Options */}
+          <div style={{marginBottom:6}}>
+            <label style={{display:"block",fontSize:12,fontWeight:600,color:C.muted,marginBottom:5}}>オプション</label>
+            {[
+              {key:"wash",label:"高圧洗浄",val:optWash,set:setOptWash,note:"材料費への影響なし"},
+              {key:"repair",label:"下地補修",val:optRepair,set:setOptRepair,note:"材料費への影響なし"},
+              {key:"preTreat",label:"事前下地付着処理",val:optPreTreat,set:setOptPreTreat,note:"鉄板・鏡面コンクリート等"},
+            ].map(opt=>(
+              <label key={opt.key} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 0",cursor:"pointer",borderBottom:`1px solid ${C.borderLt}`}}>
+                <input type="checkbox" checked={opt.val} onChange={e=>{opt.set(e.target.checked);setCalculated(false);}}
+                  style={{width:20,height:20,accentColor:C.accent}}/>
+                <div>
+                  <div style={{fontSize:15,fontWeight:600,color:C.text}}>{opt.label}</div>
+                  <div style={{fontSize:12,color:C.muted}}>{opt.note}</div>
+                </div>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Calc button */}
+        <button onClick={handleCalc} disabled={sqm<=0}
+          style={{width:"100%",padding:"15px",borderRadius:10,border:"none",
+            background:sqm>0?C.accent:"#ccc",color:"#fff",fontSize:17,fontWeight:800,
+            cursor:sqm>0?"pointer":"default",marginBottom:18,
+            boxShadow:sqm>0?"0 3px 12px rgba(232,74,138,.25)":"none"}}>
+          {calculated?"再計算する":"材料費を算出する"}
+        </button>
+
+        {/* Results */}
+        {calculated&&sqm>0&&(
+          <>
+            {/* Summary */}
+            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:10,marginBottom:14}}>
+              {[
+                {l:"材料費合計",v:fmt(dispGrand),hl:true},
+                {l:"㎡単価",v:`${fmt(unitPrice)}/㎡`},
+                {l:"施工面積",v:`${sqm}㎡`},
+              ].map(c=>(
+                <div key={c.l} style={{background:C.dark,borderRadius:10,padding:"14px 10px",textAlign:"center"}}>
+                  <div style={{fontSize:10,color:"#999",marginBottom:3,fontWeight:600}}>{c.l}</div>
+                  <div style={{fontSize:c.hl?18:16,fontWeight:800,color:c.hl?C.accent:"#fff"}}>{c.v}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* Tax toggle */}
+            <div style={{display:"flex",justifyContent:"flex-end",marginBottom:12}}>
+              <button onClick={()=>setTaxIncl(!taxIncl)}
+                style={{padding:"6px 14px",borderRadius:6,border:`1px solid ${C.border}`,background:C.white,fontSize:12,fontWeight:600,color:C.sub,cursor:"pointer"}}>
+                {taxIncl?"税込表示中 → 税抜に切替":"税抜表示中 → 税込に切替"}
+              </button>
+            </div>
+
+            {/* Note */}
+            <div style={{background:C.accentLt,borderRadius:8,padding:"10px 14px",marginBottom:12,border:"1px solid #f5c0d5",fontSize:13,color:C.accentDk,lineHeight:1.6}}>
+              ※1練り（セメント12.5kg）= 約2.5㎡想定。現場条件により前後します。<br/>
+              ※RSリキッドは工程ごとに個別算出しています。<br/>
+              ※着色材の消費量は色・デザインにより変動します（目安値）。
+            </div>
+
+            {/* Process cards */}
+            <h3 style={{fontSize:15,fontWeight:700,margin:"0 0 10px",paddingLeft:10,borderLeft:`3px solid ${C.accent}`}}>
+              工程別 材料明細{projectName&&` — ${projectName}`}
+            </h3>
+
+            {processes.sort((a,b)=>{
+              const order={"4b":1,6:2,7:3,8:4,12:5,"13+15":6,16:7};
+              const getO=s=>order[s]||99;
+              return getO(a.step)-getO(b.step);
+            }).map(proc=>(
+              <ProcessCard key={proc.id} proc={proc} overrides={overrides[proc.id]||null}
+                onOverride={handleOverride} taxIncl={taxIncl}/>
+            ))}
+
+            {/* RSリキッド合計表示 */}
+            {(()=>{
+              let totalLiquidCans=0;
+              processes.forEach(proc=>{
+                const ov=overrides[proc.id];
+                proc.items.forEach((item,i)=>{
+                  if(item.key==="rsLiquid"){
+                    const qty=ov&&ov[i]!=null?ov[i]:item.qty;
+                    totalLiquidCans+=qty;
+                  }
+                });
+              });
+              if(totalLiquidCans>0){
+                return(
+                  <div style={{background:C.white,borderRadius:10,padding:"12px 16px",marginBottom:14,border:`1px solid ${C.border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                    <span style={{fontSize:14,fontWeight:600,color:C.text}}>📦 RSリキッド 発注合計</span>
+                    <span style={{fontSize:16,fontWeight:800,color:C.accent}}>{totalLiquidCans}缶</span>
+                  </div>
+                );
+              }
+              return null;
+            })()}
+
+            {/* Grand total */}
+            <div style={{background:C.dark,borderRadius:12,padding:22,marginTop:8,border:`2px solid ${C.accent}`}}>
+              {processes.map(proc=>{
+                const ov=overrides[proc.id];
+                const t=proc.items.reduce((s,item,i)=>{
+                  const qty=ov&&ov[i]!=null?ov[i]:item.qty;
+                  return s+qty*item.unitPrice;
+                },0);
+                const dt=taxIncl?Math.round(t*(1+TAX_RATE)):t;
+                if(dt===0)return null;
+                return(
+                  <div key={proc.id} style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                    <span style={{color:"#999",fontSize:13}}>{proc.name}</span>
+                    <span style={{color:"#fff",fontSize:14,fontWeight:600}}>{fmt(dt)}</span>
+                  </div>
+                );
+              })}
+              <div style={{borderTop:"1px solid #555",paddingTop:14,marginTop:8,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <span style={{color:"#fff",fontSize:16,fontWeight:800}}>合計{taxIncl?"（税込）":"（税抜）"}</span>
+                <span style={{color:C.accent,fontSize:26,fontWeight:800}}>{fmt(dispGrand)}</span>
+              </div>
+              <div style={{textAlign:"right",marginTop:4}}>
+                <span style={{color:"#999",fontSize:13}}>㎡単価 {fmt(unitPrice)}/㎡</span>
+              </div>
+            </div>
+
+            {/* Clear */}
+            <button onClick={()=>{setOverrides({});setCalculated(false);}}
+              style={{width:"100%",padding:"12px",borderRadius:8,marginTop:14,border:`1px solid ${C.border}`,background:C.white,color:C.sub,fontSize:14,fontWeight:600,cursor:"pointer"}}>
+              条件をクリア
+            </button>
+          </>
+        )}
+      </div>
+
+      <RefPanel open={showRef} onClose={()=>setShowRef(false)} taxIncl={taxIncl}/>
+    </div>
+  );
+}
+
+ReactDOM.render(React.createElement(App),document.getElementById("root"));
+</script>
+</body>
+</html>
