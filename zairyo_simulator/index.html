@@ -618,8 +618,10 @@ function App(){
             {/* Note */}
             <div style={{background:C.accentLt,borderRadius:8,padding:"10px 14px",marginBottom:12,border:"1px solid #f5c0d5",fontSize:13,color:C.accentDk,lineHeight:1.6}}>
               ※1練り（セメント12.5kg）= 約2.5㎡想定。現場条件により前後します。<br/>
+              ※推奨打設厚み: 2mm〜4mm<br/>
               ※RSリキッドは工程ごとに個別算出しています。<br/>
-              ※着色材の消費量は色・デザインにより変動します（目安値）。
+              ※着色材の消費量は色・デザインにより変動します（目安値）。<br/>
+              ※インスタントセメントの価格はエリアにより変動（¥700〜800/25kg袋）
             </div>
 
             {/* Process cards */}
@@ -695,6 +697,14 @@ function App(){
       </div>
 
       <RefPanel open={showRef} onClose={()=>setShowRef(false)} taxIncl={taxIncl}/>
+
+      {/* Footer */}
+      <div style={{background:C.dark,padding:"18px 20px",borderTop:`3px solid ${C.accent}`,textAlign:"center"}}>
+        <div style={{fontSize:12,color:"#777",lineHeight:1.8}}>
+          <span style={{color:C.accent,fontWeight:700}}>ROLLER STONE</span> 材料費シミュレーター v1.0<br/>
+          Cement Artist Nu☆Man / 株式会社KENSIN
+        </div>
+      </div>
     </div>
   );
 }
